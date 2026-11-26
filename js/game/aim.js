@@ -40,8 +40,9 @@
         const c = [];
         if (A.mouse && t - A.mouseT < 20) c.push(['mouse', A.mouseT]);
         if (A.stick[0] && t - A.stickT[0] < 0.25) c.push(['stick', A.stickT[0]]);
-        if (A.drag && t - A.dragT < 1.2) c.push(['drag', A.dragT]);
+        if (A.drag && (A.dragging || t - A.dragT < 0.35)) c.push(['drag', A.dragging ? t + 1 : A.dragT]);
         if (A.tap && t - A.tapT < 2) c.push(['tap', A.tapT]);
+        if (A.autoHold) c.push(['auto', t]); else if (t - A.auto < 0.4) c.push(['auto', A.auto]);
         c.sort((a, b) => b[1] - a[1]);
         src = c.length ? c[0][0] : null;
       } else if (A.stick[slot] && t - (A.stickT[slot] || 0) < 0.25) src = 'stick';
@@ -53,6 +54,13 @@
         dir = m > 10 ? { x: dx / m, y: dy / m } : prev.on ? { x: prev.x, y: prev.y } : { x: pl.facing, y: 0 };
       } else if (src === 'stick') dir = A.stick[slot];
       else if (src === 'drag') dir = A.drag;
+      else if (src === 'auto') {
+        // a tapped skill, or attack held without dragging: the nearest foe, preferring the way you face
+        const o2 = origin(pl);
+        const near = coneTarget(p, o2, pl.facing, 0, 520, Math.PI * 0.55) || coneTarget(p, o2, -pl.facing, 0, 380, Math.PI * 0.55);
+        if (near) { const dx = near.x + near.w / 2 - o2.x, dy = near.y + near.h / 2 - o2.y, m = Math.hypot(dx, dy) || 1; dir = { x: dx / m, y: dy / m }; }
+        else dir = { x: pl.facing, y: 0 };
+      }
       if (!src) { pl.aim = { on: false, x: pl.facing, y: 0 }; return; }
       // aim assist (sticks and touch only): bend toward the enemy closest to where you point
       let lock = null;

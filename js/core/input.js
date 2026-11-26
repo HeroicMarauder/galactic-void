@@ -215,15 +215,16 @@
       // off the button to aim, and the skill fires where you point when you let go.
       const aimable = a === 'attack' || a === 'skill1' || a === 'skill2' || a === 'skill3';
       const deferred = aimable && a !== 'attack';
-      let id = null, ox = 0, oy = 0, dragged = false, fired = false, holdT = null;
-      const fire = () => { if (!fired) { fired = true; press(a); } };
+      let id = null, ox = 0, oy = 0, dragged = false, fired = false, holdT = null, lastM = 0;
+      const fire = () => { if (!fired) { fired = true; if (!dragged) I.aim.auto = performance.now() / 1000; press(a); } };
       el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         id = e.pointerId;
         try { el.setPointerCapture(id); } catch (_) {}
         const r = el.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + r.height / 2;
-        dragged = false; fired = false;
-        if (deferred) holdT = setTimeout(() => { if (id != null && !dragged) fire(); }, 180);
+        dragged = false; fired = false; lastM = 0;
+        if (a === 'attack') I.aim.autoHold = true; // holding attack keeps finding the nearest foe
+        if (deferred) holdT = setTimeout(() => { if (id != null && !dragged) fire(); }, 200);
         else fire();
         el.classList.add('on');
         GV.audio && GV.audio.unlock();
@@ -231,15 +232,23 @@
       if (aimable) el.addEventListener('pointermove', (e) => {
         if (e.pointerId !== id) return;
         const dx = e.clientX - ox, dy = e.clientY - oy, m = Math.hypot(dx, dy);
-        if (m > 22) { dragged = true; I.aim.drag = { x: dx / m, y: dy / m }; I.aim.dragT = performance.now() / 1000; el.classList.add('aiming'); }
+        lastM = m;
+        if (m > 18) {
+          if (!dragged) { clearTimeout(holdT); if (a === 'attack') I.aim.autoHold = false; }
+          dragged = true; I.aim.drag = { x: dx / m, y: dy / m }; I.aim.dragT = performance.now() / 1000; I.aim.dragging = a; el.classList.add('aiming');
+        }
+        el.classList.toggle('cancel', deferred && dragged && m < 18);
       });
       const up = (e) => {
         if (e.pointerId !== id) return;
         id = null;
         clearTimeout(holdT);
-        if (deferred && !fired) { fire(); touchHeld[a] = false; } else release(a);
+        if (a === 'attack') I.aim.autoHold = false;
+        const cancelled = deferred && dragged && lastM < 18; // dragged back onto the button: never mind
+        if (deferred && !fired && !cancelled) { fire(); touchHeld[a] = false; } else release(a);
         if (dragged) I.aim.dragT = performance.now() / 1000;
-        el.classList.remove('on', 'aiming');
+        if (I.aim.dragging === a) I.aim.dragging = null;
+        el.classList.remove('on', 'aiming', 'cancel');
       };
       el.addEventListener('pointerup', up);
       el.addEventListener('pointercancel', up);
@@ -284,7 +293,7 @@
   // The mouse cursor is an aim point; left button attacks, right button uses skill 1, middle skill 2.
   // A right stick aims a direction for whoever holds that pad. On touch, drag a skill button to aim it,
   // or tap the open screen to point at something.
-  I.aim = { mouse: null, mouseT: -1e9, stick: [null, null], stickT: [-1e9, -1e9], drag: null, dragT: -1e9, tap: null, tapT: -1e9, keyT: -1e9 };
+  I.aim = { mouse: null, mouseT: -1e9, stick: [null, null], stickT: [-1e9, -1e9], drag: null, dragT: -1e9, tap: null, tapT: -1e9, keyT: -1e9, auto: -1e9, autoHold: false, dragging: null };
   const nowS = () => performance.now() / 1000;
   addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse') return;
@@ -308,9 +317,8 @@
         I.aim.mouse = { x: e.clientX, y: e.clientY }; I.aim.mouseT = nowS();
         if (!held[a] && !touchHeld[a]) pressed[a] = true;
         touchHeld[a] = true; mouseHeld[a] = true;
-      } else {
-        I.aim.tap = { x: e.clientX, y: e.clientY }; I.aim.tapT = nowS();
       }
+      // touch: the screen itself never aims. Skills aim by dragging their button.
     });
     canvas.addEventListener('wheel', (e) => {
       if (I.inMenu) return;
@@ -319,7 +327,7 @@
       const a = MAP[wc]; if (!a) return;
       e.preventDefault(); pressed[a] = true;
     }, { passive: false });
-    canvas.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse' && e.buttons) { I.aim.tap = { x: e.clientX, y: e.clientY }; I.aim.tapT = nowS(); } });
+
     addEventListener('pointerup', (e) => {
       if (e.pointerType !== 'mouse') return;
       if (I.macroKeys['Mouse' + e.button] != null && I.onMacro) I.onMacro(I.macroKeys['Mouse' + e.button], false);

@@ -538,7 +538,9 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('on'));
     setTimeout(() => { el.classList.remove('on'); setTimeout(() => el.remove(), 900); }, 5200);
-    el.addEventListener('click', () => { el.classList.remove('on'); setTimeout(() => el.remove(), 600); });
+    // it never swallows input: any tap or key clears it, and the touch buttons work right through it
+    const dismiss = () => { el.classList.remove('on'); setTimeout(() => el.remove(), 600); removeEventListener('pointerdown', dismiss, true); removeEventListener('keydown', dismiss, true); };
+    addEventListener('pointerdown', dismiss, true); addEventListener('keydown', dismiss, true);
   };
   const ss = () => {
     const G = GV.game; if (!G) return;

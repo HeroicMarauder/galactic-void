@@ -166,7 +166,7 @@ body.touch.playing #touch { display: block; }
 #pad .knob { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 58); height: calc(var(--u) * 58); transform: translate(0, 0); margin: calc(var(--u) * -29) 0 0 calc(var(--u) * -29); border-radius: 50%; background: rgba(143, 233, 255, 0.25); border: 1px solid rgba(143, 233, 255, 0.6); pointer-events: none; }
 #pad .arr { position: absolute; color: rgba(255, 255, 255, 0.4); font-size: 14px; pointer-events: none; }
 #pad .l { left: 14px; top: 50%; transform: translateY(-50%); } #pad .r { right: 14px; top: 50%; transform: translateY(-50%); } #pad .d { bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 10px; }
-#btns { position: absolute; right: calc(12px + env(safe-area-inset-right)); bottom: calc(12px + env(safe-area-inset-bottom)); width: calc(var(--u) * 290); height: calc(var(--u) * 220); pointer-events: none; }
+#btns { position: absolute; right: calc(10px + env(safe-area-inset-right)); bottom: calc(10px + env(safe-area-inset-bottom)); width: calc(var(--u) * 350); height: calc(var(--u) * 216); pointer-events: none; }
 .tb { position: absolute; pointer-events: auto; touch-action: none; border-radius: 50%; padding: 0; font-size: 11px; font-weight: 700; letter-spacing: 1px; overflow: hidden;
   background: rgba(10, 14, 26, 0.5); border: 1.5px solid rgba(143, 233, 255, 0.4); color: #e8f1ff; -webkit-user-select: none; user-select: none; }
 .tb.on { background: rgba(143, 233, 255, 0.35); transform: scale(.94); }
@@ -176,13 +176,15 @@ body.touch.playing #touch { display: block; }
 .tb.sk.low { border-color: rgba(90, 140, 255, 0.5); background: rgba(30, 50, 110, 0.5); }
 .tb.sk.hon { box-shadow: 0 0 16px rgba(255, 120, 60, 0.8); border-color: #ff7a4a; }
 .tb.sk.empty { opacity: .35; }
-.tb.jump { width: calc(var(--u) * 86); height: calc(var(--u) * 86); right: 0; bottom: 0; border-color: rgba(143, 233, 255, 0.75); }
-.tb.dash { width: calc(var(--u) * 54); height: calc(var(--u) * 54); right: calc(var(--u) * 16); bottom: calc(var(--u) * 100); }
-.tb.atk { width: calc(var(--u) * 76); height: calc(var(--u) * 76); right: calc(var(--u) * 96); bottom: calc(var(--u) * 2); border-color: rgba(255, 48, 72, 0.75); }
-.tb.s1 { width: calc(var(--u) * 58); height: calc(var(--u) * 58); right: calc(var(--u) * 182); bottom: calc(var(--u) * 8); }
-.tb.s2 { width: calc(var(--u) * 58); height: calc(var(--u) * 58); right: calc(var(--u) * 168); bottom: calc(var(--u) * 82); }
-.tb.s3 { width: calc(var(--u) * 58); height: calc(var(--u) * 58); right: calc(var(--u) * 88); bottom: calc(var(--u) * 96); }
-.tb.act { width: calc(var(--u) * 44); height: calc(var(--u) * 44); right: calc(var(--u) * 238); bottom: calc(var(--u) * 92); border-color: rgba(255, 180, 70, 0.6); }
+/* Right thumb cluster. Measured centre to centre, every pair keeps at least ~30 units of clear space,
+   and Dash sits well above Jump (not touching it) so a thumb reaching for Jump can't catch Dash. */
+.tb.jump { width: calc(var(--u) * 92); height: calc(var(--u) * 92); right: 0; bottom: 0; border-color: rgba(143, 233, 255, 0.75); }
+.tb.atk { width: calc(var(--u) * 80); height: calc(var(--u) * 80); right: calc(var(--u) * 120); bottom: calc(var(--u) * 6); border-color: rgba(255, 48, 72, 0.75); }
+.tb.dash { width: calc(var(--u) * 58); height: calc(var(--u) * 58); right: calc(var(--u) * 16); bottom: calc(var(--u) * 150); border-color: rgba(143, 233, 255, 0.55); }
+.tb.s1 { width: calc(var(--u) * 62); height: calc(var(--u) * 62); right: calc(var(--u) * 234); bottom: calc(var(--u) * 16); }
+.tb.s2 { width: calc(var(--u) * 62); height: calc(var(--u) * 62); right: calc(var(--u) * 212); bottom: calc(var(--u) * 112); }
+.tb.s3 { width: calc(var(--u) * 62); height: calc(var(--u) * 62); right: calc(var(--u) * 106); bottom: calc(var(--u) * 132); }
+.tb.act { width: calc(var(--u) * 46); height: calc(var(--u) * 46); right: calc(var(--u) * 300); bottom: calc(var(--u) * 166); border-color: rgba(255, 180, 70, 0.6); }
 #flasks { position: absolute; left: calc(14px + env(safe-area-inset-left)); bottom: calc(14px + env(safe-area-inset-bottom) + var(--u) * 140); display: flex; gap: 10px; pointer-events: none; }
 .tb.fl { position: relative; width: calc(var(--u) * 46); height: calc(var(--u) * 46); font-size: calc(var(--u) * 18); }
 .tb.fl.life { border-color: rgba(255, 79, 98, 0.7); } .tb.fl.chg { border-color: rgba(143, 233, 255, 0.7); }
@@ -502,7 +504,7 @@ body.photo #tipCard { display: none; }
 .actTag img { width: 38px; height: 38px; border-radius: 6px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--ac) 60%, transparent), 0 4px 14px rgba(0, 0, 0, 0.5); }
 .actTag span { font-size: 11px; letter-spacing: 3px; color: var(--ac); text-transform: uppercase; font-weight: 700; }
 #actCard { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px; background: radial-gradient(circle at 40% 50%, rgba(10, 6, 18, 0.55), rgba(0, 0, 0, 0.92)); opacity: 0; transition: opacity 0.8s; pointer-events: none; }
-#actCard.on { opacity: 1; pointer-events: auto; }
+#actCard.on { opacity: 1; }
 #actCard img { width: min(42vh, 40vw); height: auto; border-radius: 6px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); transform: scale(0.96); transition: transform 5s ease-out; }
 #actCard.on img { transform: scale(1.02); }
 #actCard div { display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
@@ -537,7 +539,7 @@ body.photo #tipCard { display: none; }
 #qcWheel.on { display: flex; }
 #qcWheel button { padding: 8px 12px; border-radius: 10px; background: rgba(8, 10, 18, 0.92); color: #e8f0ff; border: 1px solid rgba(143, 233, 255, 0.45); font: inherit; font-size: 13px; }
 #qcWheel button i { font-style: normal; color: #8fe9ff; margin-right: 6px; font-size: 11px; }
-.tb.ping { display: none; } body.online .tb.ping { display: block; width: calc(var(--u) * 38); height: calc(var(--u) * 38); right: calc(var(--u) * 246); bottom: calc(var(--u) * 146); border-color: rgba(143, 233, 255, 0.6); font-size: calc(var(--u) * 15); }
+.tb.ping { display: none; } body.online .tb.ping { display: block; width: calc(var(--u) * 40); height: calc(var(--u) * 40); right: calc(var(--u) * 296); bottom: calc(var(--u) * 100); border-color: rgba(143, 233, 255, 0.6); font-size: calc(var(--u) * 15); }
 /* ---- vault / guild bank ---- */
 .vaultui .vtabs { display: flex; flex-wrap: wrap; gap: 4px; } .vaultui .vtabs .tab i { font-style: normal; color: #8fe9ff; font-size: 11px; margin-left: 3px; }
 .vaultui .vtools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
@@ -896,3 +898,11 @@ body.touch #picker { display: none; }
 .atrial .atb b { font-size: 16px; color: #fff; } .atrial .atb small { color: #aab6cf; font-size: 12.5px; } .atrial .atb em { font-style: normal; font-size: 12px; color: var(--c); }
 .atrial.lock .atb em { color: #8f9bb6; }
 .ascwin h2, .ascfail h2 { color: var(--c); }
+
+/* dragging a skill aims it; drag back onto the button to cancel */
+.tb.sk.aiming { transform: scale(1.06); }
+.tb.sk.cancel { box-shadow: 0 0 0 3px rgba(255, 79, 98, 0.75) !important; }
+.tb.sk.cancel::before { content: '✕'; position: absolute; inset: 0; display: grid; place-items: center; color: #ff4f62; font-size: calc(var(--u) * 26); z-index: 2; }
+.tb { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+#touch, #touch * { -webkit-touch-callout: none; }
+@media (max-height: 500px) { .tree-regions button small { display: none; } .tree-regions button { padding: 4px 9px; } .tree-regions button b { font-size: 11.5px; } }

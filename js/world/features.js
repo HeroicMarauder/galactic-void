@@ -189,7 +189,7 @@
   // ---------- minimap: the shapes of what you've explored ----------
   P.drawMinimap = function (ctx, W, H) {
     if (this.trial || this.titanMode || !this.feat || GV.settings.data.minimap === false) return;
-    const L = this.L, F = this.feat, cell = 200, mw = 190, mh = 64, x0 = W - mw - 14, y0 = H - mh - 70;
+    const touch = GV.input.isTouch, L = this.L, F = this.feat, cell = 200, mw = touch ? 150 : 190, mh = touch ? 50 : 64, x0 = W - mw - 14, y0 = touch ? 96 : H - mh - 70; // on phones it sits up top, clear of the thumb buttons
     const span = 2600, sc = mw / span, pl = this.player;
     const left = U.clamp(pl.cx - span * 0.4, -200, Math.max(-200, L.length - span));
     const cy = pl.cy, top = cy - (mh / sc) * 0.55;
