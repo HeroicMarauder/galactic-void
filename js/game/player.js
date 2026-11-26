@@ -46,6 +46,14 @@
       this.weapon = GV.equippedWeapon(d);
       this.kit = GV.kitLook(d);
       this.skills = GV.inv.barGems().map((g) => (g ? GV.Skills.build(g, st, this.weapon) : null));
+      // A gun, bow or crossbow takes over the basic attack for every class: a spell or a ranged attack in
+      // slot 1 becomes a weapon attack with the same level and augments. (Ion Shot is the pistol's own shot.)
+      const W0 = this.weapon, s0 = this.skills[0];
+      if (s0 && W0 && (W0.gun || W0.gun2) && s0.kind !== 'melee' && !(s0.id === 'ionshot' && (W0.gun || W0.gun2) === 'pistol')) {
+        const g = GV.Skills.build({ id: 'strike', lvl: s0.L, sup: s0.gem.sup || [] }, st, W0);
+        if (g) { g.gem = s0.gem; g.name = W0.name; g.gunFrom = s0.name; this.skills[0] = g; }
+      }
+      else if (s0 && W0 && (W0.gun || W0.gun2) && s0.id === 'strike' && !W0.dual) s0.name = W0.name;
       if (this.herald) {
         const i = this.skills.findIndex((s) => s && s.kind === 'herald');
         this.herald = i >= 0 ? this.skills[i] : null;

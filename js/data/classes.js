@@ -31,7 +31,7 @@
       desc: 'Star-forged mace, Aegis shield, and rites that burn the ground. Holds the line and lights it on fire.',
       weapon: 'starmace', offhand: 'aegis', start: 'paladin', color: '#ffd36b', kit: { helm: 'crest', suit: 'plate', boots: 'std' },
       look: { cloak: '#3a2f1f', visor: '#ffd36b', glow: 'rgba(255,210,110,0.35)', suit: '#e6dcc4' },
-      stats: { block: 10, ward: 20, spellDmg: 15, meleeDmg: 12 },
+      stats: { block: 10, ward: 20, spellDmg: 15, meleeDmg: 12, life: 15 },
       bar: [['strike', 1], ['shcharge', 1], ['nova', 2], ['sanct', 1]],
       supports: ['expanse', 'ember'],
       treeHint: 'Starts between Hull and Psyche: block, void ward, spells and fire.',

@@ -66,7 +66,7 @@
     // the old paired kits are split into their two halves
     ionpistol: { name: 'Ion Pistol', hand: 'one', desc: 'One-handed. Quick ion shots.', cost: 60, dmg: 14, cd: 0.22, range: 52, h: 26, active: 0.09, knock: 160, color: '#7dffcf', art: 'pistol' },
     voiddagger: { name: 'Void Dagger', hand: 'one', desc: 'One-handed. Short, fast and vicious from stealth.', cost: 50, dmg: 12.5, cd: 0.17, range: 44, h: 24, active: 0.07, knock: 130, color: '#9fffe8', crit: 10, art: 'dagger' },
-    starmace: { name: 'Star Mace', hand: 'one', desc: 'One-handed. Solid, steady blows.', cost: 60, dmg: 21, cd: 0.36, range: 70, h: 48, active: 0.12, knock: 300, color: '#ffd36b', art: 'mace' },
+    starmace: { name: 'Star Mace', hand: 'one', desc: 'One-handed. Solid, steady blows.', cost: 60, dmg: 23, cd: 0.36, range: 70, h: 48, active: 0.12, knock: 300, color: '#ffd36b', art: 'mace' },
     aegis: { name: 'Aegis Shield', hand: 'off', desc: 'Off-hand shield. Blocks 20% of hits, +40 armour.', cost: 70, block: 20, armour: 40, color: '#ffd36b', art: 'shield' },
     bulwark: { name: 'Hull Bulwark', hand: 'off', desc: 'Off-hand tower shield. Blocks 28% of hits, +90 armour, 6% slower.', cost: 140, block: 28, armour: 90, slowMove: 6, color: '#9fb4d8', art: 'shield' },
     // the new classes' kits
