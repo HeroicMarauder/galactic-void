@@ -330,7 +330,8 @@
     // ---------- helmet ----------
     const hy = HEAD + (run ? Math.sin(p * 2) * 0.4 : 0), hx = lean * 8;
     ctx.save(); ctx.translate(hx, hy);
-    if (Hm === 'organic') {
+    if (o.noHelm && A.drawHead) { A.drawHead(ctx, o, t, fl); } // helmet off: the wearer's own head
+    else if (Hm === 'organic') {
       const g = ctx.createRadialGradient(-3, -4, 2, 0, 0, 13); g.addColorStop(0, C('#7a4558')); g.addColorStop(1, C('#3e1f2b'));
       ctx.fillStyle = g; A.ellipse(ctx, 0, 0, 11.5, 11);
       ctx.strokeStyle = C('#2a141c'); ctx.lineWidth = 1; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(-1, 0, 5 + i * 2.5, -2.4, -0.6); ctx.stroke(); }
@@ -389,7 +390,7 @@
     }
     ctx.restore();
     // visor glow in world space
-    if (!fl && (o.alpha == null || o.alpha > 0.3)) {
+    if (!fl && !o.noHelm && (o.alpha == null || o.alpha > 0.3)) {
       const sc = o.scale || 1;
       A.glow(ctx, x + (4 + hx) * f * sc, y + (hy - 1) * sc, 20 * sc, o.visorGlow || 'rgba(120,225,255,0.35)');
       if (Hm === 'halo') A.glow(ctx, x + hx * f * sc, y + (hy - 15) * sc, 22 * sc, 'rgba(255,233,168,0.35)');

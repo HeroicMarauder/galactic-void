@@ -52,7 +52,7 @@
     M.render(`<div class="screen panel wide crewscreen"><div class="topbar"><h2>Crew Quarters</h2><div class="stats">${memIcon} ${d.memories}</div></div>
       ${msg ? `<p class="ok">${esc(msg)}</p>` : '<p class="muted">The people who made it aboard. Build out their rooms for permanent bonuses, and drop by once a day.</p>'}
       <div class="crewgrid">${cards}</div>
-      <div class="menu row">${GV.raceChange ? `<button data-a="race">Race · ${esc((GV.RACES[GV.raceOf(d)] || {}).name || 'Human')}</button>` : ''}<button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'race' && GV.raceChange) return GV.raceChange(() => M.wardrobe()); if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
+      <div class="menu row">${GV.creator ? '<button class="primary" data-a="look">Appearance</button>' : ''}${GV.raceChange ? `<button data-a="race">Race · ${esc((GV.RACES[GV.raceOf(d)] || {}).name || 'Human')}</button>` : ''}<button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'look' && GV.creator) return GV.creator.edit(() => M.wardrobe()); if (a === 'race' && GV.raceChange) return GV.raceChange(() => M.wardrobe()); if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
     bindL((a, b) => {
       const k = b.dataset.k, C = GV.CREW[k], st = (c[k] = c[k] || { lv: 0 });
       if (a === 'room') { const cost = ROOM_COST[st.lv || 0]; if ((st.lv || 0) < 3 && d.memories >= cost) { d.memories -= cost; st.lv = (st.lv || 0) + 1; flash(`${C.room} upgraded.`); GV.audio.sfx('level'); } }
@@ -197,7 +197,7 @@
       const g = cv.getContext('2d'), t = now / 1000;
       g.clearRect(0, 0, 220, 220);
       GV.art.glow(g, 110, 120, 90, 'rgba(120,160,255,0.12)');
-      GV.art.spaceman(g, 110, 200, { facing: 1, t, scale: 2.6, cloak: look.cloak, visor: look.visor, visorGlow: look.glow, suit: look.suit, kit, gear: W.art, gearColor: W.color, off: W.offArt, offColor: W.offColor, race: GV.raceOf ? GV.raceOf(d) : undefined });
+      GV.art.spaceman(g, 110, 200, { facing: 1, t, scale: 2.6, cloak: look.cloak, visor: look.visor, visorGlow: look.glow, suit: look.suit, kit, gear: W.art, gearColor: W.color, off: W.offArt, offColor: W.offColor, race: GV.raceOf ? GV.raceOf(d) : undefined, custom: d.look && GV.lookOf ? GV.lookOf(d) : undefined });
       requestAnimationFrame(draw);
     };
     requestAnimationFrame(draw);

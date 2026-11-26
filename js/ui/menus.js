@@ -117,15 +117,19 @@
         if (a === 'pick' && forP2) { const lv = GV.save.main.level || 1; GV.save.as(1, (d2) => { GV.save.chooseClass(b.dataset.k); d2.level = lv; }); GV.save.main.coop.on = true; GV.save.write(); return M.coop(); }
         if (a === 'pick') {
           const fresh = !!GV.save.data.fresh, k = b.dataset.k;
-          const go = (race) => {
+          const go = (race, look) => {
             delete GV.save.data.fresh;
             GV.save.chooseClass(k);
             if (race) GV.save.data.race = race;
+            if (look) GV.save.data.look = look;
             GV.save.write();
             if (migrating && !fresh) GV.game.home(); else GV.game.startStage(0, 0);
           };
           // a brand-new character also chooses a race (existing ones change it in the Wardrobe)
-          if (GV.raceSelect && (!migrating || fresh)) return GV.raceSelect(k, go, () => M.classSelect(opts));
+          if (GV.raceSelect && (!migrating || fresh)) {
+            const pickRace = () => GV.raceSelect(k, (race) => (GV.creator ? GV.creator.open({ cls: k, race, done: (look) => go(race, look), back: pickRace }) : go(race)), () => M.classSelect(opts));
+            return pickRace();
+          }
           go(null);
         }
       }, () => (forP2 ? M.coop() : M.title()));

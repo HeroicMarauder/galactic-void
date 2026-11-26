@@ -207,7 +207,7 @@
   }
   function lookOf(d) {
     const W = GV.equippedWeapon(d), dy = GV.dyeLook ? GV.dyeLook(d) : {};
-    return { cls: d.cls, kit: GV.kitLook(d), art: W.art, color: W.color, off: W.offArt || null, offColor: W.offColor || null, dye: dy, rank: d.level };
+    return { cls: d.cls, kit: GV.kitLook(d), art: W.art, color: W.color, off: W.offArt || null, offColor: W.offColor || null, dye: dy, rank: d.level, race: d.race || 'human', custom: d.look || null };
   }
   // Starting a stage while hosting tells the joiner which one, with the seed, so both build it.
   function wrapStarts() {
@@ -454,6 +454,8 @@
     pl.cls = look.cls; pl.kit = look.kit || pl.kit;
     pl.weapon = Object.assign({}, pl.weapon, { art: look.art, color: look.color, offArt: look.off, offColor: look.offColor });
     pl._dye = look.dye || {};
+    pl._race = GV.RACES && GV.RACES[look.race] ? look.race : 'human';
+    pl._custom = look.custom && typeof look.custom === 'object' ? look.custom : null;
   }
 
   // ---------------- the joiner's frame ----------------
