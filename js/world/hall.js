@@ -215,7 +215,7 @@
     I.clear(); GV.audio.sfx('ui');
     const id = s.id;
     if (id === 'table' || id === 'ring' || id === 'radio') return openConsole(p, id);
-    if (id === 'altar' && !GV.asc.unlocked()) { p.toast('The altar is dark · it wakes once you reach the Ascendancy', 2, 'small'); return; }
+    if (id === 'altar' && !GV.asc.unlocked() && !GV.asc.reqMet()) { p.toast('The altar is dark · ' + GV.asc.reqText(), 2.6, 'small'); return; }
     if (id === 'airlock' && p.netGuest) { p.toast('Couch co-op is set up on your own ship', 1.6, 'small'); return; }
     menu(p, (back) => {
       if (id === 'vault') GV.vault.open(GV.vault.solo, back);
@@ -235,7 +235,7 @@
       if (id === 'hangar') { H.returnTo = back; M.hangar(); }
       if (id === 'engine') { H.returnTo = back; engineOpen = true; lan0.call(M); }
       if (id === 'chart') GV.treeView.open('play');
-      if (id === 'altar') GV.ascendView.open('play');
+      if (id === 'altar') { if (GV.asc.unlocked() && GV.asc.current()) GV.ascendView.open('play'); else { H.returnTo = back; M.ascTrials(back); } }
     });
   }
   // The codex station: the codex itself, plus the story so far (each act you've reached).
@@ -700,7 +700,7 @@
       ctx.strokeStyle = '#ff9a4a'; ctx.lineWidth = 3; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x, y - 64, 14 + i * 10, t * (1 + i * 0.4), t * (1 + i * 0.4) + 4); ctx.stroke(); }
     }
     if (s.id === 'chart') { ctx.fillStyle = '#141a28'; ctx.beginPath(); ctx.arc(x, y - 90, 40, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(x - 4, y - 50, 8, 50); ctx.strokeStyle = 'rgba(143,233,255,0.6)'; ctx.lineWidth = 1; for (let i = 0; i < 9; i++) { const a = i * 0.7 + t * 0.2, r = 10 + (i % 3) * 10; ctx.fillStyle = '#8fe9ff'; ctx.fillRect(x + Math.cos(a) * r - 1.5, y - 90 + Math.sin(a) * r - 1.5, 3, 3); } const pts = GV.TREE && GV.TREE.points ? GV.TREE.points() : 0; if (pts > 0) { ctx.fillStyle = '#ffd36b'; ctx.font = `700 10px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillText(`+${pts}`, x, y - 136); } }
-    if (s.id === 'altar') { const on = GV.asc && GV.asc.unlocked(); ctx.fillStyle = '#241e2e'; ctx.beginPath(); ctx.moveTo(x - 36, y); ctx.lineTo(x - 22, y - 70); ctx.lineTo(x + 22, y - 70); ctx.lineTo(x + 36, y); ctx.fill(); if (on) { ctx.globalCompositeOperation = 'lighter'; A.glow(ctx, x, y - 96, 36, 'rgba(255,211,107,0.4)'); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#ffd36b'; ctx.font = `700 22px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillText('✦', x, y - 86 + Math.sin(t * 2) * 4); } }
+    if (s.id === 'altar') { const on = GV.asc && (GV.asc.unlocked() || GV.asc.reqMet()); ctx.fillStyle = '#241e2e'; ctx.beginPath(); ctx.moveTo(x - 36, y); ctx.lineTo(x - 22, y - 70); ctx.lineTo(x + 22, y - 70); ctx.lineTo(x + 36, y); ctx.fill(); if (on) { ctx.globalCompositeOperation = 'lighter'; A.glow(ctx, x, y - 96, 36, 'rgba(255,211,107,0.4)'); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#ffd36b'; ctx.font = `700 22px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillText('✦', x, y - 86 + Math.sin(t * 2) * 4); } }
     if (s.id === 'ring') { ctx.fillStyle = '#2a2230'; A.rrect(ctx, x - 26, y - 100, 52, 100, 8); ctx.fillStyle = '#ff9a4a'; ctx.globalAlpha = 0.5 + 0.4 * Math.sin(t * 3); ctx.fillRect(x - 16, y - 88, 32, 6); ctx.globalAlpha = 1; ctx.font = `700 16px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillText('⚔', x, y - 52); const r = main().pvp; if (r) { ctx.font = `600 10px ${C.FONT}`; ctx.fillStyle = '#c9b49a'; ctx.fillText(`${r.w || 0}W ${r.l || 0}L`, x, y - 30); } }
     // label + prompt
     ctx.font = `700 10px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = near ? '#fff' : 'rgba(232,240,255,0.45)';

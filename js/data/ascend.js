@@ -89,7 +89,11 @@
   }
   GV.asc = {
     VER: 2,
-    unlocked() { return !!d().cleared['0-2'] && !!d().cls; },
+    // A late-game system: clear the third system and reach rank 18. (Anyone who already ascended keeps it.)
+    REQ_SYS: 2, REQ_RANK: 18,
+    reqMet() { return !!d().cleared[`${this.REQ_SYS}-2`] && (d().level || 1) >= this.REQ_RANK; },
+    unlocked() { return !!d().cls && (this.reqMet() || !!(d().asc && d().asc.sub)); },
+    reqText() { const sys = GV.UNIVERSE.system(this.REQ_SYS); const st = sys.stages[2]; const boss = st && (st.bossName || (GV.BOSSES[st.boss] || {}).name); return `Clear ${sys.name}${boss ? ` (defeat ${boss})` : ''} and reach rank ${this.REQ_RANK}.`; },
     choices() { return GV.ASCEND[d().cls] || []; },
     current() { const a = d().asc; return a && a.sub ? this.choices().find((c) => c.id === a.sub) : null; },
     tree(sub) { sub = sub || this.current(); return sub ? treeOf(sub) : []; },
@@ -98,7 +102,7 @@
     total() {
       if (!this.unlocked()) return 0;
       let n = 4;
-      for (let s = 1; s < 10; s++) if (d().cleared[`${s}-2`]) n += 2;
+      for (let s = this.REQ_SYS + 1; s < 14; s++) if (d().cleared[`${s}-2`]) n += 2;
       return Math.min(this.CAP, n);
     },
     // Old (first-edition) ascendancy picks are refunded for free; your subclass stays.

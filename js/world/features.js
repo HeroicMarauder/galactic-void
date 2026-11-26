@@ -123,7 +123,7 @@
       this.toast('The room opens', 1.4, 'small'); this.sfx('level');
       const cx = am.x + am.w / 2;
       for (let i = 0; i < 14; i++) this.drops.push({ x: cx, y: am.floorY - 60, vx: (Math.random() - 0.5) * 500, vy: -300 - Math.random() * 300, w: 10, h: 10, kind: 'mem', val: 3 + this.diff, age: 0 });
-      if (Math.random() < 0.6) this.dropItem(cx, am.floorY - 60, {});
+      if (Math.random() < 0.35 * (GV.legacy ? GV.legacy.qty() : 1)) this.dropItem(cx, am.floorY - 60, {});
     }
   };
 

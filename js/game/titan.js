@@ -526,7 +526,8 @@
         const u = GV.UNIQUES.find((x) => x.name === HEART[T.id]);
         if (u) this.drops.push({ x: b.x + b.w / 2, y: b.y + b.h / 2, vx: 0, vy: -500, w: 14, h: 14, kind: 'item', item: { uid: GV.save.data.uid++, slot: u.slot, rarity: 'unique', tier: u.tier, name: u.name, base: GV.SLOTS[u.slot].bases[u.tier - 1], mods: Object.assign({}, u.mods), flavor: u.flavor }, age: 0 });
       }
-      for (let i = 0; i < 6; i++) this.dropItem(b.x + b.w / 2 + (i - 2.5) * 30, b.y + b.h / 2, { boss: true });
+      const nT = 3 + (Math.random() < 0.5 * (GV.legacy ? GV.legacy.qty() : 1) ? 1 : 0);
+      for (let i = 0; i < nT; i++) this.dropItem(b.x + b.w / 2 + (i - (nT - 1) / 2) * 30, b.y + b.h / 2, { boss: true });
       this.gainMem(Math.round(400 * (1 + 0.3 * this.diff)));
       this.toast(`${T.def.name.toUpperCase()} FELLED`, 3); this.toasts[this.toasts.length - 1].sub = first ? 'Its heart is yours' : `Felled ${d.titans[T.id]} times`;
       this.L.exit = { x: this.arena.w - 110, y: this.arena.floorY };

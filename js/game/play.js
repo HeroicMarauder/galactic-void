@@ -226,11 +226,13 @@
       const rw = this.sd.reward;
       const firstKill = !d.cleared[`${this.sysIdx}-${this.stIdx}`];
       const bx = b.x + b.w / 2, by = b.y + b.h / 2;
-      this.dropGem(bx - 30, by, 'skill', Math.min(3, GV.progress.dropTier(this.diff) + 1));
-      this.dropGem(bx + 30, by, 'support', Math.min(3, GV.progress.dropTier(this.diff) + 1));
+      // one blank core from a boss, sometimes two (Legacy makes it more likely)
+      const bt = Math.min(3, GV.progress.dropTier(this.diff) + 1), first2 = Math.random() < 0.5 ? 'skill' : 'support';
+      this.dropGem(bx - 30, by, first2, bt);
+      if (Math.random() < 0.3 * (GV.legacy ? GV.legacy.qty() : 1)) this.dropGem(bx + 30, by, first2 === 'skill' ? 'support' : 'skill', bt);
       if (firstKill || Math.random() < 0.5) this.dropOrb(bx, by);
       this.dropItem(bx, by - 20, { boss: true });
-      this.dropCur(bx - 30, by - 20); this.dropCur(bx + 30, by - 20);
+      this.dropCur(bx - 30, by - 20); if (Math.random() < 0.4 * (GV.legacy ? GV.legacy.qty() : 1)) this.dropCur(bx + 30, by - 20);
       if (firstKill) this.dropItem(bx + 20, by - 20, { boss: true });
       if (firstKill) { d.orbs = (d.orbs || 0) + 1; lines.push('+1 FLUX COUPLER. Use it on a Star Core to add an augment port.'); }
       if (rw === 'dash' && !d.abilities.dash) {
@@ -382,7 +384,7 @@
           if (tp.stealth > 0 && tp.decoy) this.player = { x: tp.decoy.x, y: tp.decoy.y, w: tp.w, h: tp.h, cx: tp.decoy.x + 12, cy: tp.decoy.y + 25, facing: tp.facing };
           const sp0 = e.spd;
           if (e.spd != null) e.spd = sp0 * ail.spd;
-          try { e.def.update(e, this, dt * (e.boss ? (1 - (1 - ail.spd) * 0.5) : 1)); }
+          try { e.def.update(e, this, dt * (e.boss ? (1 - (1 - ail.spd) * 0.5) * (e.haste || 1) : 1)); }
           finally { if (e.spd != null) e.spd = sp0; this.player = realPl; }
         } else { e.vx = 0; if (e.def.fly) e.vy = 0; }
         if (e.def.fly) { e.x += e.vx * dt; e.y += e.vy * dt; if (e.knockT > 0) e.vy *= Math.max(0, 1 - dt * 6); }

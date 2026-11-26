@@ -156,7 +156,8 @@
   };
 
   GV.progress = {
-    xpNeed: (lvl) => Math.round(30 * Math.pow(lvl, 1.5)),
+    // steeper than before, most of all in the first ranks: each one should be earned
+    xpNeed: (lvl) => Math.round(55 * Math.pow(lvl, 1.6) + 45),
     stageOpen(s, t) {
       const d = GV.save.data, c = d.cleared;
       if (s > 0 && !d.shipFound) return false;

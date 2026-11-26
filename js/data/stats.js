@@ -74,6 +74,7 @@
     if (GV.shardStats) add(GV.shardStats());
     const ascC = GV.asc ? GV.asc.collect() : { stats: {}, flags: {} };
     add(ascC.stats);
+    if (GV.legacy) add(GV.legacy.echoStats());
     Object.assign(ascC.flags, tFlags);
     addFx(ascC.fx); if (ascC.tm) tm.push(...ascC.tm);
     const w = GV.equippedWeapon(d);

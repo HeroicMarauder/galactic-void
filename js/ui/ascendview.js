@@ -15,7 +15,8 @@
     const M = GV.menus, esc = M.esc, A = GV.asc, d = GV.save.data;
     const cls = GV.CLASSES[d.cls];
     if (!A.unlocked()) {
-      M.render(`<div class="screen panel narrow"><h2>Ascendancy</h2><p>Defeat the Hollow Warden at the Event Horizon to ascend. Your class will choose one of two paths, each with powers that change how your skills work.</p>
+      if (A.reqMet()) return M.ascTrials(() => back(aFrom));
+      M.render(`<div class="screen panel narrow"><h2>Ascendancy</h2><p>${esc(A.reqText())} Then pass the Trial of the Threshold at the altar on the Lantern.</p><p class="note">You're rank ${d.level || 1}. Ascending lets your class choose one of two paths, each a tree of powers that change how your skills work.</p>
         <div class="menu row"><button class="primary" data-a="back">Back</button></div></div>`, () => back(aFrom), () => back(aFrom));
       return;
     }
@@ -62,7 +63,7 @@
     const kindName = { start: 'Ascendancy', small: 'Discipline', notable: 'Signature power', capstone: 'Capstone · choose one' }[n.kind];
     M.render(`<div class="screen panel wide asc asctree" style="--c:${sub.color}">
       <div class="topbar"><h2>${esc(sub.name)}</h2><div class="stats"><b class="pts">${A.points()}</b> point${A.points() === 1 ? '' : 's'} · ${A.spent()}/${A.CAP} spent</div></div>
-      <p>${esc(sub.tag)}. Ascending gives 4 points, and every later system you clear gives 2 more, up to ${A.CAP}.${d.asc.note ? ' <span class="warn">Ascendancies have been rebuilt as trees: your old picks were refunded.</span>' : ''}</p>
+      <p>${esc(sub.tag)}. The Trial of the Threshold gave you 4 points; each later Ascension Trial gives 2 more, up to ${A.CAP}.${d.asc.note ? ' <span class="warn">Ascendancies have been rebuilt as trees: your old picks were refunded.</span>' : ''}</p>
       <div class="atwrap">
         <div class="atree"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${links}</svg>${tr.map(nodeEl).join('')}</div>
         <div class="adetail">
@@ -73,8 +74,9 @@
             return got.filter((x, i) => got.findIndex((y) => y.name === x.name) === i).map((x) => `<div class="aitem ${x.kind}">${esc(x.name)}${seen[x.name] > 1 ? ` ×${seen[x.name]}` : ''}</div>`).join('') || '<p class="note">Nothing taken yet. Tap a glowing node.</p>'; })()}</div>
         </div>
       </div>
-      <div class="menu row">${A.spent() ? `<button class="ghost" data-a="respec">Reset tree · ${A.respecCost()} ✦</button>` : ''}<button class="primary" data-a="back">Done</button></div></div>`, (a, b) => {
+      <div class="menu row"><button data-a="trials">Ascension Trials · ${GV.ascTrials.done()}/4</button>${A.spent() ? `<button class="ghost" data-a="respec">Reset tree · ${A.respecCost()} ✦</button>` : ''}<button class="primary" data-a="back">Done</button></div></div>`, (a, b) => {
       if (a === 'back') { if (d.asc.note) { d.asc.note = false; } return back(aFrom); }
+      if (a === 'trials') return M.ascTrials(() => ascend());
       if (a === 'sel') { if (aSel === b.dataset.k && A.canTake(byId[aSel])) { if (A.take(aSel)) GV.audio.sfx('level'); } else { aSel = b.dataset.k; GV.audio.sfx('ui'); } }
       if (a === 'take' && A.take(b.dataset.k)) GV.audio.sfx('level');
       if (a === 'respec') { if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to reset'; b.classList.add('danger'); return; } A.respec(); }

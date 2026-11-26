@@ -106,7 +106,7 @@
     if (sup.excl && sup.excl.some((x) => tags.has(x))) return false;
     return sup.req.includes('*') || sup.req.some((r) => tags.has(r));
   };
-  GV.gemXpNeed = (lvl) => Math.round(28 * Math.pow(lvl, 1.65));
+  GV.gemXpNeed = (lvl) => Math.round(40 * Math.pow(lvl, 1.65));
   GV.MAX_GEM_LVL = 20;
   GV.MAX_SOCKETS = 5;
 })();

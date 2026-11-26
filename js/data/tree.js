@@ -189,7 +189,8 @@
     // Passive points come only from ranks: 2 to start, +1 per rank, capped so no build can take
     // the whole tree. Around an eighth of it: you have to choose.
     CAP: 60,
-    total() { return Math.min(this.CAP, (save().level || 1) + 1); },
+    // +1 per rank, and a bonus point at every tenth rank
+    total() { const L = save().level || 1; return Math.min(this.CAP, L + 1 + Math.floor(L / 10)); },
     // A save from the old (first-edition) tree, or one holding more than the rules allow, gets a
     // free reset. Also covers the loadouts.
     migrate(d) {

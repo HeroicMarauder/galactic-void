@@ -41,7 +41,7 @@ window.GV.ORB_NAME = () => window.GV.TERMS.orb;
 // health and damage compound too. diff = system × 3 + stage. "Rank pressure": being well above
 // the expected rank for a system toughens its enemies, so out-levelling never trivialises it.
 window.GV.SCALE = {
-  expectedRank: (diff) => 4 + Math.round(diff * 2.35),
+  expectedRank: (diff) => 3 + Math.round(diff * 1.75),
   pressure(diff) {
     const d = window.GV.save && (window.GV.save.main || window.GV.save.data);
     const over = Math.max(0, ((d && d.level) || 1) - this.expectedRank(diff));

@@ -108,7 +108,7 @@
   function myCharacter() {
     const d = JSON.parse(JSON.stringify(GV.save.data));
     for (const k of GV.save.SHARED) delete d[k];
-    delete d.coop; delete d.frontier; delete d.tips; delete d.actsSeen;
+    delete d.coop; delete d.frontier; delete d.tips; delete d.actsSeen; delete d.roster; delete d.bank; // not your other characters or your vault
     return d;
   }
   // Clean what a joiner sent into a normal save shape (unknown keys are dropped by normalize).

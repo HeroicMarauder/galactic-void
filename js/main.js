@@ -69,6 +69,7 @@
       if (p.depth && GV.startDepths) return GV.startDepths(p.depth.n, p.depth.seed);
       if (p.hunt && GV.startHunt) return GV.startHunt();
       if (p.titanMode) return this.startTitan(p.sysIdx);
+      if (p.trial && p.trial.asc && GV.ascTrials) return GV.ascTrials.start(p.trial.asc.n);
       if (p.trial) return this.startTrial(p.sysIdx, p.trial.curses, !!p.trial.daily);
       if (p.stIdx >= 0) return this.startStage(p.sysIdx, p.stIdx);
       return this.toMap();

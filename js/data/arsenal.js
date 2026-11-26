@@ -29,7 +29,7 @@
       const k = Object.keys(it.mods)[0];
       it.mods = { [k]: Math.max(1, Math.round(it.mods[k] * 0.7)) };
       it.rarity = 'normal'; it.name = `Salvaged ${it.base}`;
-    } else if (it.rarity === 'rare' && Math.random() < (boss ? 0.18 : 0.08) + tier * 0.02) {
+    } else if (it.rarity === 'rare' && Math.random() < ((boss ? 0.09 : 0.035) + tier * 0.01) * (GV.legacy ? GV.legacy.rar() : 1)) {
       // Nova: fill to five modifiers, then supercharge one
       let guard = 0;
       while (Object.keys(it.mods).length < 5 && guard++ < 10) { const m = GV.items.rollMod(it.slot, it.tier, it.mods); if (m) it.mods[m[0]] = m[1]; }

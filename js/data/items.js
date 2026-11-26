@@ -98,7 +98,8 @@
       tier = Math.max(1, Math.min(3, tier));
       const slot = opts.slot || Object.keys(GV.SLOTS)[Math.floor(Math.random() * 4)];
       const r = Math.random();
-      const uniqueChance = opts.boss ? 0.12 : 0.03;
+      const RR = GV.legacy ? GV.legacy.rar() : 1; // Legacy rarity
+      const uniqueChance = (opts.boss ? 0.06 : 0.012) * RR;
       if (r < uniqueChance) {
         const pool = GV.UNIQUES.filter((u) => u.tier <= tier + 1 && !u.quest);
         if (pool.length) {
@@ -106,7 +107,7 @@
           return { uid: GV.save.data.uid++, slot: u.slot, rarity: 'unique', tier: u.tier, name: u.name, base: GV.SLOTS[u.slot].bases[u.tier - 1], mods: Object.assign({}, u.mods), flavor: u.flavor };
         }
       }
-      const rare = opts.boss || r < 0.3;
+      const rare = (opts.boss && Math.random() < 0.7) || r < 0.16 * RR;
       const n = rare ? 3 + (Math.random() < 0.35 + tier * 0.1 ? 1 : 0) : 1 + (Math.random() < 0.5 ? 1 : 0);
       const mods = {};
       for (const [k, a, b] of pickN(POOL[slot], n)) mods[k] = roundStat(k, rnd(a, b) * TIER_MUL[tier]);

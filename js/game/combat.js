@@ -24,6 +24,7 @@
     toast(msg, t = 2.5, kind = 'big') { this.toasts.push({ msg, t, max: t, kind }); },
 
     gainXP(n) {
+      if (GV.legacy) n *= GV.legacy.xpMul();
       if (this.coop) for (const P2 of this.players.slice(1)) {
         if (P2.holo || !P2.slot) continue;
         const up = GV.save.as(P2.slot, (d2) => {
@@ -37,13 +38,13 @@
       const P1 = (this.players || [this.player])[0];
       const d = GV.save.data;
       d.xp += Math.round(n);
-      let up = false;
+      let up = false; const was = d.level;
       while (d.xp >= GV.progress.xpNeed(d.level)) { d.xp -= GV.progress.xpNeed(d.level); d.level++; up = true; }
       if (up) {
         P1.recalc();
         P1.hp = P1.maxHp;
-        this.toast(`${this.coop ? 'P1 · ' : ''}RANK ${d.level}`, 2.2);
-        this.toasts[this.toasts.length - 1].sub = d.level + 1 <= GV.TREE.CAP ? '+1 passive point · T to open the tree' : 'Passive tree at its limit';
+        if (GV.rankUp) GV.rankUp(this, was, d.level);
+        else { this.toast(`${this.coop ? 'P1 · ' : ''}RANK ${d.level}`, 2.2); this.toasts[this.toasts.length - 1].sub = '+1 passive point · T to open the tree'; }
         this.sfx('level');
         this.burst(P1.cx, P1.cy, 40, this.pal.glow, 260, 0.9, 3);
       }
@@ -93,9 +94,10 @@
       if (e.splitting) for (const s of [-1, 1]) { const c = this.spawnEnemy(e.type, cx + s * 20, e.y + e.h, true); c.hp = c.maxHp = e.maxHp * 0.12; c.vx = s * 200; }
       if (e.elite) {
         for (let i = 0; i < 6; i++) this.drops.push({ x: cx, y: cy, vx: (Math.random() - 0.5) * 300, vy: -250 - Math.random() * 200, w: 10, h: 10, kind: 'mem', val: 1, age: 0 });
-        if (Math.random() < 0.45) this.dropItem(cx, cy);
-        if (Math.random() < 0.12) this.dropGem(cx, cy, Math.random() < 0.5 ? 'skill' : 'support');
-        if (Math.random() < 0.3) this.dropCur(cx, cy);
+        const Q = GV.legacy ? GV.legacy.qty() : 1;
+        if (Math.random() < 0.22 * Q) this.dropItem(cx, cy);
+        if (Math.random() < 0.06 * Q) this.dropGem(cx, cy, Math.random() < 0.5 ? 'skill' : 'support');
+        if (Math.random() < 0.16 * Q) this.dropCur(cx, cy);
       }
       for (const P of this.players || [pl]) if (!P.dead) P.flaskGain(e.boss ? 3 : e.def.heavy ? 0.5 : 0.2);
       if (pl.herald && !e.boss) GV.Skills.heraldBurst(this, e, pl.herald);
@@ -106,9 +108,10 @@
       const memF = (e.def.mem || 1) * (1 + pl.st.memFind / 100), memN = Math.floor(memF) + (Math.random() < memF % 1 ? 1 : 0);
       for (let i = 0; i < memN; i++) this.drops.push({ x: cx, y: cy, vx: (Math.random() - 0.5) * 240, vy: -200 - Math.random() * 200, w: 10, h: 10, kind: 'mem', val: 1, age: 0 });
       if (Math.random() < 0.08) this.drops.push({ x: cx, y: cy, vx: 0, vy: -260, w: 12, h: 12, kind: 'hp', val: 0.14, age: 0 });
-      if (Math.random() < (e.def.heavy ? 0.1 : 0.035) * (1 + 0.2 * ((GV.save.data.ship || {}).scanner || 0))) this.dropItem(cx, cy);
-      if (Math.random() < 0.012 + this.diff * 0.002) this.dropGem(cx, cy, Math.random() < 0.55 ? 'support' : 'skill');
-      else if (Math.random() < 0.006) this.dropOrb(cx, cy);
+      const Q = GV.legacy ? GV.legacy.qty() : 1;
+      if (Math.random() < (e.def.heavy ? 0.045 : 0.014) * Q * (1 + 0.15 * ((GV.save.data.ship || {}).scanner || 0))) this.dropItem(cx, cy);
+      if (Math.random() < (0.005 + this.diff * 0.0008) * Q) this.dropGem(cx, cy, Math.random() < 0.55 ? 'support' : 'skill');
+      else if (Math.random() < 0.003 * Q) this.dropOrb(cx, cy);
     },
     dropGem(x, y, kind, tier) {
       this.drops.push({ x, y, vx: (Math.random() - 0.5) * 200, vy: -380, w: 14, h: 14, kind: 'uncut', gk: kind, tier: tier || GV.progress.dropTier(this.diff), age: 0 });
@@ -134,8 +137,9 @@
         this.text(rf.x + rf.w / 2, rf.y - 10, 'RIFT SEALED', this.pal.glow, 16);
         this.gainXP(12 * (1 + 0.25 * this.diff));
         for (let i = 0; i < 3; i++) this.drops.push({ x: rf.x + rf.w / 2, y: rf.y + 30, vx: (Math.random() - 0.5) * 260, vy: -260, w: 10, h: 10, kind: 'mem', val: 1, age: 0 });
-        if (Math.random() < 0.18) this.dropGem(rf.x + rf.w / 2, rf.y + 30, Math.random() < 0.5 ? 'support' : 'skill');
-        if (Math.random() < 0.15) this.dropItem(rf.x + rf.w / 2, rf.y + 30);
+        const Q = GV.legacy ? GV.legacy.qty() : 1;
+        if (Math.random() < 0.09 * Q) this.dropGem(rf.x + rf.w / 2, rf.y + 30, Math.random() < 0.5 ? 'support' : 'skill');
+        if (Math.random() < 0.07 * Q) this.dropItem(rf.x + rf.w / 2, rf.y + 30);
       }
     },
 
