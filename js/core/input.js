@@ -59,6 +59,9 @@
       this.saveBinds(); I.clear();
     },
     reloadBinds() { loadBinds(); },
+    // Text with {action} placeholders, filled with the player's current keys ("{attack}" -> "LMB").
+    // {left/right} joins two actions; {a|b} lists both bindings' first keys.
+    fill(str) { return String(str || '').replace(/\{([a-z0-9|\/]+)\}/gi, (m, k) => k.split(/([|\/])/).map((x) => (x === '|' ? ' / ' : x === '/' ? ' / ' : (BINDS[x] ? keyName((BINDS[x] || []).filter(Boolean)[0]) : x))).join('')); },
     usePreset(name) { try { localStorage.setItem(BKEY, JSON.stringify({ preset: name })); } catch (e) {} loadBinds(); I.clear(); },
     saveBinds() { for (const x in BINDS) BINDS[x] = BINDS[x].slice(0, 3); try { localStorage.setItem(BKEY, JSON.stringify({ preset: I.bindPreset, binds: BINDS, custom: true })); } catch (e) {} rebuild(); GV.sync && GV.sync.changed && GV.sync.changed(); },
     inMenu: true,

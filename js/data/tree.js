@@ -143,6 +143,14 @@
     link(core, ln); link(ln, inner[-90]); link(ln, inner[-30]);
   }
 
+  // A start between two others joins the first node of each neighbour's outward path, so it can
+  // branch into both arms (paths never run through another class's start).
+  const besideStart = (st, ...angles) => { for (const a of angles) for (const b of nodes[inner[a]].adj) {
+    const n = nodes[b]; if (b === core || n.type === 'classStart' || Object.values(inner).includes(b) || nodes[st].adj.includes(b)) continue; link(st, b);
+  } };
+  besideStart(classStart.symbiote, 30, 90);
+  besideStart(classStart.lancer, -90, -30);
+
   const GROUPS = {
     core: { name: 'Core', hue: 45 }, hull: { name: 'Hull', hue: 352 }, drift: { name: 'Drift', hue: 158 }, psyche: { name: 'Psyche', hue: 200 },
     hd: { name: "Duelist's Circle", hue: 28 }, dp: { name: 'Spellslinger', hue: 265 }, ph: { name: 'Void Communion', hue: 310 },

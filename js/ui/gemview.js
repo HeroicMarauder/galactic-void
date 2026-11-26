@@ -3,7 +3,7 @@
 (function () {
   const GV = window.GV;
   let from = 'map', sel = 0, picker = null;
-  const KEYS = ['J', 'K', 'L', 'I'];
+  const KEYS = new Proxy([], { get: (t, i) => (/^\d+$/.test(i) ? GV.input.label(['attack', 'skill1', 'skill2', 'skill3'][i]) : t[i]) });
   const TOUCH = ['ATK', 'S1', 'S2', 'S3'];
 
   const tagChips = (tags) => [...tags].map((t) => `<span class="chip">${t}</span>`).join('');

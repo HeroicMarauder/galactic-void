@@ -19,7 +19,7 @@
   GV.BOSSES = {
     // ---------------- Rift Leviathan: bursts out of the floor where it was warned ----------------
     leviathan: {
-      w: 84, h: 84, hp: 520, dmg: 22, xp: 170, mem: 55, fly: true, burrow: true,
+      w: 84, h: 84, hp: 520, dmg: 22, xp: 170, mem: 55, fly: true, burrow: true, recover: 'mark',
       spawn(p, A_) { return { x: A_.x + A_.w / 2 - 42, y: A_.floorY + 40 }; },
       update(e, p, dt) {
         const enr = e.hp < e.maxHp * 0.5, ar = p.arena;
@@ -389,7 +389,7 @@
           case 'diveWarn': e.vx = 0; e.vy = 0; if (e.tt <= 0) go(e, 'dive', 2); break;
           case 'dive':
             e.vx = 0; e.vy = 1500;
-            if (e.y + e.h >= ar.floorY) {
+            if (e.y + e.h >= ar.floorY - 2 || e.tt <= 0) {
               e.y = ar.floorY - e.h; e.vy = 0;
               p.shake(14); p.sfx('slam'); waves(p, e.x + e.w / 2, ar.floorY, e.dmg, 460);
               go(e, 'land', 0.6);
@@ -405,7 +405,8 @@
           case 'sweepWarn': e.vx = 0; e.vy = 0; if (e.tt <= 0) go(e, 'sweep', 2); break;
           case 'sweep':
             e.vy = 0; e.vx = e.sweepDir * 1150;
-            if ((e.sweepDir > 0 && e.x > ar.x + ar.w - e.w - 20) || (e.sweepDir < 0 && e.x < ar.x + 20)) { e.vx = 0; go(e, 'idle', 0.5); }
+            // bosses are held 30px off the arena walls, so the sweep ends at that line (or after its time)
+            if ((e.sweepDir > 0 && e.x >= ar.x + ar.w - e.w - 34) || (e.sweepDir < 0 && e.x <= ar.x + 34) || e.tt <= 0) { e.vx = 0; go(e, 'idle', 0.5); }
             break;
           case 'summon':
             float(e.x, e.y, 2);

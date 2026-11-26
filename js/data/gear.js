@@ -30,8 +30,8 @@
   };
 
   GV.ABILITIES = {
-    dash: { name: 'Phase Dash', color: '#8fe9ff', glyph: '»', how: 'Shift or DASH. Dash through blue void membranes.' },
+    dash: { name: 'Phase Dash', color: '#8fe9ff', glyph: '»', how: '{dash} to dash. Dash through blue void membranes.' },
     grip: { name: 'Grav Grip', color: '#7dffb0', glyph: '⇈', how: 'Hold toward a wall to cling. Jump to kick off it.' },
-    hook: { name: 'Grapple Line', color: '#ffd36b', glyph: '⚓', how: 'In the air, press TALK / INTERACT near a gold anchor ring to zip to it and hang. A Tether Hook that hits a ring does the same.' },
+    hook: { name: 'Grapple Line', color: '#ffd36b', glyph: '⚓', how: 'In the air, press {interact} near a gold anchor ring to zip to it and hang. A Tether Hook that hits a ring does the same.' },
   };
 })();

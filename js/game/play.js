@@ -235,10 +235,10 @@
       if (firstKill) { d.orbs = (d.orbs || 0) + 1; lines.push('+1 FLUX COUPLER. Use it on a Star Core to add an augment port.'); }
       if (rw === 'dash' && !d.abilities.dash) {
         d.abilities.dash = true;
-        lines.push('PHASE DASH ACQUIRED.', GV.ABILITIES.dash.how, 'Blue membranes sealed caches back in the Drift Shelf. Return and take what is yours.');
+        lines.push('PHASE DASH ACQUIRED.', I.fill(GV.ABILITIES.dash.how), 'Blue membranes sealed caches back in the Drift Shelf. Return and take what is yours.');
       } else if (rw === 'hook' && !d.abilities.hook) {
         d.abilities.hook = true;
-        lines.push('GRAPPLE LINE ACQUIRED.', GV.ABILITIES.hook.how, 'Gold anchor rings hang over caches you could never reach before, all the way back to the Kharon Drift.');
+        lines.push('GRAPPLE LINE ACQUIRED.', I.fill(GV.ABILITIES.hook.how), 'Gold anchor rings hang over caches you could never reach before, all the way back to the Kharon Drift.');
       } else if (rw === 'grip' && !d.abilities.grip) {
         d.abilities.grip = true;
         lines.push('GRAV GRIP ACQUIRED.', GV.ABILITIES.grip.how, 'Green-marked shafts hold memory caches. Old drifts are worth revisiting.');
@@ -389,6 +389,8 @@
         else { e.vy = Math.min(C.MAXFALL, (e.vy || 0) + C.GRAV * dt); this.moveBody(e, dt); }
         if (e.boss) {
           const ar = this.arena;
+          // watchdog: no boss move lasts this long, so a boss stuck in one is put back to its rest state
+          if (e.st !== e.wdSt) { e.wdSt = e.st; e.wdT = 0; } else if ((e.wdT += dt) > 9 && e.st !== 'intro' && e.def.update && !e.def.titan && !e.def.anomaly) { e.st = e.def.recover || 'idle'; e.tt = 0.4; e.did = false; e.vx = 0; e.vy = 0; e.alpha = 1; e.wdT = 0; }
           e.x = U.clamp(e.x, ar.x + 30, ar.x + ar.w - 30 - e.w);
           if (e.def.fly && !e.def.burrow) e.y = U.clamp(e.y, ar.top - 20, ar.floorY - e.h);
         }
@@ -534,7 +536,7 @@
       if (!step) return;
       A.glow(ctx, g.x, g.y - 24, 50, 'rgba(160,220,255,0.18)');
       A.spaceman(ctx, g.x, g.y, { facing: this.player.cx > g.x ? 1 : -1, t: this.t, alpha: 0.38 + Math.sin(this.t * 3) * 0.08, cloak: '#2a3f55', suit: '#9fd8ff', visor: '#e8fbff', air: true });
-      const scheme = I.pad ? 'pad' : I.isTouch ? 'touch' : 'kb', txt = step[scheme] || step.kb;
+      const scheme = I.pad ? 'pad' : I.isTouch ? 'touch' : 'kb', txt = I.fill(step[scheme] || step.kb);
       ctx.save(); ctx.font = `600 13px ${C.FONT}`; ctx.textAlign = 'center';
       const w = Math.min(340, ctx.measureText(txt).width + 26), bx = g.x - w / 2, by = g.y - 92;
       ctx.globalAlpha = Math.min(1, g.t * 3);

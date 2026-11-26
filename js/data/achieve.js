@@ -115,11 +115,11 @@
 // The tutorial ghost's lessons, in order. Each finishes when you do the thing (on/need),
 // walk far enough (dist), or after a while (time).
 window.GV.TUTORIAL = [
-  { kb: 'Move with A / D or the arrow keys', touch: 'Slide the left pad to move', pad: 'Move with the left stick or D-pad', dist: 220 },
-  { kb: 'Jump with W or Space. Jump again in the air', touch: 'Tap ⤒ to jump, and again in the air', pad: 'Press A to jump, and again in the air', on: ['jump'], need: 2, time: 12 },
-  { kb: 'Attack with J', touch: 'Tap the big button to attack', pad: 'Press X to attack', on: ['attack'], need: 3, time: 12 },
-  { kb: 'Skills: K, L and I. They spend charge', touch: 'Your skills are the smaller buttons', pad: 'Skills: Y, LB and RB', on: ['skill1', 'skill2', 'skill3'], need: 1, time: 12 },
-  { kb: 'Q drinks a life flask, R a charge flask', touch: 'The red and blue vials are your flasks', pad: 'LT and RT drink your flasks', on: ['flask1', 'flask2'], need: 1, time: 9 },
+  { kb: 'Move with {left} / {right}', touch: 'Slide the left pad to move', pad: 'Move with the left stick or D-pad', dist: 220 },
+  { kb: 'Jump with {jump}. Jump again in the air', touch: 'Tap ⤒ to jump, and again in the air', pad: 'Press A to jump, and again in the air', on: ['jump'], need: 2, time: 12 },
+  { kb: 'Attack with {attack}. Aim with the mouse', touch: 'Tap the big button to attack', pad: 'Press X to attack', on: ['attack'], need: 3, time: 12 },
+  { kb: 'Skills: {skill1}, {skill2} and {skill3}. They spend charge', touch: 'Your skills are the smaller buttons', pad: 'Skills: Y, LB and RB', on: ['skill1', 'skill2', 'skill3'], need: 1, time: 12 },
+  { kb: '{flask1} drinks a life flask, {flask2} a charge flask', touch: 'The red and blue vials are your flasks', pad: 'LT and RT drink your flasks', on: ['flask1', 'flask2'], need: 1, time: 9 },
   { kb: 'Grab the ✦ memories. They buy everything', touch: 'Grab the ✦ memories. They buy everything', pad: 'Grab the ✦ memories. They buy everything', time: 6 },
   { kb: 'The rifts never stop. Push on to the boss', touch: 'The rifts never stop. Push on to the boss', pad: 'The rifts never stop. Push on to the boss', dist: 500, time: 10 },
 ];
