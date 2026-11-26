@@ -2,10 +2,11 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-16',
-  title: 'Bug Pass',
+  id: '2026.11.26-17',
+  title: 'Pause Fix',
   notes: [
-    'Fixed: the Appearance and Race buttons were on the Crew Quarters screen instead of the Wardrobe',
-    'Fixed: an old paired class kit you are still holding (like the original Ion Pistol & Dagger) now shows on the Weapons screen, so you can switch back to it',
+    'Fixed: on phones, tapping Pause while another finger was on the stick or a button did nothing, so the fight kept going (and could kill you behind the menu you expected)',
+    'Pause now reacts the instant your finger touches it',
+    'The game also pauses itself if it loses focus: a notification, the app switcher, or clicking another window (not in online co-op, where your squad plays on)',
   ],
 };

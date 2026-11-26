@@ -138,8 +138,17 @@
   };
 
   canvas.addEventListener('pointerdown', () => { GV.audio.unlock(); I.tap(); });
-  document.getElementById('pauseBtn').addEventListener('click', () => { GV.audio.unlock(); G.pause(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) G.pause(); });
+  // Pause on the touch itself, not on 'click': a phone sends no click for a tap made while another
+  // finger is still on the stick or a button, so pausing mid-fight used to be ignored.
+  const pb = document.getElementById('pauseBtn');
+  pb.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); GV.audio.unlock(); G.pause(); });
+  pb.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); GV.audio.unlock(); G.pause(); }, { passive: false });
+  pb.addEventListener('click', () => { GV.audio.unlock(); G.pause(); });
+  // losing focus (a notification, the app switcher, another window) pauses too, except online where the squad plays on
+  const autoPause = () => { const net = GV.net && GV.net.room && GV.net.partner; if (!net) G.pause(); };
+  addEventListener('blur', autoPause);
+  addEventListener('pagehide', autoPause);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) G.pause(); }); // the squad can't pause online, but a hidden tab still opens the menu
 
   let last = performance.now(), fpsN = 0, fpsT = 0, fps = 60, musicN = 0;
   function frame(now) {
