@@ -41,7 +41,8 @@
     if (AF.bash && gem.id === 'shcharge') { s.more *= 1.5; s.stunMul = 2; }
     s.isAttack = tags.has('Attack'); s.isSpell = tags.has('Spell');
     s.W = W; s.st = st;
-    s.base = def.eff ? W.dmg * def.eff(L) : def.dmg ? def.dmg(L) : 0;
+    // spells and minions grow with their core's level; weapons don't, so spells grow a bit more gently
+    s.base = def.eff ? W.dmg * def.eff(L) : def.dmg ? def.dmg(1) + (def.dmg(L) - def.dmg(1)) * 0.6 : 0;
     let types = Object.assign({}, def.types || {});
     if (s.brutal) { types = types.phys ? { phys: types.phys } : {}; s.extra = {}; }
     const inc = st.inc.all + (tags.has('Melee') ? st.inc.melee : 0) + (tags.has('Projectile') ? st.inc.proj : 0) +

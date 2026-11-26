@@ -2,14 +2,15 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-1',
-  title: 'The Great Expansion',
+  id: '2026.11.26-2',
+  title: 'Hard Vacuum',
   notes: [
-    'A rebuilt passive tree: about 500 nodes in eight class regions, with a class-only Signature notable for each class',
-    'Ascendancies are now trees of their own, each with two capstones to choose between',
-    'Minions: Void Hounds, Spore Brood, Lantern Wisps, Rift Colossus, Rallying Command and Unstable Bond, plus four minion Augments',
-    'Filters, search and sorting in Vesper\'s Trade, Star Cores and Gear',
-    'Matching grab and drag cursors for every cursor style',
-    'Your passive tree and ascendancy points have been refunded for free',
+    'Rebalance: enemies have about 35% more Life and hit about 30% harder, and they move faster',
+    'Bosses now last 30 to 60 seconds instead of 5 to 15',
+    'Movement speed now tops out at +30%, and Attack and Cast Speed above +40% count half',
+    'Spells and minions grow more gently with Star Core level, so classes stay closer together',
+    'Toned down Spore Brood, Sentry Turret, Star Spark, Cryo Shards, Rift Bolt, Ion Shot and the Starcaller; Knight and Paladin hit harder',
+    'Flasks refill a little more slowly from kills',
+    'The war table is now labelled, and marks every open Titan gate',
   ],
 };

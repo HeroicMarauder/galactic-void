@@ -97,7 +97,7 @@
         if (Math.random() < 0.12) this.dropGem(cx, cy, Math.random() < 0.5 ? 'skill' : 'support');
         if (Math.random() < 0.3) this.dropCur(cx, cy);
       }
-      for (const P of this.players || [pl]) if (!P.dead) P.flaskGain(e.boss ? 3 : e.def.heavy ? 0.6 : 0.25);
+      for (const P of this.players || [pl]) if (!P.dead) P.flaskGain(e.boss ? 3 : e.def.heavy ? 0.5 : 0.2);
       if (pl.herald && !e.boss) GV.Skills.heraldBurst(this, e, pl.herald);
       if (e.bloom) for (const o of this.enemies) if (!o.dead && o !== e && U.circRect(cx, cy, e.bloom.s.radius * 1.4, o)) o.bloom = { dps: e.bloom.dps, t: e.bloom.s.dur, s: e.bloom.s };
       GV.quests.emit('kill', { type: e.type, elite: !!e.elite, boss: !!e.boss });

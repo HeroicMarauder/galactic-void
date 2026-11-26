@@ -152,7 +152,7 @@
         type, def, x: x - def.w / 2, y: y - def.h, w: def.w, h: def.h, vx: 0, vy: 0,
         hp: def.hp * GV.SCALE.hp(this.diff), dmg: def.dmg * GV.SCALE.dmg(this.diff),
         dir: Math.random() < 0.5 ? -1 : 1, onGround: false, flash: 0, t: 0, cd: Math.random() * 1.5,
-        knockT: 0, spd: 1 + Math.min(0.5, this.diff * 0.04), seed: Math.random() * 10, crouch: 0, wind: 0,
+        knockT: 0, spd: 1.12 + Math.min(0.5, this.diff * 0.04), seed: Math.random() * 10, crouch: 0, wind: 0,
       };
       e.maxHp = e.hp;
       if (type === 'mimic') noElite = true;
@@ -627,7 +627,7 @@
               const a = base + (k - (n - 1) / 2) * 0.12, sp = s.pspeed || 760;
               this.spawnProj({ x: ox, y: oy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 6, friendly: true, kind: 'gem', s, hit: new Set(), pierce: s.pierce, chain: s.chain, life: 0.8, o: m.o, color: s.def.color });
             }
-            m.cd = (m.kind === 'turret' ? 0.5 : 0.85) / (GV.minionRate ? GV.minionRate(m.s, m.s && m.s.pl) : 1);
+            m.cd = (m.kind === 'turret' ? 0.72 : 0.95) / (GV.minionRate ? GV.minionRate(m.s, m.s && m.s.pl) : 1);
             m.flash = 0.1;
           } else m.cd = 0.2;
         }

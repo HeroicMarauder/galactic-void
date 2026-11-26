@@ -41,7 +41,7 @@
       { id: 'mirror', x: 990, w: 70, label: 'MIRROR', act: 'Wardrobe' },
       { id: 'vesper', x: 1170, w: 80, label: "VESPER'S TRADE", act: 'Trade' },
       // command
-      { id: 'table', x: 1560, w: 240, label: 'WAR TABLE', act: 'Open the star map' },
+      { id: 'table', x: 1560, w: 240, label: 'WAR TABLE', act: 'War table · missions & Titans' },
       { id: 'pad', x: 1900, w: 170, label: 'DROP POD', passive: true },
       { id: 'comms', x: 2120, w: 80, label: 'COMMS', act: 'Join a squad · friends' },
       { id: 'roster', x: 2280, w: 110, label: g ? 'ROSTER' : 'GUILD BOARD', act: g ? 'Guild' : 'Guilds' },
@@ -744,6 +744,11 @@
       ctx.globalAlpha = open2 ? 1 : 0.3; A.glow(ctx, px, py, r * 3, col + '55'); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
       if (isSel) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(px, py, r + 8, r * 0.45 + 4, t * 0.6, 0, Math.PI * 2); ctx.stroke(); }
       if (k > 0.4) { const sys = GV.UNIVERSE.system(s2); ctx.font = `700 9px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = open2 ? '#e8f0ff' : '#6d7890'; ctx.fillText(open2 ? sys.name.toUpperCase() : 'UNCHARTED', px, py + r + 14); }
+      // a Titan gate stands open here: mark it so it can be found
+      if (GV.titanFor && GV.save.data.cleared[`${s2}-2`] && !online(p)) {
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(t * 4 + i); ctx.font = `700 ${k > 0.4 ? 13 : 11}px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = '#ff9a4a';
+        ctx.fillText('☠', px + r + 6, py - r - 2);
+      }
       ctx.globalAlpha = 1;
     });
     if (k > 0.6) {
@@ -762,6 +767,13 @@
         if (on) { ctx.strokeStyle = '#fff'; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(t * 5); ctx.beginPath(); ctx.arc(nx, ny, 15, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1; }
         ctx.font = `600 9px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = n.open ? '#c9d3ea' : '#6d7890'; ctx.fillText(n.name.toUpperCase(), nx, ny + 24);
       });
+      // a nudge toward any open Titan gate that isn't on this system
+      const gates = []; for (let s2 = 0; s2 <= fr; s2++) if (s2 !== selSys && GV.titanFor && GV.save.data.cleared[`${s2}-2`] && !online(p)) gates.push(s2);
+      if (gates.length && !nodes.some((n) => n.k === 'titan')) {
+        const g0 = gates[gates.length - 1];
+        ctx.font = `700 9px ${C.FONT}`; ctx.textAlign = 'left'; ctx.fillStyle = '#ff9a4a';
+        ctx.fillText(`☠ TITAN GATE OPEN · ${GV.UNIVERSE.system(g0).name.toUpperCase()} · ${I.label('down')} TO CHANGE SYSTEM`, x0 + 40, top + h - 24);
+      }
       // read-out
       const rx = x0 + w - 230, it = p.console ? p.console.items[p.console.i] : null, m = it ? it.m : sel;
       ctx.textAlign = 'left'; ctx.font = `800 14px ${C.FONT}`; ctx.fillStyle = '#fff'; ctx.fillText(String((it ? it.name : m.name) || '').toUpperCase(), rx, top + 24);

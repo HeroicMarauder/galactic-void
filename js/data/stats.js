@@ -101,10 +101,11 @@
     s.armour = Math.max(0, g('armour') * (1 + g('armourPct') / 100));
     s.evasion = ks.unbroken ? 0 : Math.min(60, g('evasion'));
     s.block = Math.min(ks.bastion ? 75 : 60, g('block'));
-    s.moveMul = Math.max(0.5, 1 + (g('moveSpd') - (ks.unbroken ? 15 : 0)) / 100);
-    s.atkSpd = g('atkSpd'); s.castSpd = g('castSpd');
+    s.moveMul = Math.max(0.5, Math.min(1.3, 1 + (g('moveSpd') - (ks.unbroken ? 15 : 0)) / 100)); // movement tops out at +30%
+    const soft = (v) => (v <= 40 ? v : 40 + (v - 40) * 0.5); // beyond +40%, speed counts half
+    s.atkSpd = soft(g('atkSpd')); s.castSpd = soft(g('castSpd'));
     s.inc = {
-      all: g('dmg') + 4 * (lvl - 1) + 10 * u.dmg, melee: g('meleeDmg'), proj: g('projDmg'), spell: g('spellDmg'), area: g('areaDmg'),
+      all: g('dmg') + 3 * (lvl - 1) + 10 * u.dmg, melee: g('meleeDmg'), proj: g('projDmg'), spell: g('spellDmg'), area: g('areaDmg'),
       minion: g('minionDmg'), phys: g('physDmg'), fire: g('fireDmg'), cold: g('coldDmg'), light: g('lightDmg'), void: g('voidDmg'),
     };
     s.more = ks.glass ? 1.6 : 1;

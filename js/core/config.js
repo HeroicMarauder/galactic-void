@@ -49,8 +49,8 @@ window.GV.SCALE = {
   },
   // the first two stages are gentler while a new player finds their feet
   early: (diff) => (diff < 2 ? 0.7 + 0.15 * diff : 1),
-  hp: (diff) => 2.2 * Math.pow(1.18, diff) * window.GV.SCALE.pressure(diff) * window.GV.SCALE.early(diff),
-  dmg: (diff) => 1.64 * Math.pow(1.12, diff) * Math.sqrt(window.GV.SCALE.pressure(diff)),
-  bossHp: (diff) => 9 * Math.pow(1.17, diff) * window.GV.SCALE.pressure(diff) * window.GV.SCALE.early(diff),
-  bossDmg: (diff) => 1.7 * Math.pow(1.12, diff) * Math.sqrt(window.GV.SCALE.pressure(diff)),
+  hp: (diff) => 3.0 * Math.pow(1.18, diff) * window.GV.SCALE.pressure(diff) * window.GV.SCALE.early(diff),
+  dmg: (diff) => 2.1 * Math.pow(1.125, diff) * Math.sqrt(window.GV.SCALE.pressure(diff)),
+  bossHp: (diff) => 11.5 * Math.pow(1.17, diff) * window.GV.SCALE.pressure(diff) * window.GV.SCALE.early(diff),
+  bossDmg: (diff) => 2.15 * Math.pow(1.125, diff) * Math.sqrt(window.GV.SCALE.pressure(diff)),
 };
