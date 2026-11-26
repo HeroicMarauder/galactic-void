@@ -86,6 +86,7 @@
     fury: { name: 'Momentum', tier: 2, req: ['Movement', 'Channelling'], desc: '30% more Damage. 20% increased travel distance and spin radius.', apply(s) { s.more *= 1.3; s.distMul *= 1.2; s.areaInc += 20; } },
     might: { name: 'Minion Might', tier: 1, req: ['Minion'], desc: '35% more Minion Damage.', apply(s) { s.more *= 1.35; } },
     swarm: { name: 'Swarm', tier: 2, req: ['Minion'], desc: '+1 Minion. 10% less Minion Damage.', apply(s) { s.extraMinions = (s.extraMinions || 0) + 1; s.more *= 0.9; } },
+    phase: { name: 'Phase Through', tier: 1, req: ['Projectile', 'Melee'], excl: ['Slam'], desc: 'Hits pass through enemies. The first enemy takes the full hit, then the strike or projectile keeps going: Projectiles Pierce up to 8 more enemies, and melee strikes reach 70% farther behind the first enemy they hit. Every enemy after the first takes 15% less Damage.', apply(s) { s.phase = true; s.pierce += 8; } },
     ricochet: { name: 'Ricochet', tier: 1, req: ['Projectile'], desc: 'Projectiles bounce off walls up to twice. 10% more Damage.', apply(s) { s.bounce = (s.bounce || 0) + 2; s.more *= 1.1; } },
     overload: { name: 'Overload', tier: 2, req: ['Spell'], excl: ['Minion'], desc: 'Every fourth cast is Overloaded: 80% more Damage and 30% more Area.', apply(s) { s.overload = true; } },
     titanslayer: { name: 'Titanslayer', tier: 3, req: ['Attack', 'Spell'], desc: '50% more Damage against bosses, Titans and their weak points. 15% less Damage against everything else.', apply(s) { s.titanslayer = true; } },

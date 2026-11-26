@@ -185,7 +185,7 @@
         hb.set.add(e);
         const o = Object.assign({}, hb.o);
         if (o.radial) o.kx = (Math.sign(e.x + e.w / 2 - hpl.cx) || 1) * (o.knockAmt || 300);
-        if (hb.perEnemy) Object.assign(o, hb.perEnemy(e, o));
+        if (hb.perEnemy) Object.assign(o, hb.perEnemy(e, o, hb));
         S.hitEnemy(p, e, hb.s, o);
         if (hb.onHit) hb.onHit(e);
       }
@@ -197,7 +197,9 @@
   // Friendly projectile hit: pierce first, then chain to the next nearest foe.
   S.projHit = function (p, pr, e) {
     pr.hit.add(e);
-    S.hitEnemy(p, e, pr.s, Object.assign({ kx: Math.sign(pr.vx) * 260, ky: -120 }, pr.o, { mult: ((pr.o && pr.o.mult) || 1) * (pr.mult || 1) }));
+    const ph = pr.s && pr.s.phase && pr.hitN > 0 ? 0.85 : 1; // Phase Through: the first enemy takes the full hit
+    pr.hitN = (pr.hitN || 0) + 1;
+    S.hitEnemy(p, e, pr.s, Object.assign({ kx: Math.sign(pr.vx) * 260, ky: -120 }, pr.o, { mult: ((pr.o && pr.o.mult) || 1) * (pr.mult || 1) * ph }));
     if (pr.kind === 'spark' || pr.kind === 'wave' || pr.kind === 'pulse') return;
     if (pr.pierce > 0) { pr.pierce--; return; }
     if (pr.chain > 0) {
@@ -244,13 +246,13 @@
     const base = { ambush, mult };
     switch (s.kind) {
       case 'melee': {
-        const W = s.W, reach = W.range * s.areaMul, hh = W.h * s.areaMul;
+        const W = s.W, reach0 = W.range * s.areaMul, reach = reach0 * (s.phase ? 1.7 : 1), hh = W.h * s.areaMul;
         // 360° strikes: swing toward the aim. Aiming down in the air still bounces you off what you hit.
         let ax = f, ay = 0;
         if (AM) { ax = AM.x; ay = AM.y; if (pl.onGround && ay > 0.25) { const m = Math.hypot(ax, 0.25) || 1; ax = (Math.abs(ax) < 0.05 ? f : ax) / m; ay = 0.25 / m; } }
         const rot = Math.atan2(ay, ax * f) * f; // drawing rotation from "straight ahead"
         const bounce = ay > 0.6 && !pl.onGround;
-        pl.swing = { t: W.active, max: W.active, color: def.color === '#9fe8ff' ? W.color : def.color, kind: W.h > 40 ? 'arc' : 'thrust', reach, hh, rot };
+        pl.swing = { t: W.active, max: W.active, color: def.color === '#9fe8ff' ? W.color : def.color, kind: W.h > 40 ? 'arc' : 'thrust', reach, hh, rot, phase: !!s.phase };
         const ox0 = () => pl.cx, oy0 = () => pl.y + pl.h * 0.42, half = Math.max(pl.w / 2 - 4, 6);
         const wide = Math.max(hh, 56);
         p.hitboxes.push({
@@ -262,12 +264,17 @@
             const w = Math.abs(ax) * reach + Math.abs(ay) * wide, h = Math.abs(ay) * reach + Math.abs(ax) * hh;
             return { x: cx - w / 2, y: cy - h / 2, w, h };
           },
-          perEnemy: def.backstab ? (e, o) => ({ mult: o.mult * ((e.dir === pl.facing || ambush) ? 2 : 1) }) : null,
+          perEnemy: def.backstab || s.phase ? (e, o, hb) => {
+            let m = o.mult;
+            if (def.backstab && (e.dir === pl.facing || ambush)) m *= 2;
+            if (s.phase) { const along = (e.x + e.w / 2 - ox0()) * ax + (e.y + e.h / 2 - oy0()) * ay; if (along > half + reach0 + 10) m *= 0.85; } // Phase Through: whatever the normal strike reaches takes the full hit; enemies behind it take a little less
+            return { mult: m };
+          } : null,
         });
         // fists throw a short graviton pulse past the knuckle: it fades fast and shares the punch's hit,
         // so whatever the fist already struck isn't hit twice
         if (W.art === 'fist') {
-          const hb = p.hitboxes[p.hitboxes.length - 1], tip = half + reach * 0.6, sp = 860;
+          const hb = p.hitboxes[p.hitboxes.length - 1], tip = half + reach0 * 0.6, sp = 860;
           p.spawnProj({ x: ox0() + ax * tip, y: oy0() + ay * tip, vx: ax * sp, vy: ay * sp, r: 11, friendly: true, kind: 'pulse', s, hit: hb.set, pierce: 99, chain: 0, life: 0.14, max: 0.14, mult: 0.6, o: Object.assign({}, hb.o), color: def.color === '#9fe8ff' ? W.color : def.color });
         }
         p.sfx('swing');

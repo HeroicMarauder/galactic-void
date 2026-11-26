@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'Phase Through', s: 'A new Augment lets strikes and projectiles hit the first enemy in full, then carry on through the rest of the line.' },
     { d: 'Nov 26', t: 'Graviton Pulse', s: 'Monk punches now throw a short, fast-fading pulse past the fist, so his reach roughly triples without losing the brawler feel.' },
     { d: 'Nov 26', t: 'Every Angle', s: 'Strikes, slams, charges and Comet Drop follow your aim all the way around, the Monk is sturdier, and the first boss is a fairer teacher.' },
     { d: 'Nov 26', t: 'Update Log', s: 'This panel: a quick look back at every update, newest first.' },
