@@ -245,16 +245,23 @@
     switch (s.kind) {
       case 'melee': {
         const W = s.W, reach = W.range * s.areaMul, hh = W.h * s.areaMul;
-        // aim up to strike overhead; aim down in the air to strike below and bounce off what you hit
-        const vert = AM && AM.y < -0.7 ? -1 : AM && AM.y > 0.7 && !pl.onGround ? 1 : 0;
-        pl.swing = { t: W.active, max: W.active, color: def.color === '#9fe8ff' ? W.color : def.color, kind: W.h > 40 ? 'arc' : 'thrust', reach, hh, vert };
+        // 360° strikes: swing toward the aim. Aiming down in the air still bounces you off what you hit.
+        let ax = f, ay = 0;
+        if (AM) { ax = AM.x; ay = AM.y; if (pl.onGround && ay > 0.25) { const m = Math.hypot(ax, 0.25) || 1; ax = (Math.abs(ax) < 0.05 ? f : ax) / m; ay = 0.25 / m; } }
+        const rot = Math.atan2(ay, ax * f) * f; // drawing rotation from "straight ahead"
+        const bounce = ay > 0.6 && !pl.onGround;
+        pl.swing = { t: W.active, max: W.active, color: def.color === '#9fe8ff' ? W.color : def.color, kind: W.h > 40 ? 'arc' : 'thrust', reach, hh, rot };
+        const ox0 = () => pl.cx, oy0 = () => pl.y + pl.h * 0.42, half = Math.max(pl.w / 2 - 4, 6);
         const wide = Math.max(hh, 56);
         p.hitboxes.push({
-          s, t: W.active, set: new Set(), o: Object.assign(vert ? { kx: 0, ky: vert < 0 ? -420 : 260 } : { kx: f * W.knock, ky: -170 }, base),
-          onHit: vert > 0 ? () => { if (pl.vy > -480) { pl.vy = -560; pl.dashes = Math.max(pl.dashes || 0, 1); } } : null,
-          calc: vert < 0 ? () => ({ x: pl.cx - wide / 2, y: pl.y - reach + 12, w: wide, h: reach })
-            : vert > 0 ? () => ({ x: pl.cx - wide / 2, y: pl.y + pl.h - 12, w: wide, h: reach })
-            : () => ({ x: pl.facing > 0 ? pl.x + pl.w - 4 : pl.x - reach + 4, y: pl.y + pl.h * 0.42 - hh / 2, w: reach, h: hh }),
+          s, t: W.active, set: new Set(), o: Object.assign({ kx: ax * W.knock * (Math.abs(ay) > 0.7 ? 0.4 : 1), ky: ay < -0.5 ? -420 : ay > 0.6 ? 260 : -170 }, base),
+          onHit: bounce ? () => { if (pl.vy > -480) { pl.vy = -560; pl.dashes = Math.max(pl.dashes || 0, 1); } } : null,
+          calc: () => {
+            // the strike is a box of reach × width laid along the aim; use its bounding box
+            const cx = ox0() + ax * (half + reach / 2), cy = oy0() + ay * (half + reach / 2);
+            const w = Math.abs(ax) * reach + Math.abs(ay) * wide, h = Math.abs(ay) * reach + Math.abs(ax) * hh;
+            return { x: cx - w / 2, y: cy - h / 2, w, h };
+          },
           perEnemy: def.backstab ? (e, o) => ({ mult: o.mult * ((e.dir === pl.facing || ambush) ? 2 : 1) }) : null,
         });
         p.sfx('swing');
@@ -270,7 +277,7 @@
       case 'slam': {
         const r = s.radius;
         const doSlam = (m) => {
-          const cx = pl.cx + pl.facing * r * 0.7, cy = pl.y + pl.h;
+          const sx = AM && Math.abs(AM.x) > 0.15 ? Math.sign(AM.x) : pl.facing, cx = pl.cx + sx * r * 0.7, cy = pl.y + pl.h;
           S.area(p, cx, cy - r * 0.4, r, s, Object.assign({}, base, { mult: m, knock: 420, ky: -300 }));
           p.novas.push({ x: cx, y: cy - 8, r: 10, max: r, t: 0, color: def.color });
           for (let w = 0; w < s.waves; w++) for (const dir of [-1, 1]) {
@@ -284,7 +291,7 @@
         break;
       }
       case 'dive':
-        pl.dive = { s, o: base, t: pl.onGround ? 0.17 : 0 };
+        pl.dive = { s, o: base, t: pl.onGround ? 0.17 : 0, ax: AM ? Math.max(-1, Math.min(1, AM.x * 1.4)) : null };
         if (pl.onGround) { pl.vy = -580; pl.onGround = false; }
         p.sfx('jump');
         break;
@@ -431,7 +438,9 @@
       }
       case 'charge': {
         const dist = (def.dist || 300) * s.distMul, sp = 1150;
-        pl.charging = { t: dist / sp, sp, dir: f, s, set: new Set(), o: Object.assign({ kx: f * 520, ky: -260, stun: def.stun || 0 }, base), color: def.color, trailT: 0 };
+        // charges follow the aim up to about 40° off level
+        const cy0 = AM ? Math.max(-0.64, Math.min(0.64, AM.y)) : 0, cx0 = Math.sqrt(1 - cy0 * cy0);
+        pl.charging = { t: dist / sp, sp: sp * cx0, vy: Math.abs(cy0) > 0.12 ? cy0 * sp : 0, dir: f, s, set: new Set(), o: Object.assign({ kx: f * 520, ky: -260, stun: def.stun || 0 }, base), color: def.color, trailT: 0 };
         pl.inv = Math.max(pl.inv, dist / sp + 0.1);
         p.sfx('dash');
         break;

@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'Every Angle', s: 'Strikes, slams, charges and Comet Drop follow your aim all the way around, the Monk is sturdier, and the first boss is a fairer teacher.' },
     { d: 'Nov 26', t: 'Update Log', s: 'This panel: a quick look back at every update, newest first.' },
     { d: 'Nov 26', t: 'Phone Controls', s: 'Drag a skill to aim it, tap to auto-target, and the buttons are spread out so Jump and Dash stop colliding.' },
     { d: 'Nov 26', t: 'Legacy & Ascension', s: 'Up to 8 characters with a shared Legacy, leaner loot, slower and more rewarding levels, and Ascension Trials.' },

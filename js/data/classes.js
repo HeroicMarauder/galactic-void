@@ -61,10 +61,10 @@
     monk: {
       name: 'Graviton Monk',
       tag: 'Gravity fists, blinding speed',
-      desc: 'A graviton knuckle on each fist and no armour to speak of. Hits too fast to be hit back.',
+      desc: 'A graviton knuckle on each fist and no armour to speak of. Hits too fast to be hit back, and Comet Drop carries you clear of danger.',
       weapon: 'gravknuckle', offhand: 'gravknuckle', start: 'monk', color: '#9fffe0', kit: { helm: 'crest', suit: 'harness', boots: 'mag' },
       look: { cloak: '#1c2b2a', visor: '#9fffe0', glow: 'rgba(150,255,220,0.35)', suit: '#e4efe9' },
-      stats: { atkSpd: 6, evasion: 8, moveSpd: 6 },
+      stats: { atkSpd: 6, evasion: 20, moveSpd: 6, life: 15 },
       bar: [['strike', 2], ['comet', 1], ['slam', 1], ['howl', 1]],
       supports: ['quick', 'impact'],
       treeHint: 'Starts between Hull and Drift: attack speed, evasion and area.',

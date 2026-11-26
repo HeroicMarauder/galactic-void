@@ -109,7 +109,7 @@
         if (this.dashT <= 0) this.vx = this.facing * run;
         if (Math.random() < 0.8) p.parts.push({ x: this.cx - this.facing * 10, y: this.y + 10 + Math.random() * 30, vx: -this.facing * 60, vy: 0, life: 0.25, max: 0.25, size: 3, color: p.pal.glow, add: true });
       } else if (this.dive && this.dive.t <= 0) {
-        this.vy = 1500; this.vx = this.facing * 180;
+        this.inv = Math.max(this.inv, 0.06); this.vy = 1500; this.vx = this.dive.ax != null ? this.dive.ax * 900 : this.facing * 180;
       } else {
         if (this.dive) this.dive.t -= dt;
         let target = mv * run;
@@ -306,7 +306,8 @@
       ctx.globalAlpha = 0.85 * (1 - k * 0.6);
       ctx.strokeStyle = sw.color; ctx.lineCap = 'round';
       const cy = this.y + this.h * 0.42, f = this.facing;
-      if (sw.vert) { ctx.translate(this.cx, cy); ctx.rotate(sw.vert * f * Math.PI / 2); ctx.translate(-this.cx, -cy); }
+      if (sw.rot) { ctx.translate(this.cx, cy); ctx.rotate(sw.rot); ctx.translate(-this.cx, -cy); }
+      else if (sw.vert) { ctx.translate(this.cx, cy); ctx.rotate(sw.vert * f * Math.PI / 2); ctx.translate(-this.cx, -cy); }
       if (sw.kind === 'spin') {
         ctx.lineWidth = 6;
         for (let i = 0; i < 2; i++) {

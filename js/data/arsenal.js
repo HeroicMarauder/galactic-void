@@ -72,7 +72,7 @@
     // the new classes' kits
     arcwrench: { name: 'Arc Wrench', hand: 'one', desc: 'Engineer kit. One-handed. Every swing arcs current into the target.', cost: 80, dmg: 15.2, cd: 0.32, range: 66, h: 40, active: 0.11, knock: 260, color: '#ffb347', art: 'wrench' },
     starfocus: { name: 'Star Focus', hand: 'two', desc: 'Starcaller kit. A staff that bends starlight. Weak blows, but +35% spell damage.', cost: 80, dmg: 10, cd: 0.34, range: 74, h: 40, active: 0.1, knock: 220, color: '#c9a8ff', art: 'staff', spell: 35 },
-    gravknuckle: { name: 'Graviton Knuckle', hand: 'one', desc: 'Monk kit. One-handed. Wear one on each fist.', cost: 60, dmg: 7.5, cd: 0.13, range: 40, h: 30, active: 0.07, knock: 200, color: '#9fffe0', art: 'fist' },
+    gravknuckle: { name: 'Graviton Knuckle', hand: 'one', desc: 'Monk kit. One-handed. Wear one on each fist.', cost: 60, dmg: 7.5, cd: 0.13, range: 54, h: 30, active: 0.07, knock: 200, color: '#9fffe0', art: 'fist' },
     biolash: { name: 'Bio-Lash', hand: 'two', desc: 'Symbiote kit. A living whip with enormous reach. Hits feed you.', cost: 80, dmg: 25, cd: 0.4, range: 150, h: 20, active: 0.13, knock: 260, color: '#ff6a9a', art: 'whip', leech: 1.5 },
     rimelance: { name: 'Rime Lance', hand: 'two', desc: 'Cryo Lancer kit. The longest reach of any weapon, forged cold. +20% Cold Damage.', cost: 80, dmg: 22, cd: 0.38, range: 136, h: 18, active: 0.12, knock: 300, color: '#9cc8ff', art: 'lance', cold: 20 },
     // weapon sets

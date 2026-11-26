@@ -172,6 +172,8 @@
         hp: def.hp * GV.SCALE.bossHp(this.diff), dmg: def.dmg * GV.SCALE.bossDmg(this.diff),
         dir: -1, flash: 0, t: 0, st: 'intro', tt: 1.3, knockT: 0, alpha: 1,
       };
+      // the very first boss is a teacher: a little less Life and much less punishing hits
+      if (this.sysIdx === 0 && this.stIdx === 0 && !this.asc && !this.titan) { e.hp *= 0.85; e.dmg *= 0.78; }
       e.maxHp = e.hp;
       this.enemies.push(e);
       this.boss = e;

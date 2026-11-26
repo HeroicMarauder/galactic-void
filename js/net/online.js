@@ -332,7 +332,7 @@
     const sw = pl.swing;
     return { x: Math.round(pl.x), y: Math.round(pl.y), vx: Math.round(pl.vx), vy: Math.round(pl.vy), f: pl.facing, hp: Math.round(pl.hp), mh: Math.round(pl.maxHp), wd: Math.round(pl.ward || 0), mw: Math.round(pl.maxWard || 0), ch: Math.round(pl.charge || 0), mc: Math.round(pl.maxChargeEff || pl.maxCharge || 0),
       dead: pl.dead ? 1 : 0, down: pl.down ? 1 : 0, rv: r1(pl.reviveT || 0), inv: pl.inv > 0 ? 1 : 0, st: pl.stealth > 0 ? 1 : 0, cd: (pl.cd || []).map((c) => r1(Math.max(0, c))), fl: [pl.flasks ? pl.flasks[0] : 0, pl.flasks ? pl.flasks[1] : 0],
-      sw: sw ? [sw.kind, r1(sw.t), r1(sw.max), sw.color, Math.round(sw.reach || 0), Math.round(sw.hh || 0), sw.vert || 0] : null, dash: pl.dashT > 0 ? 1 : 0, sq: r1(pl.squash || 0) };
+      sw: sw ? [sw.kind, r1(sw.t), r1(sw.max), sw.color, Math.round(sw.reach || 0), Math.round(sw.hh || 0), sw.vert || 0, Math.round((sw.rot || 0) * 100) / 100] : null, dash: pl.dashT > 0 ? 1 : 0, sq: r1(pl.squash || 0) };
   }
   function near(p, o, pad = 900) { return p.players.some((pl) => Math.abs((o.x || 0) - pl.x) < pad && Math.abs((o.y || 0) - pl.y) < 700); }
   function sendSnapshot(p) {
@@ -519,7 +519,7 @@
       const s = sl[j], host = s === N.mySlot ? null : bySlot(s);
       if (s === N.mySlot) return applyMine(me, hp);
       if (hp && host) { host.tx = hp.x; host.ty = hp.y; host.vx = hp.vx; host.vy = hp.vy; host.facing = hp.f; host.hp = hp.hp; host.maxHp = hp.mh; host.dead = !!hp.dead && !hp.down; host.down = !!hp.down; host.reviveT = hp.rv; host.inv = hp.inv; host.stealth = hp.st; host.dashT = hp.dash ? 0.1 : 0; host.squash = hp.sq;
-        host.swing = hp.sw ? { kind: hp.sw[0], t: hp.sw[1], max: hp.sw[2], color: hp.sw[3], reach: hp.sw[4], hh: hp.sw[5], vert: hp.sw[6] } : null; if (host.x == null || Math.hypot(host.x - hp.x, host.y - hp.y) > 400) { host.x = hp.x; host.y = hp.y; } }
+        host.swing = hp.sw ? { kind: hp.sw[0], t: hp.sw[1], max: hp.sw[2], color: hp.sw[3], reach: hp.sw[4], hh: hp.sw[5], vert: hp.sw[6], rot: hp.sw[7] || 0 } : null; if (host.x == null || Math.hypot(host.x - hp.x, host.y - hp.y) > 400) { host.x = hp.x; host.y = hp.y; } }
       });
     }
     function applyMine(me, mp) {
@@ -528,7 +528,7 @@
         const wasDead = me.dead; me.dead = !!mp.dead || !!mp.down; me.down = !!mp.down; me.reviveT = mp.rv; me.inv = mp.inv ? Math.max(me.inv, 0.1) : me.inv;
         if (Array.isArray(mp.cd)) me.cd = mp.cd.slice(0, 4);
         if (Array.isArray(mp.fl) && me.flasks) { me.flasks[0] = mp.fl[0]; me.flasks[1] = mp.fl[1]; }
-        me.swing = mp.sw ? { kind: mp.sw[0], t: mp.sw[1], max: mp.sw[2], color: mp.sw[3], reach: mp.sw[4], hh: mp.sw[5], vert: mp.sw[6] } : me.swing;
+        me.swing = mp.sw ? { kind: mp.sw[0], t: mp.sw[1], max: mp.sw[2], color: mp.sw[3], reach: mp.sw[4], hh: mp.sw[5], vert: mp.sw[6], rot: mp.sw[7] || 0 } : me.swing;
         if (!me.dead && wasDead) { me.inv = 1; }
       }
     }
