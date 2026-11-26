@@ -1,0 +1,68 @@
+GALACTIC VOID — WEB VERSION
+===========================
+
+The whole game as a normal website. Online co-op is browser-to-browser (squads of up to 4 by room
+code), and with Google sign-in turned on, players also get cloud saves, guilds and the friends list
+(backed by your Supabase project "egiyumcuuwukhahochiq").
+
+-----------------------------------------------------------------------------------------------
+STEP 1 — PUT IT ONLINE (pick one; both free)
+-----------------------------------------------------------------------------------------------
+Unzip the game zip and the four music zips into ONE folder first (they slot together).
+
+A) Netlify Drop  — simplest for sign-in
+   1. Open https://app.netlify.com/drop and drag the folder onto the page.
+   2. Create a free account when asked so the site stays up. Note your address,
+      e.g. https://galactic-void.netlify.app  (you can rename it in Site settings).
+
+B) itch.io  — a proper game page
+   1. itch.io > Dashboard > Create new project. Kind of project: HTML.
+   2. Select everything INSIDE the folder, compress it to one zip, upload it, and tick
+      "This file will be played in the browser".
+   3. Embed options: Viewport 1280 x 720, tick "Mobile friendly" and "Fullscreen button".
+   (Sign-in opens in a small pop-up on itch.io, because Google won't show inside its frame.)
+
+-----------------------------------------------------------------------------------------------
+STEP 2 — TURN ON GOOGLE SIGN-IN (about 10 minutes, once)
+-----------------------------------------------------------------------------------------------
+In Google Cloud Console (console.cloud.google.com):
+   1. Create a project (any name, e.g. "Galactic Void").
+   2. Google Auth Platform (or "APIs & Services > OAuth consent screen"): set it up as
+      External, app name "Galactic Void", your email as support/contact.
+   3. Audience: click "Publish app" (In production). While it says "Testing", only Google
+      accounts you list as test users can sign in.
+   4. Clients (or "Credentials") > Create client > Web application.
+      Under "Authorized redirect URIs" add exactly:
+         https://egiyumcuuwukhahochiq.supabase.co/auth/v1/callback
+      Create it, then copy the Client ID and Client secret.
+
+In Supabase (supabase.com/dashboard > your Galactic Void project):
+   5. Authentication > Sign In / Providers > Google: turn it on, paste the Client ID and
+      Client secret, Save.
+   6. Authentication > URL Configuration:
+        Site URL: your game's address from Step 1 (e.g. https://galactic-void.netlify.app)
+        Redirect URLs, add:  your address followed by /**   (e.g. https://galactic-void.netlify.app/**)
+        and if you use itch.io also add:  https://html-classic.itch.zone/**
+
+Then open the game: "Sign in with Google" is at the top right of the title screen.
+
+-----------------------------------------------------------------------------------------------
+PLAYING TOGETHER
+-----------------------------------------------------------------------------------------------
+- Everyone opens the same game link, signs in, and makes a character.
+- Friends: COMMS console on the ship > search people by name > Add friend. Friends see you
+  online and can join you in one click; invites and join requests work too.
+- Room codes always work as well: your code shows at COMMS; friends type it under
+  "Join a squad".
+- Guilds: the Guild board on the ship (founding needs Rank 15, the Lantern, a Titan felled,
+  and 2,000 memories).
+- Cloud saves: automatic once signed in, so your character follows your Google account
+  to any device.
+
+GOOD TO KNOW
+- Supabase's free plan pauses a project after about a week with nobody playing. If the game
+  says it can't reach the server, open the Supabase dashboard and click "Restore project".
+- Co-op is browser-to-browser. A few strict networks (some workplaces, schools, mobile
+  carriers) block that; if one friend can't connect, try another network or a phone hotspot.
+- Updating: upload the new game zip the same way (itch.io: replace the file; Netlify: drag
+  the new folder onto your site's Deploys page). The music packs rarely change.

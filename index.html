@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>window.GV_STANDALONE = true; window.GV_SUPABASE = { url: 'https://egiyumcuuwukhahochiq.supabase.co', key: 'sb_publishable_CdVV4ppF-0NTGGh9WduFLA_oGPn1Tbm' };</script>
+<script src="js/vendor/supabase.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Galactic Void</title>
+<link rel="artifact-thumbnail" href="thumb.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Cinzel:wght@700;900&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage"><canvas id="game" aria-label="Galactic Void game"></canvas></div>
+<div id="ui"></div>
+
+<div id="touch" aria-hidden="true">
+  <div id="pad"><div class="knob"></div><span class="arr l">◀</span><span class="arr r">▶</span><span class="arr d">▼</span></div>
+  <div id="btns">
+    <button class="tb jump" data-act="jump">JUMP</button>
+    <button class="tb dash" data-act="dash">DASH</button>
+    <button class="tb sk atk" data-act="attack">ATK</button>
+    <button class="tb sk s1" data-act="skill1">K</button>
+    <button class="tb sk s2" data-act="skill2">L</button>
+    <button class="tb sk s3" data-act="skill3">I</button>
+    <button class="tb act" data-act="interact">E</button>
+    <button class="tb ping" data-act="ping" title="Tap: ping · hold: quick chat">◆</button>
+  </div>
+  <div id="flasks">
+    <button class="tb fl life" data-act="flask1">❤</button>
+    <button class="tb fl chg" data-act="flask2">⚡</button>
+  </div>
+</div>
+<button id="pauseBtn" aria-label="Pause">II</button>
+<div id="rotate">Turn your device sideways for the best view.</div>
+
+<!-- Modules, in dependency order. Each file owns one part of the game. -->
+<script src="js/core/util.js"></script>
+<script src="js/core/config.js"></script>
+<script src="js/core/input.js"></script>
+<script src="js/core/audio.js"></script>
+<script src="js/data/ost.js"></script>
+<script src="js/core/soundtrack.js"></script>
+<script src="js/core/save.js"></script>
+<script src="js/vendor/peerjs.min.js"></script>
+<script src="js/net/p2p.js"></script>
+<script src="js/net/supa.js"></script>
+<script src="js/core/sync.js"></script>
+<script src="js/core/settings.js"></script>
+<script src="js/data/gear.js"></script>
+<script src="js/data/classes.js"></script>
+<script src="js/data/ascend.js"></script>
+<script src="js/data/stats.js"></script>
+<script src="js/data/universe.js"></script>
+<script src="js/render/art.js"></script>
+  <script src="js/render/model.js"></script>
+  <script src="js/render/hero.js"></script>
+  <script src="js/ui/classanim.js"></script>
+<script src="js/data/gems.js"></script>
+<script src="js/data/items.js"></script>
+<script src="js/data/arsenal.js"></script>
+<script src="js/data/tree.js"></script>
+<script src="js/data/enemies.js"></script>
+<script src="js/data/elites.js"></script>
+<script src="js/data/codex.js"></script>
+<script src="js/data/achieve.js"></script>
+<script src="js/data/builds.js"></script>
+<script src="js/data/quests.js"></script>
+<script src="js/data/bosses.js"></script>
+<script src="js/world/stage.js"></script>
+<script src="js/game/skills.js"></script>
+<script src="js/game/player.js"></script>
+<script src="js/game/skills2.js"></script>
+<script src="js/game/combat.js"></script>
+<script src="js/game/play.js"></script>
+<script src="js/game/coop.js"></script>
+<script src="js/game/anomaly.js"></script>
+<script src="js/game/titan.js"></script>
+<script src="js/game/arsenalfx.js"></script>
+<script src="js/game/aim.js"></script>
+<script src="js/game/feel.js"></script>
+<script src="js/world/features.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/ui/menus.js"></script>
+<script src="js/ui/polish.js"></script>
+<script src="js/data/acts.js"></script>
+<script src="js/world/gates.js"></script>
+<script src="js/ui/frontier.js"></script>
+<script src="js/ui/lantern2.js"></script>
+<script src="js/ui/keybinds.js"></script>
+<script src="js/ui/macros.js"></script>
+<script src="js/ui/playtest.js"></script>
+<script src="js/ui/tips.js"></script>
+<script src="js/net/online.js"></script>
+<script src="js/net/friends.js"></script>
+<script src="js/ui/gemview.js"></script>
+<script src="js/ui/gearview.js"></script>
+<script src="js/ui/ascendview.js"></script>
+<script src="js/ui/treeview.js"></script>
+<script src="js/ui/vault.js"></script>
+<script src="js/net/guild.js"></script>
+<script src="js/world/hall.js"></script>
+<script src="js/main.js"></script>
+<script src="js/standalone.js"></script>
+</body>
+</html>
