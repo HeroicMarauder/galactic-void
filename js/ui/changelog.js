@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'Graviton Pulse', s: 'Monk punches now throw a short, fast-fading pulse past the fist, so his reach roughly triples without losing the brawler feel.' },
     { d: 'Nov 26', t: 'Every Angle', s: 'Strikes, slams, charges and Comet Drop follow your aim all the way around, the Monk is sturdier, and the first boss is a fairer teacher.' },
     { d: 'Nov 26', t: 'Update Log', s: 'This panel: a quick look back at every update, newest first.' },
     { d: 'Nov 26', t: 'Phone Controls', s: 'Drag a skill to aim it, tap to auto-target, and the buttons are spread out so Jump and Dash stop colliding.' },

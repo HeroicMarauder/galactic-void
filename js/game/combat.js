@@ -281,6 +281,15 @@
           A.glow(ctx, pr.x, pr.y, 30, pr.friendly ? 'rgba(255,190,110,0.55)' : A.col(this.pal.hB, 100, 55, 0.55));
           ctx.fillStyle = pr.friendly ? c : this.pal.accent;
           ctx.beginPath(); ctx.moveTo(pr.x - 10, pr.y + 12); ctx.lineTo(pr.x, pr.y - 14 - Math.sin(pr.t * 30) * 3); ctx.lineTo(pr.x + 10, pr.y + 12); ctx.fill();
+        } else if (pr.kind === 'pulse') {
+          // a fist's graviton pulse: a crescent that swells and fades almost at once
+          const k = Math.max(0, pr.life / (pr.max || 0.14)), a = Math.atan2(pr.vy, pr.vx), rr = pr.r * (1.6 - k * 0.6);
+          ctx.save(); ctx.globalAlpha = k; ctx.globalCompositeOperation = 'lighter';
+          A.glow(ctx, pr.x, pr.y, rr * 2.4, c);
+          ctx.strokeStyle = c; ctx.lineWidth = 3 + 3 * k; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.arc(pr.x - Math.cos(a) * rr * 0.6, pr.y - Math.sin(a) * rr * 0.6, rr, a - 1.1, a + 1.1); ctx.stroke();
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.restore();
         } else if (pr.friendly) {
           A.glow(ctx, pr.x, pr.y, pr.r * 3.4, c);
           ctx.fillStyle = '#fff';

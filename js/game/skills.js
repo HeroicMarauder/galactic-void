@@ -198,7 +198,7 @@
   S.projHit = function (p, pr, e) {
     pr.hit.add(e);
     S.hitEnemy(p, e, pr.s, Object.assign({ kx: Math.sign(pr.vx) * 260, ky: -120 }, pr.o, { mult: ((pr.o && pr.o.mult) || 1) * (pr.mult || 1) }));
-    if (pr.kind === 'spark' || pr.kind === 'wave') return;
+    if (pr.kind === 'spark' || pr.kind === 'wave' || pr.kind === 'pulse') return;
     if (pr.pierce > 0) { pr.pierce--; return; }
     if (pr.chain > 0) {
       let best = null, bd = 300 * 300;
@@ -264,6 +264,12 @@
           },
           perEnemy: def.backstab ? (e, o) => ({ mult: o.mult * ((e.dir === pl.facing || ambush) ? 2 : 1) }) : null,
         });
+        // fists throw a short graviton pulse past the knuckle: it fades fast and shares the punch's hit,
+        // so whatever the fist already struck isn't hit twice
+        if (W.art === 'fist') {
+          const hb = p.hitboxes[p.hitboxes.length - 1], tip = half + reach * 0.6, sp = 860;
+          p.spawnProj({ x: ox0() + ax * tip, y: oy0() + ay * tip, vx: ax * sp, vy: ay * sp, r: 11, friendly: true, kind: 'pulse', s, hit: hb.set, pierce: 99, chain: 0, life: 0.14, max: 0.14, mult: 0.6, o: Object.assign({}, hb.o), color: def.color === '#9fe8ff' ? W.color : def.color });
+        }
         p.sfx('swing');
         break;
       }
