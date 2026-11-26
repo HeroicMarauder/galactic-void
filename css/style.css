@@ -957,3 +957,13 @@ body.touch #picker { display: none; }
 .fab .fabtabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .fab .fabtabs .seg { white-space: nowrap; width: auto; min-width: 0; padding: 7px 16px; flex: 0 0 auto; }
 .fab .row.exo { align-items: center; }
+/* race picker */
+.racesel .racerow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 10px 0 14px; max-height: 62vh; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+.racesel .race { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 10px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.1); background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.15)); text-align: center; min-width: 0; }
+.racesel .race:hover, .racesel .race:focus-visible { border-color: var(--c); box-shadow: 0 0 22px color-mix(in srgb, var(--c) 25%, transparent); }
+.racesel .race.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 10%, rgba(10,14,26,.8)); }
+.racesel .race canvas { width: 104px; height: 118px; }
+.racesel .race b { font-size: 16px; color: var(--c); letter-spacing: .06em; }
+.racesel .race small { font-size: 11.5px; color: #a7b3cc; }
+.racesel .race em { font-style: normal; font-size: 12px; color: #e9f2ff; margin-top: 4px; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,.05); }
+@media (max-height: 520px) { .racesel .racerow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; } .racesel .race canvas { width: 70px; height: 80px; } .racesel .race small { display: none; } .racesel .race em { font-size: 10.5px; padding: 3px 5px; } .racesel .race b { font-size: 13px; } }

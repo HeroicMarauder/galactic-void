@@ -2,13 +2,11 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-12',
-  title: 'The Fabricator',
+  id: '2026.11.26-13',
+  title: 'Six Races',
   notes: [
-    'New on the Lantern\'s deck: the Fabricator, between Vesper\'s Trade and the War Table',
-    'Break gear and weapons down into Alloy and Void Shards. Salvaging anywhere now gives materials too',
-    'Upgrade it Basic → Journeyman (refine Alloy into Shards) → Expert (turn Shards into crafting currency) → Master (assemble exotics). Each level also improves break-down yields',
-    'Titans now drop exotic pieces instead of whole weapons: a Frame, a Core, an Edge and a Schematic. Collect all four, then assemble the weapon at a Master Fabricator',
-    'Exotics you already own are kept. Duplicate pieces turn into Void Shards',
+    'Races! New characters choose one after their class. Each changes your look and gives one small perk',
+    'Human (+1 passive point at ranks 10, 20, 30) · Synth (+40 Armour, 10% more) · Voidborn (+5% evade) · Kethari (6% attack speed) · Lumari (10% Charge regen) · Drakkari (8% Life)',
+    'Existing characters are Human. Change race in the Wardrobe: the first change is free, after that it costs 300 memories',
   ],
 };

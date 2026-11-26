@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'Six Races', s: 'Choose Human, Synth, Voidborn, Kethari, Lumari or Drakkari: each has its own look and one small perk.' },
     { d: 'Nov 26', t: 'The Fabricator', s: 'A new workbench on the Lantern turns salvage into materials, levels up to Master, and assembles exotics from the pieces Titans drop.' },
     { d: 'Nov 26', t: 'Found, Not Bought', s: 'Vesper only sells standard-issue weapons now. Everything better drops from enemies and bosses, with a Weapons screen and Vault space to manage them.' },
     { d: 'Nov 26', t: 'Fair Fight', s: 'Any class can use guns and bows as its basic attack, the Engineer\'s minions were reined in, and the Paladin hits harder.' },
