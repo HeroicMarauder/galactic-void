@@ -144,7 +144,7 @@
 
   function render() {
     const M = GV.menus, d = GV.save.data, cls = GV.CLASSES[d.cls] || {};
-    const list = owned(d).filter((k) => W[k] && !W[k].legacy);
+    const list = owned(d).filter((k) => W[k] && (!W[k].legacy || k === d.weapon || k === d.offhand)); // an old paired kit still shows while you hold it
     const TABS = [
       { id: 'all', name: 'All' }, { id: 'melee', name: 'Melee', icon: '⚔' }, { id: 'ranged', name: 'Ranged', icon: '➹' },
       { id: 'one', name: 'One-handed' }, { id: 'two', name: 'Two-handed' }, { id: 'shield', name: 'Shields', icon: '⛉' }, { id: 'prized', name: 'Sets & Exotics', icon: '★' },

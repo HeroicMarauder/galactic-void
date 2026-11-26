@@ -52,7 +52,7 @@
     M.render(`<div class="screen panel wide crewscreen"><div class="topbar"><h2>Crew Quarters</h2><div class="stats">${memIcon} ${d.memories}</div></div>
       ${msg ? `<p class="ok">${esc(msg)}</p>` : '<p class="muted">The people who made it aboard. Build out their rooms for permanent bonuses, and drop by once a day.</p>'}
       <div class="crewgrid">${cards}</div>
-      <div class="menu row">${GV.creator ? '<button class="primary" data-a="look">Appearance</button>' : ''}${GV.raceChange ? `<button data-a="race">Race · ${esc((GV.RACES[GV.raceOf(d)] || {}).name || 'Human')}</button>` : ''}<button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'look' && GV.creator) return GV.creator.edit(() => M.wardrobe()); if (a === 'race' && GV.raceChange) return GV.raceChange(() => M.wardrobe()); if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
+      <div class="menu row"><button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
     bindL((a, b) => {
       const k = b.dataset.k, C = GV.CREW[k], st = (c[k] = c[k] || { lv: 0 });
       if (a === 'room') { const cost = ROOM_COST[st.lv || 0]; if ((st.lv || 0) < 3 && d.memories >= cost) { d.memories -= cost; st.lv = (st.lv || 0) + 1; flash(`${C.room} upgraded.`); GV.audio.sfx('level'); } }
@@ -180,7 +180,7 @@
     M.render(`<div class="screen panel wide wardrobe"><div class="topbar"><h2>Wardrobe</h2><div class="stats">${memIcon} ${d.memories}</div></div>
       <div class="wrow"><canvas id="dyeCv" width="220" height="220"></canvas><div class="wcols">${Object.keys(DSLOT).map((s) => `<div class="gsub">${DSLOT[s]}</div><div class="dyes">${sw(s)}</div>`).join('')}</div></div>
       ${msg ? `<p class="ok">${esc(msg)}</p>` : '<p class="muted">Dyes you buy work on any slot. Some only come from Ascending the Void.</p>'}
-      <div class="menu row"><button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
+      <div class="menu row">${GV.creator ? '<button class="primary" data-a="look">Appearance</button>' : ''}${GV.raceChange ? `<button data-a="race">Race · ${esc((GV.RACES[GV.raceOf(d)] || {}).name || 'Human')}</button>` : ''}<button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'look' && GV.creator) return GV.creator.edit(() => M.wardrobe()); if (a === 'race' && GV.raceChange) return GV.raceChange(() => M.wardrobe()); if (a === 'back') { msg = ''; M.lantern(); } }, () => { msg = ''; M.lantern(); });
     bindL((a, b) => {
       const k = b.dataset.k, s = b.dataset.s;
       if (a === 'buy' && d.memories >= GV.DYES[k].cost) { d.memories -= GV.DYES[k].cost; d.dyes.push(k); d.dye[s] = k; flash(`${GV.DYES[k].name} dye bought.`); }
