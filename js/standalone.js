@@ -34,7 +34,7 @@
     box.addEventListener('click', (e) => { const b = e.target.closest('[data-acct]'); if (!b) return; e.stopPropagation(); if (b.dataset.acct === 'in') S.signIn(); else S.signOut(); });
     return box;
   }
-  const place = () => { const t = document.querySelector('#ui .title'); if (!t) return; const old = t.querySelector('.acct'); const b = badge(); old ? old.replaceWith(b) : t.appendChild(b); };
+  const place = () => { const t = document.querySelector('#ui .title'); if (!t) return; const old = t.querySelector('.acct'); const b = badge(); b.insertAdjacentHTML('beforeend', '<a class="acct-priv" href="privacy.html" target="_blank" rel="noopener">Privacy</a>'); old ? old.replaceWith(b) : t.appendChild(b); };
   addEventListener('load', () => {
     const M = GV.menus, t0 = M.title;
     M.title = function () { const r = t0.apply(this, arguments); place(); return r; };

@@ -757,3 +757,6 @@ body.touch #picker { display: none; }
 .acct button { min-height: 0; }
 @media (max-width: 700px) { .acct { top: auto; bottom: 10px; right: 10px; } .acct-note { display: none; } }
 .acct { text-align: left; }
+
+.acct .acct-priv { font-size: 11px; color: #8f9bb6; letter-spacing: .06em; text-decoration: none; margin-left: 2px; align-self: flex-end; }
+.acct .acct-priv:hover { color: #8fe9ff; }
