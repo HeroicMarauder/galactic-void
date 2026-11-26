@@ -157,6 +157,7 @@
           this.inv = Math.max(this.inv, C.DASH_TIME + 0.05);
           this.dive = null; this.channel = null;
           if (st.asc && st.asc.quickdraw) this.quickdraw = true;
+          if (GV.onDash) GV.onDash(p, this);
           p.sfx('dash');
         }
       }

@@ -27,6 +27,7 @@
       if (!sd || !GV.gemFits(sd, def)) continue;
       sd.apply(s); s.supports.push(it.id);
     }
+    if (GV.applyTagMods) GV.applyTagMods(s, st);
     // Ascendancy rules that reshape skills
     const AF = st.asc || {};
     if (AF.moveCdr && tags.has('Movement')) s.cdrInc += 54;

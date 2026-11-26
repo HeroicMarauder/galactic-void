@@ -440,6 +440,14 @@
       for (let i = 0; i < 3; i++) { const r = clamp01((p - i * 0.15) / 0.5); ring(g, S.cx + 10, GY - 62, 16 + r * 130, G.color, (1 - r) * 0.8, 3, 0.7); }
       if (p > 0.35) { S.hit = 0.4; S.fear = true; }
     },
+    spores(g, p, o, S, G) {
+      S.cx = 110; o.attack = p < 0.2 ? 0.25 : 0;
+      for (let i = 0; i < 3; i++) {
+        const q = clamp01((p - 0.08 - i * 0.07) / 0.45), x = 140 + (S.tx - 150) * q + Math.sin(q * 9 + i) * 10, y = GY - 60 - Math.sin(q * Math.PI) * (50 + i * 16) + (i - 1) * 8;
+        if (q > 0 && q < 1) { A.glow(g, x, y, 14, rgba(G.color, 0.4)); dot(g, x, y, 5.5, '#4a1328'); dot(g, x - 1.5, y - 1.5, 2.6, G.color); }
+        if (q >= 1) { const r = clamp01((p - 0.53 - i * 0.07) / 0.3); ring(g, S.tx - 10 + (i - 1) * 12, GY - 56, 8 + r * 48, G.color, 1 - r, 3); burst(g, S.tx - 10, GY - 56, 7, 30, G.color, r, i + 2); S.hit = Math.max(S.hit, 1 - r); }
+      }
+    },
     bloom(g, p, o, S, G) {
       S.cx = S.tx - 150; o.attack = p < 0.25 ? 0.2 : 0; const b = ease(clamp01((p - 0.15) / 0.35)), f = p > 0.8 ? (1 - p) / 0.2 : 1;
       g.save(); g.translate(S.tx, GY - 20); g.globalAlpha = f;

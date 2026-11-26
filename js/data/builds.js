@@ -11,7 +11,7 @@
     exportCode(name) {
       const d = GV.save.data, inv = GV.inv;
       const bar = inv.barGems().map((g) => (g ? { id: g.id, s: g.sup.map((u) => { const x = d.sups.find((y) => y.uid === u); return x ? x.id : null; }) } : null));
-      const o = { n: (name || '').slice(0, 30), c: d.cls, p: d.passives, a: d.asc && d.asc.sub ? { s: d.asc.sub, n: d.asc.nodes } : null, b: bar, r: d.level };
+      const o = { n: (name || '').slice(0, 30), c: d.cls, tv: GV.TREE.VER, av: GV.asc && GV.asc.VER, p: d.passives, a: d.asc && d.asc.sub ? { s: d.asc.sub, n: d.asc.nodes } : null, b: bar, r: d.level };
       return PREFIX + b64e(JSON.stringify(o)).replace(/=+$/, '');
     },
     parse(code) {
@@ -26,18 +26,19 @@
     preview(o) {
       const d = GV.save.data, T = GV.TREE;
       const sameCls = o.c === d.cls;
-      const want = o.p.filter((id) => T.nodes[id]).length - 1;
+      const oldTree = (o.tv || 1) !== T.VER;
+      const want = oldTree ? 0 : o.p.filter((id) => T.nodes[id]).length - 1;
       const cores = o.b.map((x) => {
         if (!x || !GV.GEMS[x.id]) return null;
         const own = d.gems.some((g) => g.id === x.id);
         return { id: x.id, own, sups: (x.s || []).filter(Boolean).map((sid) => ({ id: sid, own: d.sups.some((s) => s.id === sid) })) };
       });
-      return { name: o.n, cls: o.c, sameCls, rank: o.r, nodes: want, canNodes: Math.min(want, T.total()), cost: T.resetCost(), cores, asc: o.a };
+      return { oldTree, name: o.n, cls: o.c, sameCls: sameCls && !oldTree, rank: o.r, nodes: want, canNodes: Math.min(want, T.total()), cost: T.resetCost(), cores, asc: o.a };
     },
     apply(o, opts = {}) {
       const d = GV.save.data, T = GV.TREE, inv = GV.inv, out = { nodes: 0, cores: 0, augs: 0, missing: [] };
       // Tree: same class only. Costs the normal tree reset.
-      if (opts.tree && o.c === d.cls) {
+      if (opts.tree && o.c === d.cls && (o.tv || 1) === T.VER) {
         const c = T.resetCost();
         if (d.memories < c) throw new Error(`Rebuilding the tree costs ${c} ✦ (the normal reset cost).`);
         d.memories -= c;

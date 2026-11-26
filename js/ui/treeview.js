@@ -4,7 +4,7 @@
   const GV = window.GV, T = () => GV.TREE;
   let from = 'map', cv, ctx, raf = 0, cam = { x: 0, y: 0, z: 0.5 }, sel = null, hover = null, preview = [], query = '';
   const ptrs = new Map();
-  let drag = null, pinch = null, moved = false, dpr = 1;
+  let drag = null, pinch = null, moved = false, dpr = 1, goTo = null;
 
   const R = { small: 10, notable: 18, keystone: 26, classStart: 22 };
   const hue = (n) => T().GROUPS[n.group].hue;
@@ -23,15 +23,16 @@
           <button data-a="reset" class="ghost" id="tvReset"></button>
           <button class="primary" data-a="close">Done</button>
         </div>
+        <div class="tree-regions" id="tvRegions">${T().REGIONS.map((R) => `<button data-a="go" data-r="${R.id}" class="${R.cls === GV.save.data.cls ? 'mine' : ''}" style="--h:${R.hue}"><b>${R.name}</b><small>${GV.CLASSES[R.cls].name}</small></button>`).join('')}</div>
         <div class="tree-tip" id="tvTip"></div>
         <div class="tree-hint">${GV.input.isTouch ? 'Drag to pan · pinch to zoom · tap a node' : 'Drag to pan · scroll to zoom · click a node'}</div>
       </div>`, onAction, () => (sel != null ? (sel = null, preview = [], tip()) : close()));
-    cv = document.getElementById('treeCv');
+    cv = document.getElementById('treeCv'); cv.classList.add('grabZone');
     ctx = cv.getContext('2d');
     sizeCanvas();
     const root = T().nodes[T().root()];
-    const fit = Math.min(cv.clientWidth, cv.clientHeight) / 1100;
-    cam = { x: root.x * 0.6, y: root.y * 0.6, z: Math.max(0.32, Math.min(0.8, fit * 1.3)) };
+    const fit = Math.min(cv.clientWidth, cv.clientHeight) / 1300;
+    cam = { x: root.x * 1.9, y: root.y * 1.9, z: Math.max(0.36, Math.min(0.85, fit * 1.35)) };
     bindInput();
     document.getElementById('tvSearch').addEventListener('input', (e) => { query = e.target.value.trim().toLowerCase(); });
     tip();
@@ -45,8 +46,13 @@
     else if (from === 'pause') { if (GV.game.play) GV.game.play.player.recalc(); GV.menus.pause(); }
     else GV.menus.map();
   }
-  function onAction(a) {
+  function onAction(a, b) {
     if (a === 'close') return close();
+    if (a === 'go') {
+      const R = T().REGIONS.find((x) => x.id === b.dataset.r), rad = R.ang * Math.PI / 180;
+      goTo = { x: Math.cos(rad) * 850, y: Math.sin(rad) * 850, z: 0.4 };
+      return;
+    }
     if (a === 'reset') {
       const b = document.getElementById('tvReset');
       if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = `Confirm: ${T().resetCost()} ✦`; return; }
@@ -107,7 +113,7 @@
         cam.x = drag.cx - dx / cam.z; cam.y = drag.cy - dy / cam.z;
       } else if (e.pointerType === 'mouse') {
         const h = pickNode(p.x, p.y);
-        if (h !== hover) { hover = h; tip(); }
+        if (h !== hover) { hover = h; tip(); cv.classList.toggle('overItem', h != null); }
       }
     });
     const up = (e) => {
@@ -133,19 +139,21 @@
     const el = document.getElementById('tvTip');
     if (!el) return;
     const pts = T().points();
-    document.getElementById('tvPts').innerHTML = `<b>${pts}</b> point${pts === 1 ? '' : 's'} · ${T().spent()} / ${T().CAP} max · ✦ ${GV.save.data.memories}${GV.save.data.treeResetNote ? ' · <span class="warn">New point rules: your tree was reset for free</span>' : ''}`;
+    const note = GV.save.data.treeResetNote;
+    document.getElementById('tvPts').innerHTML = `<b>${pts}</b> point${pts === 1 ? '' : 's'} · ${T().spent()} / ${T().CAP} max · ✦ ${GV.save.data.memories}${note ? ` · <span class="warn">${note === 'new' ? 'The tree has been rebuilt: every point refunded, free' : 'New point rules: your tree was reset for free'}</span>` : ''}`;
     const rb = document.getElementById('tvReset');
     if (!rb.dataset.armed) rb.textContent = 'Reset tree';
     const id = sel != null ? sel : hover;
     if (id == null) { el.className = 'tree-tip'; el.innerHTML = ''; return; }
     const n = T().nodes[id], esc = GV.menus.esc;
-    const kind = { small: 'Passive', notable: 'Notable', keystone: 'Keystone', classStart: 'Class start' }[n.type];
+    const kind = n.sig ? `Signature · ${GV.CLASSES[n.cls].name} only` : { small: 'Passive', notable: 'Notable', keystone: 'Keystone', classStart: 'Class start' }[n.type];
     const lines = T().lines(n).map((l) => `<li>${esc(l)}</li>`).join('');
     let act = '';
     if (sel != null) {
       if (T().has(id)) {
         act = T().canRefund(id) ? `<button data-a="refund">Refund · ${T().refundCost()} ✦</button>` : (id === T().root() ? '<span class="muted">Your starting point</span>' : '<span class="muted">Other passives depend on this one</span>');
       } else if (n.type === 'classStart') act = '<span class="muted">Another class starts here</span>';
+      else if (n.sig && n.cls !== GV.save.data.cls) act = `<span class="muted">Only a ${esc(GV.CLASSES[n.cls].name)} can take this</span>`;
       else {
         const p = T().pathTo(id);
         if (!p) act = '<span class="muted">Not reachable</span>';
@@ -156,12 +164,13 @@
     el.className = 'tree-tip show ' + n.type;
     el.style.setProperty('--h', hue(n));
     el.innerHTML = `<div class="tk">${kind}${n.cluster ? ' · ' + esc(n.cluster) : ''}</div><div class="tn">${esc(n.name)}</div><ul>${lines}</ul><div class="ta">${act}</div>`;
-    el.querySelectorAll('[data-a]').forEach((b) => b.addEventListener('click', () => onAction(b.dataset.a)));
+    el.querySelectorAll('[data-a]').forEach((b) => b.addEventListener('click', () => onAction(b.dataset.a, b)));
   }
 
   function loop(now) {
     if (!cv || !document.body.contains(cv)) { raf = 0; return; }
     if (cv.width !== Math.round(cv.clientWidth * dpr)) sizeCanvas();
+    if (goTo) { const k = 0.16; cam.x += (goTo.x - cam.x) * k; cam.y += (goTo.y - cam.y) * k; cam.z += (goTo.z - cam.z) * k; if (Math.abs(goTo.x - cam.x) + Math.abs(goTo.y - cam.y) < 2) goTo = null; }
     draw(now / 1000);
     raf = requestAnimationFrame(loop);
   }
@@ -177,13 +186,16 @@
     ctx.translate(W / 2, H / 2); ctx.scale(cam.z, cam.z); ctx.translate(-cam.x, -cam.y);
     // backdrop: faint rings and arm names
     ctx.strokeStyle = 'rgba(140,160,220,0.06)'; ctx.lineWidth = 2 / cam.z;
-    for (const r of [340, 580, 860, 1100]) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
+    for (const r of [390, 660, 1060, 1300, 1560]) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `700 ${Math.max(60, 26 / cam.z)}px ${GV.CFG.FONT}`;
-    for (const k in tr.ARMS) {
-      const a = tr.ARMS[k].ang * Math.PI / 180;
-      ctx.fillStyle = `hsla(${tr.GROUPS[k].hue},80%,60%,0.07)`;
-      ctx.fillText(tr.ARMS[k].name.toUpperCase(), Math.cos(a) * 720, Math.sin(a) * 720);
+    // region names, faint and huge, with the class beneath
+    for (const Rg of tr.REGIONS) {
+      const a = Rg.ang * Math.PI / 180, x = Math.cos(a) * 930, y = Math.sin(a) * 930, mine = Rg.cls === GV.save.data.cls;
+      ctx.fillStyle = `hsla(${Rg.hue},80%,62%,${mine ? 0.16 : 0.08})`;
+      ctx.font = `800 ${Math.max(58, 24 / cam.z)}px ${GV.CFG.FONT}`;
+      ctx.fillText(Rg.name.toUpperCase(), x, y);
+      ctx.font = `600 ${Math.max(22, 11 / cam.z)}px ${GV.CFG.FONT}`;
+      ctx.fillText(GV.CLASSES[Rg.cls].name.toUpperCase(), x, y + Math.max(56, 24 / cam.z));
     }
     // edges
     for (const [a, b] of tr.edges) {
@@ -200,7 +212,8 @@
     const pulse = 0.5 + Math.sin(t * 4) * 0.5;
     for (const n of nodes) {
       const r = R[n.type], h = hue(n), on = alloc.has(n.id);
-      const canNext = !on && pts > 0 && n.type !== 'classStart' && n.adj.some((x) => alloc.has(x));
+      const locked = n.sig && n.cls !== GV.save.data.cls;
+      const canNext = !on && pts > 0 && tr.allowed(n.id) && n.adj.some((x) => alloc.has(x));
       if (on) GV.art.glow(ctx, n.x, n.y, r * 3, `hsla(${h},90%,60%,0.5)`);
       ctx.fillStyle = on ? `hsl(${h},85%,58%)` : prev.has(n.id) ? 'rgba(255,230,140,0.35)' : '#121624';
       ctx.strokeStyle = on ? `hsl(${h},95%,80%)` : canNext ? `hsla(${h},95%,70%,${0.5 + pulse * 0.5})` : `hsla(${h},40%,55%,0.55)`;
@@ -209,12 +222,18 @@
       if (n.type === 'keystone') {
         for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, rr = i % 2 ? r * 0.78 : r; ctx.lineTo(n.x + Math.cos(a) * rr, n.y + Math.sin(a) * rr); }
         ctx.closePath();
+      } else if (n.sig) {
+        for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2; ctx.lineTo(n.x + Math.cos(a) * (r + 5), n.y + Math.sin(a) * (r + 5)); }
+        ctx.closePath();
+        if (locked) ctx.globalAlpha = 0.45;
       } else if (n.type === 'classStart') {
         for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + Math.PI / 6; ctx.lineTo(n.x + Math.cos(a) * r, n.y + Math.sin(a) * r); }
         ctx.closePath();
       } else ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
       ctx.fill(); ctx.stroke();
-      if (n.type === 'notable' || n.type === 'keystone') {
+      ctx.globalAlpha = 1;
+      if (n.sig) { ctx.fillStyle = on ? '#fff' : locked ? 'rgba(255,255,255,0.35)' : `hsl(${h},95%,75%)`; ctx.font = `700 13px ${GV.CFG.FONT}`; ctx.fillText(locked ? '🔒' : '✦', n.x, n.y + 1); }
+      else if (n.type === 'notable' || n.type === 'keystone') {
         ctx.strokeStyle = on ? '#fff' : `hsla(${h},60%,70%,0.5)`; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(n.x, n.y, r * 0.55, 0, Math.PI * 2); ctx.stroke();
       }

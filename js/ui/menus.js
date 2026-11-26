@@ -4,7 +4,8 @@
   const GV = window.GV, U = GV.util;
   const $ui = () => document.getElementById('ui');
   let back = null;
-  let shopTab = 'weapons', shopFrom = 'map';
+  let shopTab = 'all', shopFrom = 'map';
+  const shopF = { q: '', sort: 'default', afford: false };
   let savesFrom = 'title', savesMsg = '', settingsFrom = 'title', trialCurses = null, setMsg = '';
   GV.TRIAL_CURSES = {
     swift: { name: 'Swift', desc: 'Enemies move 40% faster', bonus: 30 },
@@ -347,52 +348,58 @@
     shop(opts) {
       if (opts && opts.from) shopFrom = opts.from;
       const d = GV.save.data;
-      const tab = (k, label) => `<button class="tab ${shopTab === k ? 'sel' : ''}" data-a="tab" data-k="${k}">${label}</button>`;
-      let rows = '';
       const cost = (n) => `${memIcon} ${n}`;
-      if (shopTab === 'weapons') {
-        const cur = GV.equippedWeapon(d);
-        rows += `<div class="row hands"><div class="ri"><b>In your hands</b><span>${esc(GV.WEAPONS[d.weapon] ? GV.WEAPONS[d.weapon].name : '—')} <em>main</em> · ${d.offhand ? esc(GV.WEAPONS[d.offhand].name) + ' <em>off-hand</em>' : GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? '<em>two-handed</em>' : '<em>off-hand empty (+4% crit)</em>'}</span><em>${cur.dual ? 'Dual wielding: 18% faster attacks, both weapons\' effects alternate' : cur.shield ? `Shield: ${cur.shield.block}% block, +${cur.shield.armour} armour` : cur.twoHanded ? 'Two-handed: 10% more damage' : ''}</em></div>${d.offhand ? '<button data-a="unOff">Empty off hand</button>' : ''}</div>`;
-        const HN = { one: 'One-handed', two: 'Two-handed', off: 'Off-hand shield' };
-        for (const k in GV.WEAPONS) {
-          const w = GV.WEAPONS[k], own = d.weapons.includes(k), eq = d.weapon === k, eqOff = d.offhand === k;
-          if (w.legacy) continue;
-          if (w.set && !own) continue;
-          if (w.exotic && !own) { rows += `<div class="row locked"><div class="ri"><b style="color:${w.color}">${w.name} <small class="exo">EXOTIC</small></b><span>Only a Titan carries this. Fell ${esc(GV.TITANS[w.exotic].name)} for a chance at it.</span></div><button disabled>Titan drop</button></div>`; continue; }
-          const stat = w.hand === 'off' ? `${w.block}% block · +${w.armour} armour` : `DMG ${w.dmg} · ${w.cd < 0.3 ? 'fast' : w.cd > 0.5 ? 'slow' : 'steady'} · reach ${w.range}`;
-          const tag = w.exotic ? ' <small class="exo">EXOTIC</small>' : w.set ? ` <small class="exo setw" style="background:${GV.SETS[w.set].color}">SET</small>` : '';
-          let btns;
-          if (!own) btns = `<button data-a="buyW" data-k="${k}" ${d.memories < w.cost ? 'disabled' : ''}>${cost(w.cost)}</button>`;
-          else if (w.hand === 'off') btns = eqOff ? '<button disabled>Off hand</button>' : `<button class="primary" data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off hand</button>`;
-          else if (w.hand === 'two') btns = eq ? '<button disabled>Equipped</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Equip</button>`;
-          else btns = `${eq ? '<button disabled>Main</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Main</button>`}${eqOff ? '<button disabled>Off</button>' : `<button data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off</button>`}`;
-          rows += `<div class="row"><div class="ri"><b style="color:${w.color}">${w.name}${tag}</b><span>${w.desc}</span><em>${HN[w.hand]} · ${stat}</em></div><div class="wbtns">${btns}</div></div>`;
-        }
-      } else if (shopTab === 'gems') {
-        const T = GV.progress.shopTier();
-        const items = [];
-        for (let t = 1; t <= T; t++) {
-          items.push({ k: 'skill', t, name: `Blank Star Core · Tier ${t}`, desc: `Format it into any Tier ${t} or lower Star Core.${t > 1 ? ` Starts at level ${1 + 3 * (t - 1)}.` : ''}`, cost: 35 + 45 * t });
-          items.push({ k: 'support', t, name: `Blank Augment · Tier ${t}`, desc: `Format it into any Tier ${t} or lower Augment.`, cost: 25 + 35 * t });
-        }
-        items.push({ k: 'orb', name: GV.TERMS.orb, desc: `Adds an augment port to a Star Core (up to ${GV.MAX_SOCKETS}). You have ${d.orbs}.`, cost: 90 });
-        for (const ck in GV.CURRENCY) { if (ck === 'anomaly') continue; const c = GV.CURRENCY[ck]; items.push({ k: 'cur:' + ck, name: c.name, desc: `${c.desc} You have ${d.cur[ck] || 0}.`, cost: c.cost, color: c.color }); }
-        for (const it of items) {
-          rows += `<div class="row"><div class="ri"><b style="color:${it.color || (it.k === 'orb' ? '#ffd36b' : it.k === 'skill' ? '#6fd3ff' : '#c9d2e6')}">${it.name}</b><span>${it.desc}</span></div>
-            <button data-a="buyG" data-k="${it.k}" data-t="${it.t || 0}" data-c="${it.cost}" ${d.memories < it.cost ? 'disabled' : ''}>${cost(it.cost)}</button></div>`;
-        }
-        if (T < 3) rows += `<p class="note">Clear more of Sector I to unlock higher tiers.</p>`;
-      } else {
-        for (const k in GV.UPGRADES) {
-          const u = GV.UPGRADES[k], lv = d.upgrades[k], c = GV.progress.upgradeCost(k), max = lv >= u.max;
-          rows += `<div class="row"><div class="ri"><b>${u.name} <i class="slot">Lv ${lv}/${u.max}</i></b><span>${u.desc}</span></div>
-            <button data-a="buyU" data-k="${k}" ${max || d.memories < c ? 'disabled' : ''}>${max ? 'Maxed' : cost(c)}</button></div>`;
-        }
+      const E = []; // every row Vesper has: { cat, name, desc, cost, html }
+      const cur = GV.equippedWeapon(d);
+      const handsRow = `<div class="row hands"><div class="ri"><b>In your hands</b><span>${esc(GV.WEAPONS[d.weapon] ? GV.WEAPONS[d.weapon].name : '—')} <em>main</em> · ${d.offhand ? esc(GV.WEAPONS[d.offhand].name) + ' <em>off-hand</em>' : GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? '<em>two-handed</em>' : '<em>off-hand empty (+4% crit)</em>'}</span><em>${cur.dual ? 'Dual wielding: 18% faster attacks, both weapons\' effects alternate' : cur.shield ? `Shield: ${cur.shield.block}% block, +${cur.shield.armour} armour` : cur.twoHanded ? 'Two-handed: 10% more damage' : ''}</em></div>${d.offhand ? '<button data-a="unOff">Empty off hand</button>' : ''}</div>`;
+      const HN = { one: 'One-handed', two: 'Two-handed', off: 'Off-hand shield' };
+      for (const k in GV.WEAPONS) {
+        const w = GV.WEAPONS[k], own = d.weapons.includes(k), eq = d.weapon === k, eqOff = d.offhand === k, cat = w.hand === 'off' ? 'shields' : 'weapons';
+        if (w.legacy) continue;
+        if (w.set && !own) continue;
+        if (w.exotic && !own) { E.push({ cat, name: w.name, desc: w.desc, cost: Infinity, locked: true, html: `<div class="row locked"><div class="ri"><b style="color:${w.color}">${w.name} <small class="exo">EXOTIC</small></b><span>Only a Titan carries this. Fell ${esc(GV.TITANS[w.exotic].name)} for a chance at it.</span></div><button disabled>Titan drop</button></div>` }); continue; }
+        const stat = w.hand === 'off' ? `${w.block}% block · +${w.armour} armour` : `DMG ${w.dmg} · ${w.cd < 0.3 ? 'fast' : w.cd > 0.5 ? 'slow' : 'steady'} · reach ${w.range}`;
+        const tag = w.exotic ? ' <small class="exo">EXOTIC</small>' : w.set ? ` <small class="exo setw" style="background:${GV.SETS[w.set].color}">SET</small>` : '';
+        let btns;
+        if (!own) btns = `<button data-a="buyW" data-k="${k}" ${d.memories < w.cost ? 'disabled' : ''}>${cost(w.cost)}</button>`;
+        else if (w.hand === 'off') btns = eqOff ? '<button disabled>Off hand</button>' : `<button class="primary" data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off hand</button>`;
+        else if (w.hand === 'two') btns = eq ? '<button disabled>Equipped</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Equip</button>`;
+        else btns = `${eq ? '<button disabled>Main</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Main</button>`}${eqOff ? '<button disabled>Off</button>' : `<button data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off</button>`}`;
+        E.push({ cat, name: w.name, desc: w.desc + ' ' + HN[w.hand] + (own ? ' owned' : ''), cost: own ? 0 : w.cost, owned: own, html: `<div class="row ${own ? 'owned' : ''}"><div class="ri"><b style="color:${w.color}">${w.name}${tag}</b><span>${w.desc}</span><em>${HN[w.hand]} · ${stat}${own ? ' · <span class="ok">owned</span>' : ''}</em></div><div class="wbtns">${btns}</div></div>` });
       }
+      const T = GV.progress.shopTier();
+      const gitems = [];
+      for (let t = 1; t <= T; t++) {
+        gitems.push({ cat: 'cores', k: 'skill', t, name: `Blank Star Core · Tier ${t}`, desc: `Format it into any Tier ${t} or lower Star Core.${t > 1 ? ` Starts at level ${1 + 3 * (t - 1)}.` : ''}`, cost: 35 + 45 * t });
+        gitems.push({ cat: 'augs', k: 'support', t, name: `Blank Augment · Tier ${t}`, desc: `Format it into any Tier ${t} or lower Augment.`, cost: 25 + 35 * t });
+      }
+      gitems.push({ cat: 'craft', k: 'orb', name: GV.TERMS.orb, desc: `Adds an augment port to a Star Core (up to ${GV.MAX_SOCKETS}). You have ${d.orbs}.`, cost: 90 });
+      for (const ck in GV.CURRENCY) { if (ck === 'anomaly') continue; const c = GV.CURRENCY[ck]; gitems.push({ cat: 'craft', k: 'cur:' + ck, name: c.name, desc: `${c.desc} You have ${d.cur[ck] || 0}.`, cost: c.cost, color: c.color }); }
+      for (const it of gitems) E.push(Object.assign({}, it, { html: `<div class="row"><div class="ri"><b style="color:${it.color || (it.k === 'orb' ? '#ffd36b' : it.k === 'skill' ? '#6fd3ff' : '#c9d2e6')}">${it.name}</b><span>${it.desc}</span></div>
+            <button data-a="buyG" data-k="${it.k}" data-t="${it.t || 0}" data-c="${it.cost}" ${d.memories < it.cost ? 'disabled' : ''}>${cost(it.cost)}</button></div>` }));
+      for (const k in GV.UPGRADES) {
+        const u = GV.UPGRADES[k], lv = d.upgrades[k], c = GV.progress.upgradeCost(k), max = lv >= u.max;
+        E.push({ cat: 'suit', name: u.name, desc: u.desc, cost: max ? Infinity : c, maxed: max, html: `<div class="row"><div class="ri"><b>${u.name} <i class="slot">Lv ${lv}/${u.max}</i></b><span>${u.desc}</span></div>
+            <button data-a="buyU" data-k="${k}" ${max || d.memories < c ? 'disabled' : ''}>${max ? 'Maxed' : cost(c)}</button></div>` });
+      }
+      const CATS = [['all', 'All'], ['weapons', 'Weapons', '⚔'], ['shields', 'Shields', '⛉'], ['cores', 'Star Cores', '◆'], ['augs', 'Augments', '◇'], ['craft', 'Crafting', '⚗'], ['suit', 'Suit', '⛨']];
+      if (!CATS.some(([id]) => id === shopTab)) shopTab = 'all';
+      const canBuy = (e) => e.owned || (e.cost !== Infinity && d.memories >= e.cost);
+      const pass = (e) => GV.filters.match(shopF.q, e.name, e.desc) && (!shopF.afford || canBuy(e));
+      const tabs = CATS.map(([id, name, icon]) => ({ id, name, icon, n: E.filter((e) => (id === 'all' || e.cat === id) && pass(e)).length }));
+      let list = E.filter((e) => (shopTab === 'all' || e.cat === shopTab) && pass(e));
+      const price = (e) => (e.owned ? -1 : e.cost);
+      if (shopF.sort === 'low') list = list.slice().sort((a, b) => price(a) - price(b));
+      if (shopF.sort === 'high') list = list.slice().sort((a, b) => (b.cost === Infinity ? -1 : price(b)) - (a.cost === Infinity ? -1 : price(a)));
+      if (shopF.sort === 'name') list = list.slice().sort((a, b) => a.name.localeCompare(b.name));
+      let rows = (['all', 'weapons', 'shields'].includes(shopTab) && !shopF.q ? handsRow : '') + list.map((e) => e.html).join('');
+      if (!list.length) rows += '<p class="note fnone">Nothing matches. Try another tab, clear the search, or untick "Only what I can afford".</p>';
+      if (['all', 'cores', 'augs'].includes(shopTab) && T < 3) rows += `<p class="note">Clear more of Sector I to unlock higher tiers.</p>`;
+      const fbar = GV.filters.bar({ id: 'shop', tabs, tab: shopTab, q: shopF.q, sort: shopF.sort, placeholder: 'Search Vesper\'s wares', sorts: [['default', 'Sort: shelf order'], ['low', 'Sort: price, low first'], ['high', 'Sort: price, high first'], ['name', 'Sort: name']], checks: [{ id: 'afford', label: 'Only what I can afford', on: shopF.afford }] });
       render(`
         <div class="screen panel shop">
           <div class="topbar"><h2>Vesper's Trade</h2><div class="stats">${memIcon} ${d.memories} memories</div></div>
-          <div class="tabs">${tab('weapons', 'Weapons')}${tab('gems', 'Cores')}${tab('suit', 'Suit')}</div>
+          ${fbar}
           <div class="rows">${rows}</div>
           <div class="menu row"><button class="primary" data-a="back">${shopFrom === 'play' ? 'Back to the drift' : 'Back'}</button></div>
         </div>`, (a, b) => {
@@ -415,6 +422,7 @@
         GV.save.write();
         M.shop();
       }, () => { GV.save.write(); GV.game.closeShop(shopFrom); });
+      GV.filters.bind('shop', { tab: (t) => { shopTab = t; M.shop(); }, q: (v) => { shopF.q = v; M.shop(); }, sort: (v) => { shopF.sort = v; M.shop(); }, check: (id, on) => { shopF[id] = on; M.shop(); } });
     },
 
     // The pause menu: Resume up top, then three tabs (Character, Run, System) and the radio below.

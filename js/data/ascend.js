@@ -56,41 +56,89 @@
   };
 
   const d = () => GV.save.data;
+  // ---- each subclass grows its own tree from its four signature notables, a pool of stats for
+  // the small nodes, and two capstones (you may take only one) ----
+  //
+  //            [cap X]        [cap Y]
+  //        a3 ────── b3 ────── c3
+  //        a2        b2        c2
+  //        a1        b1        c1
+  //                [start]
+  const LAYOUT = [
+    ['a1', 'small', -1, 1, ['start'], 0], ['b1', 'notable', 0, 1, ['start'], 0], ['c1', 'small', 1, 1, ['start'], 1],
+    ['a2', 'notable', -1, 2, ['a1'], 1], ['b2', 'small', 0, 2, ['b1'], 2], ['c2', 'notable', 1, 2, ['c1'], 2],
+    ['a3', 'small', -1, 3, ['a2'], 1], ['b3', 'notable', 0, 3, ['b2'], 3], ['c3', 'small', 1, 3, ['c2'], 0],
+    ['X', 'capstone', -0.5, 4.15, ['a3', 'b3'], 0], ['Y', 'capstone', 0.5, 4.15, ['b3', 'c3'], 1],
+  ];
+  const trees = {};
+  function treeOf(sub) {
+    if (trees[sub.id]) return trees[sub.id];
+    const X = GV.ASC_EXTRA[sub.id] || {}, pool = X.pool || [{ dmg: 8 }, { life: 15 }, { dmg: 6, life: 10 }];
+    const out = [{ id: 'start', kind: 'start', name: sub.name, x: 0, y: 0, req: [], cost: 0, lines: [sub.tag] }];
+    for (const [id, kind, x, y, req, k] of LAYOUT) {
+      let n;
+      if (kind === 'small') n = { name: X.smallName || sub.name + ' Discipline', stats: pool[k % pool.length] };
+      else if (kind === 'notable') n = Object.assign({}, sub.nodes[k]);
+      else n = Object.assign({}, (X.caps || [])[k] || { name: 'Apex', stats: { dmg: 20 }, lines: [] });
+      n = Object.assign(n, { id, kind, x, y, req, cost: kind === 'capstone' ? 2 : 1 });
+      n.lines = [...(n.lines || []).filter((l) => kind !== 'small'), ...(kind === 'small' || !n.lines || !n.lines.length ? GV.STATS.lines(n.stats || {}) : [])];
+      if (kind === 'capstone') n.lines = [...(n.lines || [])];
+      out.push(n);
+    }
+    return (trees[sub.id] = out);
+  }
   GV.asc = {
+    VER: 2,
     unlocked() { return !!d().cleared['0-2'] && !!d().cls; },
     choices() { return GV.ASCEND[d().cls] || []; },
     current() { const a = d().asc; return a && a.sub ? this.choices().find((c) => c.id === a.sub) : null; },
+    tree(sub) { sub = sub || this.current(); return sub ? treeOf(sub) : []; },
+    node(id) { return this.tree().find((n) => n.id === id) || null; },
+    CAP: 10,
     total() {
       if (!this.unlocked()) return 0;
       let n = 4;
       for (let s = 1; s < 10; s++) if (d().cleared[`${s}-2`]) n += 2;
-      return Math.min(8, n);
+      return Math.min(this.CAP, n);
     },
-    spent() { return (d().asc.nodes || []).length * 2; },
+    // Old (first-edition) ascendancy picks are refunded for free; your subclass stays.
+    migrate() {
+      const a = d().asc;
+      if (!a || d().ascVer === this.VER) return;
+      if (a.nodes && a.nodes.length) a.note = true;
+      a.nodes = []; d().ascVer = this.VER;
+    },
+    spent() { this.migrate(); return (d().asc.nodes || []).reduce((t, id) => t + ((this.node(id) || {}).cost || 0), 0); },
     points() { return this.total() - this.spent(); },
-    has(id) { return (d().asc.nodes || []).includes(id); },
-    canTake(n) {
-      if (this.has(n.id) || this.points() < 2) return false;
-      if (n.tier === 1) return true;
-      const sub = this.current();
-      return sub.nodes.some((m) => m.tier === 1 && this.has(m.id));
+    has(id) { return id === 'start' || (d().asc.nodes || []).includes(id); },
+    capTaken() { return (d().asc.nodes || []).some((id) => (this.node(id) || {}).kind === 'capstone'); },
+    why(n) {
+      if (this.has(n.id)) return 'taken';
+      if (!n.req.some((r) => this.has(r))) return 'locked';
+      if (n.kind === 'capstone' && this.capTaken()) return 'other';
+      if (this.points() < n.cost) return 'points';
+      return 'ok';
     },
-    choose(id) { d().asc = { sub: id, nodes: [] }; GV.save.write(); },
+    canTake(n) { return this.why(n) === 'ok'; },
+    choose(id) { d().asc = { sub: id, nodes: [] }; d().ascVer = this.VER; GV.save.write(); },
     take(id) {
-      const n = this.current().nodes.find((x) => x.id === id);
+      const n = this.node(id);
       if (!n || !this.canTake(n)) return false;
       d().asc.nodes.push(id); GV.save.write(); return true;
     },
-    respec() { const c = 30 + 10 * this.spent(); if (d().memories < c) return false; d().memories -= c; d().asc.nodes = []; GV.save.write(); return true; },
+    respec() { const c = this.respecCost(); if (d().memories < c) return false; d().memories -= c; d().asc.nodes = []; GV.save.write(); return true; },
     respecCost() { return 30 + 10 * this.spent(); },
-    // Stats and flags for the stat aggregator.
+    // Stats, flags, fx and tag modifiers for the stat aggregator.
     collect() {
-      const out = { stats: {}, flags: {} }, sub = this.current();
+      const out = { stats: {}, flags: {}, fx: {}, tm: [] }, sub = this.current();
       if (!sub) return out;
-      for (const n of sub.nodes) {
-        if (!this.has(n.id)) continue;
-        if (n.flag) out.flags[n.flag] = true;
+      this.migrate();
+      for (const n of this.tree(sub)) {
+        if (n.id === 'start' || !this.has(n.id)) continue;
+        if (n.flag) for (const f of [].concat(n.flag)) out.flags[f] = true;
         for (const k in n.stats || {}) out.stats[k] = (out.stats[k] || 0) + n.stats[k];
+        for (const k in n.fx || {}) out.fx[k] = (out.fx[k] || 0) + n.fx[k];
+        if (n.tm) out.tm.push(...n.tm);
       }
       return out;
     },
@@ -143,4 +191,60 @@
           N('permafrost', 'Permafrost', 2, { freezeChance: 10, coldDmg: 25 }, ['+10% chance to Freeze', '25% increased Cold Damage']), N('shell', 'Glacial Shell', 2, { ward: 60, armour: 50 }, ['+60 Void Ward', '+50 Armour'])] },
     ],
   });
+})();
+
+// Ascendancy trees: small-node stats and the two capstones (choose one) for every subclass.
+(function () {
+  const GV = window.GV;
+  const C = (name, o, lines) => Object.assign({ name, lines }, o);
+  GV.ASC_EXTRA = {
+    vanguard: { smallName: 'Vanguard Drill', pool: [{ armour: 40, meleeDmg: 8 }, { life: 25 }, { moveSpd: 4, fireDmg: 10 }, { armourPct: 12 }],
+      caps: [C('Juggernaut Charge', { tm: [{ t: 'Movement', more: 1.5, cdr: 30 }], fx: { lessTaken: 8 } }, ['Movement skills deal 50% more damage and recharge 30% faster', 'Take 8% less damage']),
+        C('Scorched March', { flag: 'burnTrail', fx: { ignitedMore: 30 }, stats: { fireDmg: 30, igniteChance: 20 } }, ['Your charges leave burning ground', 'Ignited enemies take 30% more damage from your hits', '30% increased Fire Damage, +20% chance to Ignite'])] },
+    bladestorm: { smallName: 'Storm Form', pool: [{ atkSpd: 4 }, { areaDmg: 12 }, { meleeDmg: 10 }, { life: 20 }],
+      caps: [C('Maelstrom', { tm: [{ t: 'Channelling', more: 1.35, area: 25 }] }, ['Channelling skills deal 35% more damage', 'Channelling skills have 25% increased Area']),
+        C('Thousand Cuts', { flag: 'bladeDance', fx: { killCharge: 5 }, stats: { atkSpd: 15 } }, ['15% increased Attack Speed', 'Kills grant stacking Attack Speed', 'Kills restore 5 Charge'])] },
+    ghost: { smallName: 'Shadow Craft', pool: [{ stealthDmg: 15 }, { evasion: 3 }, { critChance: 15 }, { moveSpd: 4 }],
+      caps: [C('Nightfall', { fx: { stealthMore: 50, dashStealth: 1 } }, ['Hits from Stealth deal 50% more damage', 'Phase Dash grants 1 second of Stealth']),
+        C("Assassin's Mark", { fx: { bossMore: 30 }, stats: { critMulti: 40 } }, ['Deal 30% more damage to bosses and Titans', '+40% Critical Damage Bonus'])] },
+    gunslinger: { smallName: 'Trigger Discipline', pool: [{ projDmg: 10 }, { atkSpd: 4 }, { critMulti: 10 }, { projSpd: 12 }],
+      caps: [C('Bullet Storm', { tm: [{ t: 'Projectile', proj: 2, more: 0.9 }] }, ['Projectile skills fire 2 additional Projectiles', 'Projectile skills deal 10% less damage']),
+        C("Executioner's Round", { tm: [{ t: 'Projectile', crit: 80, pierce: 2 }], stats: { critMulti: 30 } }, ['Projectile skills have 80% increased Critical Hit Chance and Pierce 2 more enemies', '+30% Critical Damage Bonus'])] },
+    templar: { smallName: 'Templar Vow', pool: [{ ward: 20 }, { spellDmg: 10 }, { area: 6 }, { fireDmg: 10, lightDmg: 10 }],
+      caps: [C('Sun Altar', { tm: [{ t: 'Area', more: 1.25 }], fx: { fullLifeMore: 15 } }, ['Area skills deal 25% more damage', 'Deal 15% more damage while above 90% Life']),
+        C('Sanctuary', { fx: { lessTaken: 12, killWard: 8 } }, ['Take 12% less damage', 'Kills restore 8 Void Ward'])] },
+    crusader: { smallName: 'Crusader Oath', pool: [{ block: 2 }, { meleeDmg: 10 }, { life: 20 }, { armour: 40 }],
+      caps: [C('Holy Bulwark', { fx: { blockHeal: 4, blockWard: 20 }, stats: { block: 8 } }, ['+8% chance to Block', 'Blocking restores 4% of your Life and 20 Void Ward']),
+        C('Avenger', { flag: 'lastStand', fx: { lowLifeMore: 35 } }, ['Deal 35% more damage below half Life', 'Below 35% Life: take 30% less damage and deal 30% more'])] },
+    architect: { smallName: 'Blueprint', pool: [{ minionDmg: 12 }, { minionSpd: 6 }, { minionDur: 10 }, { armour: 40 }],
+      caps: [C('Grand Design', { tm: [{ t: 'Minion', minions: 2 }], stats: { minionDmg: 20 } }, ['Minion skills summon 2 more minions', '20% increased Minion Damage']),
+        C('Overdrive Core', { tm: [{ t: 'Minion', minionSpd: 40, more: 1.15 }] }, ['Minions attack 40% faster', 'Minion skills deal 15% more damage'])] },
+    demolisher: { smallName: 'Blast Training', pool: [{ areaDmg: 12 }, { lightDmg: 10 }, { fireDmg: 10 }, { area: 6 }],
+      caps: [C('Payload', { tm: [{ t: 'Area', more: 1.3, area: 20 }] }, ['Area skills deal 30% more damage and have 20% increased Area']),
+        C('Live Wire', { fx: { shockedMore: 30 }, stats: { shockChance: 25 } }, ['Shocked enemies take 30% more damage from your hits', '+25% chance to Shock'])] },
+    astromancer: { smallName: 'Star Study', pool: [{ spellDmg: 10 }, { castSpd: 4 }, { critChance: 15 }, { charge: 15 }],
+      caps: [C('Starfall', { tm: [{ t: 'Spell', more: 1.2 }], fx: { fullChargeMore: 20 } }, ['Spells deal 20% more damage', 'Spells deal 20% more damage again while your Charge is above 80%']),
+        C('Singularity Mind', { tm: [{ t: 'Area', area: 35 }], stats: { castSpd: 15 } }, ['Area skills have 35% increased Area', '15% increased Cast Speed'])] },
+    voidcaller: { smallName: 'Void Litany', pool: [{ voidDmg: 12 }, { corruptChance: 5 }, { duration: 8 }, { ward: 20 }],
+      caps: [C('Unmaking', { fx: { corruptedMore: 30 }, stats: { corruptChance: 25 } }, ['Corrupted enemies take 30% more damage from your hits', '+25% chance to Corrupt']),
+        C('Abyssal Tide', { fx: { killBurst: 10 }, stats: { voidDmg: 30 } }, ['Enemies you kill burst for 10% of their maximum Life as Void damage', '30% increased Void Damage'])] },
+    gravitic: { smallName: 'Zero-G Form', pool: [{ atkSpd: 4 }, { moveSpd: 4 }, { meleeDmg: 10 }, { evasion: 3 }],
+      caps: [C('Event Fist', { flag: 'palm', tm: [{ t: 'Melee', speed: 15 }] }, ['Every fourth melee hit releases a shockwave for 60% of its damage', 'Melee skills are 15% faster']),
+        C('Orbit Breaker', { fx: { airMore: 30 }, stats: { airJump: 1 } }, ['Deal 30% more damage while airborne', '+1 air jump'])] },
+    ascetic: { smallName: 'Ascetic Practice', pool: [{ regen: 2 }, { life: 20 }, { physDmg: 12 }, { ward: 20 }],
+      caps: [C('Perfect Body', { fx: { lessTaken: 15 }, stats: { regen: 10 } }, ['Take 15% less damage', 'Regenerate 10 Life per second']),
+        C('Final Lesson', { fx: { lowLifeMore: 40, bossMore: 15 } }, ['Deal 40% more damage below half Life', 'Deal 15% more damage to bosses and Titans'])] },
+    devourer: { smallName: 'Appetite', pool: [{ leech: 0.6 }, { life: 25 }, { meleeDmg: 10 }, { lifePct: 5 }],
+      caps: [C('Gorge Eternal', { fx: { killHeal: 4 }, stats: { leech: 2 } }, ['Kills heal 4% of your maximum Life', '2% of Hit Damage Leeched as Life']),
+        C('Carapace Bloom', { fx: { hiLifeLess: 20, lessTaken: 5 }, stats: { lifePct: 20 } }, ['20% increased maximum Life', 'Take 5% less damage, and 20% less again while above 75% Life'])] },
+    hivemind: { smallName: 'Brood Bond', pool: [{ minionDmg: 12 }, { minionSpd: 6 }, { minionDur: 10 }, { voidDmg: 10 }],
+      caps: [C('Queen of the Hive', { tm: [{ t: 'Minion', minions: 2, more: 1.15 }] }, ['Minion skills summon 2 more minions and deal 15% more damage']),
+        C('Living Swarm', { fx: { minionShield: 20 }, tm: [{ t: 'Minion', minionSpd: 30 }] }, ['Take 20% less damage while you have a minion', 'Minions attack 30% faster'])] },
+    dragoon: { smallName: 'Lance Form', pool: [{ meleeDmg: 10 }, { projDmg: 10 }, { physDmg: 10 }, { life: 20 }],
+      caps: [C('Sky Piercer', { fx: { airMore: 30 }, tm: [{ t: 'Movement', more: 1.3 }] }, ['Deal 30% more damage while airborne', 'Movement skills deal 30% more damage']),
+        C('Impaler', { tm: [{ t: 'Melee', crit: 60 }], fx: { bossMore: 20 } }, ['Melee skills have 60% increased Critical Hit Chance', 'Deal 20% more damage to bosses and Titans'])] },
+    glacier: { smallName: 'Rimewalk', pool: [{ coldDmg: 12 }, { chillEff: 10 }, { freezeChance: 2 }, { ward: 20 }],
+      caps: [C('Glacial Prison', { fx: { frozenMore: 40 }, stats: { freezeChance: 10 } }, ['Hits against Frozen enemies deal 40% more damage', '+10% chance to Freeze']),
+        C('Endless Winter', { fx: { chilledMore: 25 }, tm: [{ t: 'Cold', area: 20 }] }, ['Chilled enemies take 25% more damage from your hits', 'Cold skills have 20% increased Area'])] },
+  };
 })();

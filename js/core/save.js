@@ -144,7 +144,7 @@
       d.offhand = C.offhand || null;
       if (C.offhand && !d.weapons.includes(C.offhand)) d.weapons.push(C.offhand);
       d.arsenalV = 1;
-      d.passives = [GV.TREE.classStart[key]];
+      d.passives = [GV.TREE.classStart[key]]; d.treeVer = GV.TREE.VER;
       d.gems = []; d.sups = []; d.bar = [null, null, null, null];
       C.bar.forEach(([id, sockets], i) => { d.bar[i] = inv.newGem(id, 1, sockets).uid; });
       for (const s of C.supports) inv.newSup(s);

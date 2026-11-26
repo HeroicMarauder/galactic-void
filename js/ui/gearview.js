@@ -2,7 +2,7 @@
 // you're wearing, equip and salvage.
 (function () {
   const GV = window.GV;
-  let from = 'map', sel = null, filter = 'all', crafting = false, craftMsg = '';
+  let from = 'map', sel = null, filter = 'all', crafting = false, craftMsg = '', q = '', sortBy = 'best';
 
   function close() {
     GV.save.write();
@@ -50,10 +50,16 @@
       const it = GV.items.get(d.equip[s]);
       slots += it ? card(it, { full: true }) : `<div class="item empty"><span class="ih"><b>${GV.SLOTS[s].icon} ${GV.SLOTS[s].name}</b><small>Empty</small></span></div>`;
     }
-    const tabs = ['all', ...Object.keys(GV.SLOTS)].map((k) => `<button class="tab ${filter === k ? 'sel' : ''}" data-a="filter" data-k="${k}">${k === 'all' ? 'All' : GV.SLOTS[k].name}</button>`).join('');
     const eqSet = new Set(Object.values(d.equip));
-    const inv = d.items.filter((i) => !eqSet.has(i.uid) && (filter === 'all' || i.slot === filter))
-      .sort((a, b) => GV.items.value(b) - GV.items.value(a));
+    const bag = d.items.filter((i) => !eqSet.has(i.uid));
+    const RANK = { normal: 0, magic: 1, rare: 2, nova: 3, unique: 4 };
+    const tabOf = (i) => (i.set || i.rarity === 'unique' ? 'prized' : i.slot);
+    const TABS = [{ id: 'all', name: 'All' }, ...Object.keys(GV.SLOTS).map((k) => ({ id: k, name: GV.SLOTS[k].name + 's', icon: GV.SLOTS[k].icon })), { id: 'prized', name: 'Sets & Uniques', icon: '★' }];
+    TABS.forEach((t) => { t.n = bag.filter((i) => t.id === 'all' || tabOf(i) === t.id || (t.id !== 'prized' && i.slot === t.id)).length; });
+    const inTab = (i) => filter === 'all' || tabOf(i) === filter || (filter !== 'prized' && i.slot === filter);
+    const SORT = { best: (a, b) => GV.items.value(b) - GV.items.value(a), new: (a, b) => b.uid - a.uid, rarity: (a, b) => (RANK[b.rarity] || 0) - (RANK[a.rarity] || 0) || b.tier - a.tier, tier: (a, b) => b.tier - a.tier || GV.items.value(b) - GV.items.value(a), name: (a, b) => a.name.localeCompare(b.name) };
+    const inv = bag.filter((i) => inTab(i) && GV.filters.match(q, i.name, i.base, GV.items.rarityName(i), GV.items.lines(i).join(' '))).sort(SORT[sortBy] || SORT.best);
+    const fbar = GV.filters.bar({ id: 'gear', tabs: TABS, tab: filter, q, sort: sortBy, placeholder: 'Search names and stats (e.g. "life", "crit")', sorts: [['best', 'Sort: best first'], ['new', 'Sort: newest'], ['rarity', 'Sort: rarity'], ['tier', 'Sort: tier'], ['name', 'Sort: name']] });
     const it = GV.items.get(sel);
     let detail = '<p class="note">Select an item to see its stats, compare it with what you\'re wearing, and equip or salvage it.</p>';
     if (it) {
@@ -77,12 +83,13 @@
         <div class="topbar"><h2>Gear</h2><div class="stats">${d.items.length}/${GV.items.MAX_INV} items · ✦ ${d.memories}</div></div>
         <div class="gslots">${slots}</div>
         <div class="gcols">
-          <div class="ginv"><div class="tabs">${tabs}</div><div class="ilist">${inv.map((x) => card(x)).join('') || '<p class="note">Nothing here. Enemies, rifts and bosses drop gear.</p>'}</div>
+          <div class="ginv">${fbar}<div class="ilist">${inv.map((x) => card(x)).join('') || (bag.length ? '<p class="note fnone">Nothing matches. Try another tab or search.</p>' : '<p class="note">Nothing here. Enemies, rifts and bosses drop gear.</p>')}</div>
             ${inv.length > 1 ? `<div class="menu row left"><button class="ghost" data-a="salvageMagic">Salvage all Salvaged &amp; Calibrated</button></div>` : ''}</div>
           <div class="gdetail">${detail}${totalLines ? `<div class="gsub">Total from gear</div><ul class="totals">${totalLines}</ul>` : ''}</div>
         </div>
         <div class="menu row"><button class="primary" data-a="done">Done</button></div>
       </div>`, onAction, close);
+    GV.filters.bind('gear', { tab: (t) => { filter = t; render(); }, q: (v) => { q = v; render(); }, sort: (v) => { sortBy = v; render(); } });
   }
 
   function onAction(a, b) {

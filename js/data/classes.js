@@ -76,7 +76,7 @@
       weapon: 'biolash', start: 'symbiote', color: '#ff6a9a', kit: { helm: 'organic', suit: 'carapace', boots: 'greave' },
       look: { cloak: '#2e1520', visor: '#ff6a9a', glow: 'rgba(255,100,150,0.4)', suit: '#e3c9d2' },
       stats: { leech: 2, regen: 3, corruptChance: 10, dmg: 10 },
-      bar: [['strike', 2], ['sweep', 1], ['bloom', 1], ['patch', 1]],
+      bar: [['strike', 2], ['spores', 1], ['bloom', 1], ['patch', 1]],
       supports: ['siphon', 'keen'],
       treeHint: 'Starts between Drift and Hull: life, leech and corruption.',
     },

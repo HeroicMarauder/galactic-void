@@ -286,7 +286,7 @@
         let tgt = GV.aim && GV.aim.of(pl) ? GV.aim.pick(p, pl, 560, 0.5) : null;
         if (!tgt) { let bd = 520; for (const e of p.enemies) { if (!live(e)) continue; const d = Math.hypot(e.x + e.w / 2 - pos.x, e.y + e.h / 2 - pos.y); if (d < bd) { bd = d; tgt = e; } } }
         if (!tgt) { D.cd[i] = 0.2; continue; }
-        D.cd[i] = 0.75;
+        D.cd[i] = 0.75 / (GV.minionRate ? GV.minionRate(D.s, pl) : 1);
         const dx = tgt.x + tgt.w / 2 - pos.x, dy = tgt.y + tgt.h / 2 - pos.y, d = Math.hypot(dx, dy) || 1;
         p.spawnProj({ x: pos.x, y: pos.y, vx: (dx / d) * D.s.pspeed, vy: (dy / d) * D.s.pspeed, r: 4, friendly: true, kind: 'gem', s: D.s, hit: new Set(), pierce: 0, chain: 0, life: 0.8, o: D.o, color: D.s.def.color });
       }

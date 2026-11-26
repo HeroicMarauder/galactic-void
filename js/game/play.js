@@ -627,7 +627,7 @@
               const a = base + (k - (n - 1) / 2) * 0.12, sp = s.pspeed || 760;
               this.spawnProj({ x: ox, y: oy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 6, friendly: true, kind: 'gem', s, hit: new Set(), pierce: s.pierce, chain: s.chain, life: 0.8, o: m.o, color: s.def.color });
             }
-            m.cd = m.kind === 'turret' ? 0.5 : 0.85;
+            m.cd = (m.kind === 'turret' ? 0.5 : 0.85) / (GV.minionRate ? GV.minionRate(m.s, m.s && m.s.pl) : 1);
             m.flash = 0.1;
           } else m.cd = 0.2;
         }

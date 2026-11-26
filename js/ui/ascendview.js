@@ -10,7 +10,7 @@
   };
 
   // ---------------- Ascendancy ----------------
-  let aFrom = 'map';
+  let aFrom = 'map', aSel = null;
   function ascend() {
     const M = GV.menus, esc = M.esc, A = GV.asc, d = GV.save.data;
     const cls = GV.CLASSES[d.cls];
@@ -21,11 +21,15 @@
     }
     const sub = A.current();
     if (!sub) {
-      const cards = A.choices().map((c) => `<button class="asccard" data-a="pick" data-k="${c.id}" style="--c:${c.color}">
+      const cards = A.choices().map((c) => {
+        const tr = A.tree(c), nots = tr.filter((n) => n.kind === 'notable'), caps = tr.filter((n) => n.kind === 'capstone');
+        return `<button class="asccard" data-a="pick" data-k="${c.id}" style="--c:${c.color}">
         <span class="an">${c.name}</span><span class="at">${esc(c.tag)}</span>
-        <ul>${c.nodes.map((n) => `<li><b>${esc(n.name)}</b> ${esc(n.lines[0])}</li>`).join('')}</ul></button>`).join('');
+        <ul>${nots.map((n) => `<li><b>${esc(n.name)}</b> ${esc(n.lines[0] || '')}</li>`).join('')}</ul>
+        <div class="acaps"><i>Capstones · choose one</i>${caps.map((n) => `<div><b>${esc(n.name)}</b> ${esc(n.lines[0] || '')}</div>`).join('')}</div></button>`;
+      }).join('');
       M.render(`<div class="screen panel wide asc"><h2>Ascend · ${esc(cls.name)}</h2>
-        <p>Choose your path. This is permanent for this save, though you can reshuffle the nodes later.</p>
+        <p>Choose your path. Each one is its own tree: four signature powers, the disciplines between them, and two capstones at the top, of which you may take one.</p>
         <div class="ascrow">${cards}</div>
         <div class="menu row"><button class="ghost" data-a="back">Not yet</button></div></div>`, (a, b) => {
         if (a === 'back') return back(aFrom);
@@ -36,18 +40,42 @@
       }, () => back(aFrom));
       return;
     }
-    const node = (n) => {
-      const has = A.has(n.id), can = A.canTake(n);
-      return `<button class="ascnode ${has ? 'on' : ''} ${can ? 'can' : ''}" data-a="take" data-k="${n.id}" ${has || !can ? 'disabled' : ''} style="--c:${sub.color}">
-        <span class="nn">${esc(n.name)}</span><ul>${n.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul><span class="nc">${has ? 'Taken' : can ? 'Take · 2 points' : n.tier === 2 ? 'Needs a first-tier node' : 'Need 2 points'}</span></button>`;
+    A.migrate();
+    const tr = A.tree(sub), byId = Object.fromEntries(tr.map((n) => [n.id, n]));
+    if (!byId[aSel]) aSel = tr.find((n) => A.canTake(n)) ? tr.find((n) => A.canTake(n)).id : 'start';
+    const X = (n) => 50 + n.x * 31, Y = (n) => 90 - n.y * 19.5;
+    const links = tr.flatMap((n) => n.req.map((r) => {
+      const a = byId[r], on = A.has(r) && A.has(n.id), open = A.has(r) && !A.has(n.id);
+      return `<line x1="${X(a)}" y1="${Y(a)}" x2="${X(n)}" y2="${Y(n)}" class="${on ? 'on' : open ? 'open' : ''}"/>`;
+    })).join('');
+    const nodeEl = (n) => {
+      const w = A.why(n), st = n.id === 'start' || w === 'taken' ? 'on' : w === 'ok' ? 'can' : w === 'other' ? 'other' : '';
+      const glyph = n.kind === 'start' ? '✦' : n.kind === 'capstone' ? '◆' : n.kind === 'notable' ? '◉' : '';
+      return `<button class="an ${n.kind} ${st} ${aSel === n.id ? 'sel' : ''}" data-a="sel" data-k="${n.id}" style="left:${X(n)}%;top:${Y(n)}%"><span>${glyph}</span>${n.kind !== 'small' ? `<em>${esc(n.name)}</em>` : ''}</button>`;
     };
-    M.render(`<div class="screen panel wide asc" style="--c:${sub.color}">
-      <div class="topbar"><h2>${esc(sub.name)}</h2><div class="stats"><b class="pts">${A.points()}</b> ascendancy points · ${A.spent()}/8 spent</div></div>
-      <p>${esc(sub.tag)}. You earn 4 points for ascending and 2 more for clearing each later system, up to 8.</p>
-      <div class="gsub">First tier</div><div class="ascnodes">${sub.nodes.filter((n) => n.tier === 1).map(node).join('')}</div>
-      <div class="gsub">Second tier</div><div class="ascnodes">${sub.nodes.filter((n) => n.tier === 2).map(node).join('')}</div>
-      <div class="menu row">${A.spent() ? `<button class="ghost" data-a="respec">Reset nodes · ${A.respecCost()} ✦</button>` : ''}<button class="primary" data-a="back">Done</button></div></div>`, (a, b) => {
-      if (a === 'back') return back(aFrom);
+    const n = byId[aSel], w = A.why(n);
+    const act = n.id === 'start' ? `<span class="muted">Your ${esc(sub.name)} path begins here.</span>`
+      : w === 'taken' ? '<span class="ok">Taken</span>'
+      : w === 'ok' ? `<button class="primary" data-a="take" data-k="${n.id}">Take · ${n.cost} point${n.cost > 1 ? 's' : ''}</button>`
+      : w === 'other' ? '<span class="muted">You already chose your capstone</span>'
+      : w === 'points' ? `<span class="muted">Needs ${n.cost} point${n.cost > 1 ? 's' : ''}</span>` : '<span class="muted">Take a node below it first</span>';
+    const kindName = { start: 'Ascendancy', small: 'Discipline', notable: 'Signature power', capstone: 'Capstone · choose one' }[n.kind];
+    M.render(`<div class="screen panel wide asc asctree" style="--c:${sub.color}">
+      <div class="topbar"><h2>${esc(sub.name)}</h2><div class="stats"><b class="pts">${A.points()}</b> point${A.points() === 1 ? '' : 's'} · ${A.spent()}/${A.CAP} spent</div></div>
+      <p>${esc(sub.tag)}. Ascending gives 4 points, and every later system you clear gives 2 more, up to ${A.CAP}.${d.asc.note ? ' <span class="warn">Ascendancies have been rebuilt as trees: your old picks were refunded.</span>' : ''}</p>
+      <div class="atwrap">
+        <div class="atree"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${links}</svg>${tr.map(nodeEl).join('')}</div>
+        <div class="adetail">
+          <div class="ak">${kindName}</div><div class="anm">${esc(n.name)}</div>
+          <ul>${(n.lines || []).map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
+          <div class="aact">${act}</div>
+          <div class="asum"><div class="gsub">Your ${esc(sub.name)}</div>${(() => { const got = tr.filter((x) => x.id !== 'start' && A.has(x.id)), seen = {}; for (const x of got) seen[x.name] = (seen[x.name] || 0) + 1;
+            return got.filter((x, i) => got.findIndex((y) => y.name === x.name) === i).map((x) => `<div class="aitem ${x.kind}">${esc(x.name)}${seen[x.name] > 1 ? ` ×${seen[x.name]}` : ''}</div>`).join('') || '<p class="note">Nothing taken yet. Tap a glowing node.</p>'; })()}</div>
+        </div>
+      </div>
+      <div class="menu row">${A.spent() ? `<button class="ghost" data-a="respec">Reset tree · ${A.respecCost()} ✦</button>` : ''}<button class="primary" data-a="back">Done</button></div></div>`, (a, b) => {
+      if (a === 'back') { if (d.asc.note) { d.asc.note = false; } return back(aFrom); }
+      if (a === 'sel') { if (aSel === b.dataset.k && A.canTake(byId[aSel])) { if (A.take(aSel)) GV.audio.sfx('level'); } else { aSel = b.dataset.k; GV.audio.sfx('ui'); } }
       if (a === 'take' && A.take(b.dataset.k)) GV.audio.sfx('level');
       if (a === 'respec') { if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to reset'; b.classList.add('danger'); return; } A.respec(); }
       ascend();

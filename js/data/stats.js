@@ -20,7 +20,8 @@
     igniteChance: '+#% chance to Ignite', igniteDmg: '#% increased Ignite Damage', chillEff: '#% increased Chill Effect',
     freezeChance: '+#% chance to Freeze', shockChance: '+#% chance to Shock', corruptChance: '+#% chance to Corrupt',
     knock: '#% increased Knockback', dashCd: '#% faster Phase Dash recharge', costRed: '#% reduced Skill Cost',
-    minionDmg: '#% increased Minion Damage',
+    minionDmg: '#% increased Minion Damage', minionSpd: '#% increased Minion Attack Speed', minionDur: '#% increased Minion Duration', minionCount: '+# maximum Minions',
+    minionLeech: 'Minions Leech #% of their damage to you as Life', commandEff: '#% increased effect of Minion commands',
     memFind: '#% increased Memories found', stealthDmg: '#% increased Damage from Stealth', airJump: '+# additional air jump',
   };
   function fmt(k, v) {
@@ -39,19 +40,31 @@
     bloodrite: { name: 'Blood Rite', lines: ['Skills cost Life instead of Charge', 'Skill costs are halved', 'You cannot Regenerate Life'] },
     glass: { name: 'Glass Visor', lines: ['Deal 60% more damage', '40% less maximum Life and Void Ward'] },
     overcharge: { name: 'Overcharge', lines: ['Critical Hits deal no extra damage', 'After a Critical Hit, deal 40% more Elemental damage for 6 seconds'] },
+    absolute: { name: 'Absolute Zero', lines: ['Your Fire damage is converted to Cold', 'Chilled enemies take 25% more damage from your hits', '+10% chance to Freeze'] },
+    legion: { name: 'Machine Legion', lines: ['+2 maximum Minions', 'Minions deal 20% more damage', 'Your own non-minion skills deal 30% less damage'] },
+    bastion: { name: 'Bastion', lines: ['+15% chance to Block, and Block can reach 75%', 'Blocking a hit heals 3% of your maximum Life', '15% reduced Movement Speed'] },
+    hivebond: { name: 'Hive Bond', lines: ['Minions deal 25% more damage', 'Minions Leech 3% of their damage to you as Life', '20% less maximum Life'] },
   };
 
   GV.computeStats = function () {
     const d = GV.save.data, u = d.upgrades;
-    const acc = {}, ks = {};
+    const acc = {}, ks = {}, tFlags = {}, fx = {}, tm = [];
     const add = (o) => { for (const k in o) acc[k] = (acc[k] || 0) + o[k]; };
+    const addFx = (o) => { for (const k in o || {}) fx[k] = (fx[k] || 0) + o[k]; };
     const T = GV.TREE;
+    T.migrate && T.migrate(d);
     for (const id of d.passives) {
       const n = T.nodes[id];
       if (!n) continue;
+      if (n.sig && n.cls !== d.cls) continue;
       if (n.stats) add(n.stats);
       if (n.keystone) ks[n.keystone] = true;
+      if (n.flag) tFlags[n.flag] = true;
+      if (n.fx) addFx(n.fx);
+      if (n.tm) tm.push(...n.tm);
     }
+    if (ks.absolute) add({ freezeChance: 10 });
+    if (ks.bastion) add({ block: 15, moveSpd: -15 });
     const cls = GV.CLASSES[d.cls];
     if (cls) add(cls.stats);
     if (GV.items) add(GV.items.stats());
@@ -61,6 +74,8 @@
     if (GV.shardStats) add(GV.shardStats());
     const ascC = GV.asc ? GV.asc.collect() : { stats: {}, flags: {} };
     add(ascC.stats);
+    Object.assign(ascC.flags, tFlags);
+    addFx(ascC.fx); if (ascC.tm) tm.push(...ascC.tm);
     const w = GV.equippedWeapon(d);
     if (w.block) add({ block: w.block });
     if (w.shield) add({ armour: w.shield.armour || 0, moveSpd: -(w.shield.slowMove || 0) });
@@ -71,10 +86,11 @@
     add(setS.stats);
     const g = (k) => acc[k] || 0;
     const lvl = d.level;
-    const s = { ks, raw: acc, asc: ascC.flags, setFx: setS.flags, sets: setS };
+    const s = { ks, raw: acc, asc: ascC.flags, setFx: setS.flags, sets: setS, fx, tm };
     let life = (100 + 10 * (lvl - 1) + 20 * u.hp + g('life')) * (1 + g('lifePct') / 100);
     let ward = (g('ward')) * (1 + g('wardPct') / 100);
     if (ks.glass) { life *= 0.6; ward *= 0.6; }
+    if (ks.hivebond) life *= 0.8;
     if (ks.hollowed) { life = 1; ward *= 2; }
     s.maxLife = Math.max(1, Math.round(life));
     s.maxWard = Math.max(0, Math.round(ward));
@@ -84,7 +100,7 @@
     s.chargeRegen = (9 + 2.5 * u.charge) * (1 + g('chargeRegenPct') / 100);
     s.armour = Math.max(0, g('armour') * (1 + g('armourPct') / 100));
     s.evasion = ks.unbroken ? 0 : Math.min(60, g('evasion'));
-    s.block = Math.min(60, g('block'));
+    s.block = Math.min(ks.bastion ? 75 : 60, g('block'));
     s.moveMul = Math.max(0.5, 1 + (g('moveSpd') - (ks.unbroken ? 15 : 0)) / 100);
     s.atkSpd = g('atkSpd'); s.castSpd = g('castSpd');
     s.inc = {
@@ -99,6 +115,8 @@
     s.igniteDmg = g('igniteDmg'); s.chillEff = g('chillEff'); s.knock = g('knock'); s.dashCd = g('dashCd');
     s.costRed = Math.min(60, g('costRed')); s.memFind = g('memFind'); s.stealthDmg = g('stealthDmg');
     s.airJumps = 1 + (ks.starborn ? 1 : 0) + g('airJump');
+    s.minionSpd = g('minionSpd'); s.minionDur = g('minionDur'); s.minionCount = g('minionCount') + (ks.legion ? 2 : 0);
+    s.minionLeech = g('minionLeech') + (ks.hivebond ? 3 : 0); s.commandEff = g('commandEff');
     return s;
   };
 })();

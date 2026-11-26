@@ -82,6 +82,7 @@
       this.gainXP((e.def.xp || 5) * sc);
       const pl = this.player, AF = pl.st.asc || {};
       if (GV.codex) { GV.codex.kill(e.type, !!e.elite); for (const l of GV.codex.check()) { this.toast(`Codex: ${l.title}`, 2.6, 'small'); this.toasts[this.toasts.length - 1].color = '#ffd36b'; } }
+      if (GV.onKill) GV.onKill(this, e, pl);
       if (AF.bladeDance) { pl.dance = Math.min(5, pl.dance + 1); pl.danceT = 4; }
       if (AF.linger && pl.lingerCd <= 0 && !e.boss) { pl.lingerCd = 3; pl.stealth = Math.max(pl.stealth, 1.2); pl.decoy = { x: pl.x, y: pl.y, w: pl.w, h: pl.h }; }
       if (e.volatile) {
@@ -147,6 +148,7 @@
         if (Math.random() * 100 < st.evasion) { this.text(pl.cx, pl.y - 8, 'EVADE', '#7dffcf', 14); pl.inv = 0.25; return; }
         if (Math.random() * 100 < st.block) {
           if (st.asc.retaliate) GV.Skills.raw(this, pl.cx, pl.cy, 115, { phys: pl.weapon.dmg * 2.2 * (1 + (st.inc.all + st.inc.melee) / 100) }, { color: '#ffd36b' });
+          if (GV.onBlock) GV.onBlock(this, pl);
           this.text(pl.cx, pl.y - 8, 'BLOCK', '#ffd36b', 14); pl.inv = 0.3; this.burst(pl.cx + pl.facing * 14, pl.cy, 10, '#ffd36b', 160, 0.3, 2.5); this.sfx('hit'); return; }
       }
       if (this.boss) this.bossHurt = true;
@@ -154,6 +156,7 @@
       if (st.ks.unbroken) dmg *= 0.75;
       if (pl.guardT > 0) dmg *= 0.85;
       if (st.asc.lastStand && pl.hp < pl.maxHp * 0.35) dmg *= 0.7;
+      if (GV.dmgTakenMul) dmg *= GV.dmgTakenMul(this, pl);
       dmg = Math.round(dmg);
       pl.wardDelay = 2;
       if (pl.ward > 0) { const ab = Math.min(pl.ward, dmg); pl.ward -= ab; dmg -= ab; }

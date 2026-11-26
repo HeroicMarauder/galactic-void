@@ -61,20 +61,60 @@
       `<path d='M4 3 L4 24 L9.5 18.8 L13.4 27.5 L17 26 L13.2 17.5 L21 17.5 Z' fill='#ffffff' stroke='#05070d' stroke-width='1.6' stroke-linejoin='round'/>${h ? charge(23, 24, '#8fe9ff') : ''}`) },
   };
   GV.CURSORS = CURSORS;
+
+  // ---- state cursors, drawn to match whichever cursor is chosen: grab (pan something), grabbing
+  // (while dragging), text, help and not-allowed. Each style lends them its rim colour. ----
+  const TONE = { spire: '#8fe9ff', facet: '#8fe9ff', crimson: '#ff3048', prism: '#c38bff', shard: '#cdf6ff', kite: '#5fd8ff', thruster: '#ffb347', reticle: '#8fe9ff', classic: '#ffffff' };
+  const BODY = {};
+  const corner = (x, y, dx, dy) => `M${x} ${y + dy * 5.4} L${x} ${y} L${x + dx * 5.4} ${y}`;
+  const STATE = {
+    // four brackets around a gravity ring: "pick this up"
+    grab: (id) => { const c = TONE[id] || '#8fe9ff', b = BODY[id] || '#05070d'; return wrap(
+      `<g filter='url(#g)' fill='none' stroke='${c}' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'>
+        <path d='${corner(6, 6, 1, 1)}'/><path d='${corner(26, 6, -1, 1)}'/><path d='${corner(6, 26, 1, -1)}'/><path d='${corner(26, 26, -1, -1)}'/></g>
+       <circle cx='16' cy='16' r='4.6' fill='${b}' stroke='${c}' stroke-width='1.6'/>
+       <circle cx='16' cy='16' r='2.2' fill='none' stroke='${c}' stroke-width='.9' stroke-dasharray='1.3 1.1' opacity='.85'/>`, glow('g', c, 0.9)); },
+    // the brackets clamp shut and the core lights: "held"
+    grabbing: (id) => { const c = TONE[id] || '#8fe9ff', b = BODY[id] || '#05070d'; return wrap(
+      `<g filter='url(#g)' fill='none' stroke='${c}' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'>
+        <path d='${corner(9.5, 9.5, 1, 1)}'/><path d='${corner(22.5, 9.5, -1, 1)}'/><path d='${corner(9.5, 22.5, 1, -1)}'/><path d='${corner(22.5, 22.5, -1, -1)}'/></g>
+       <g stroke='${c}' stroke-width='1' opacity='.55' stroke-linecap='round'><path d='M16 1.5 V5 M16 27 V30.5 M1.5 16 H5 M27 16 H30.5'/></g>
+       <circle cx='16' cy='16' r='3.6' fill='${b}' stroke='${c}' stroke-width='1.4'/><circle cx='16' cy='16' r='1.8' fill='#ff3048' filter='url(#g)'/>`, glow('g', c, 1.3)); },
+    text: (id) => { const c = TONE[id] || '#8fe9ff'; return wrap(
+      `<g filter='url(#g)' stroke='${c}' stroke-width='1.8' stroke-linecap='round' fill='none'>
+        <path d='M11.5 5 C13.6 5 15 5.8 16 7 C17 5.8 18.4 5 20.5 5 M16 7 V25 M11.5 27 C13.6 27 15 26.2 16 25 C17 26.2 18.4 27 20.5 27 M13.4 16 H18.6'/></g>`, glow('g', c, 0.8)); },
+  };
+  const badge = (id, inner) => { const C = CURSORS[id] || CURSORS.spire; return C.svg(false).replace('</svg>', `${inner}</svg>`); };
+  STATE.help = (id) => badge(id, `<circle cx='24.5' cy='24.5' r='6.4' fill='#05070d' stroke='${TONE[id] || '#8fe9ff'}' stroke-width='1.4'/><text x='24.5' y='28.2' text-anchor='middle' font-family='Arial' font-weight='700' font-size='10' fill='${TONE[id] || '#8fe9ff'}'>?</text>`);
+  STATE.no = (id) => badge(id, `<circle cx='24.5' cy='24.5' r='5.6' fill='#05070d' stroke='#ff3048' stroke-width='1.8'/><path d='M20.6 28.4 L28.4 20.6' stroke='#ff3048' stroke-width='1.8'/>`);
+  GV.cursorState = STATE;
   const url = (s) => `url("data:image/svg+xml,${encodeURIComponent(s.replace(/\s+/g, ' '))}")`;
   const css = document.createElement('style'); document.head.appendChild(css);
-  GV.cursorPreview = (id, hover) => `data:image/svg+xml,${encodeURIComponent(CURSORS[id].svg(!!hover).replace(/\s+/g, ' '))}`;
+  GV.cursorPreview = (id, hover) => `data:image/svg+xml,${encodeURIComponent((typeof hover === 'string' ? GV.cursorState[hover](id) : CURSORS[id].svg(!!hover)).replace(/\s+/g, ' '))}`;
   GV.applyCursor = function (id) {
     const C = CURSORS[id] || CURSORS.spire, [hx, hy] = C.hot;
     css.textContent = `
       html, body, #ui, .screen, #game { cursor: ${url(C.svg(false))} ${hx} ${hy}, auto; }
       button:not([disabled]), [data-a], [data-g], [data-l], .filebtn, label, select, summary, .actTag, input[type=checkbox], input[type=range] { cursor: ${url(C.svg(true))} ${hx} ${hy}, pointer; }
-      input[type=text], input:not([type]), textarea { cursor: text; }
+      input[type=text], input[type=search], input:not([type]), textarea { cursor: ${url(STATE.text(id))} 16 16, text; }
+      button[disabled], .tab[data-empty] { cursor: ${url(STATE.no(id))} ${hx} ${hy}, not-allowed; }
+      .cls .cskills .sk, [data-help] { cursor: ${url(STATE.help(id))} ${hx} ${hy}, help; }
+      .grabZone, body.photo #game { cursor: ${url(STATE.grab(id))} 16 16, grab; }
+      .grabZone.overItem { cursor: ${url(C.svg(true))} ${hx} ${hy}, pointer; }
+      body.grabbing, body.grabbing * { cursor: ${url(STATE.grabbing(id))} 16 16, grabbing !important; }
       body.playing.aimMouse #game { cursor: none; }
     `;
   };
   GV.applyCursor((GV.settings && GV.settings.data.cursor) || 'spire');
   addEventListener('load', () => GV.applyCursor(GV.settings.data.cursor || 'spire')); // after saved settings load
+
+  // Dragging anything grabbable (the passive tree, photo mode) clamps the grab cursor shut.
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    if ((e.target.closest && e.target.closest('.grabZone')) || (document.body.classList.contains('photo') && e.target.id === 'game')) document.body.classList.add('grabbing');
+  }, true);
+  const letGo = () => document.body.classList.remove('grabbing');
+  addEventListener('pointerup', letGo, true); addEventListener('pointercancel', letGo, true); addEventListener('blur', letGo);
 
   // Settings: a grid of cursors to choose from, each showing its rest and hover look.
   const M = GV.menus, set0 = M.settings;
@@ -84,7 +124,7 @@
     if (!at) return r;
     const cur = (GV.settings.data.cursor) || 'spire';
     const box = document.createElement('div'); box.className = 'curPick';
-    box.innerHTML = `<div class="curHead"><b>Cursor</b><span>${CURSORS[cur].name}</span></div><div class="curGrid">${Object.keys(CURSORS).map((k) => `<button class="curOpt ${k === cur ? 'sel' : ''}" data-cur="${k}" title="${CURSORS[k].name}"><span class="curImgs"><img src="${GV.cursorPreview(k)}" alt=""><img src="${GV.cursorPreview(k, true)}" alt=""></span><em>${CURSORS[k].name}</em></button>`).join('')}</div>`;
+    box.innerHTML = `<div class="curHead"><b>Cursor</b><span>${CURSORS[cur].name}</span></div><div class="curGrid">${Object.keys(CURSORS).map((k) => `<button class="curOpt ${k === cur ? 'sel' : ''}" data-cur="${k}" title="${CURSORS[k].name}"><span class="curImgs"><img src="${GV.cursorPreview(k)}" alt=""><img src="${GV.cursorPreview(k, true)}" alt=""><img src="${GV.cursorPreview(k, 'grab')}" alt=""></span><em>${CURSORS[k].name}</em></button>`).join('')}</div>`;
     at.parentNode.insertBefore(box, at);
     box.querySelectorAll('[data-cur]').forEach((b) => b.addEventListener('click', (e) => {
       e.stopPropagation(); GV.audio && GV.audio.sfx('ui');
