@@ -2,11 +2,13 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-10',
-  title: 'Fair Fight',
+  id: '2026.11.26-11',
+  title: 'Found, Not Bought',
   notes: [
-    'Guns, bows and crossbows now replace the basic attack for every class, including the Ranger and Starcaller. Ion Shot stays when you hold pistols',
-    'Void Engineer: Sentry Turret, Summon Echoes and Star Spark grow less per level. Turrets and echoes stacking was dealing about twice what other classes deal',
-    'Space Paladin: Shield Charge hits much harder with a shorter cooldown (2s), Sanctified Ground burns hotter, the Star Mace hits harder and Paladins start with +15 Life',
+    'Vesper now sells only standard-issue weapons: Drift Pike, Ion Pistol, Void Dagger, Star Mace, Aegis Shield, Star Cutlass and Plasma Hatchet',
+    'Every other weapon is found: about 1 in 3 bosses drops one, elites sometimes do, and ordinary enemies very rarely. Prototype weapons (sniper, shotgun, launcher, laser cannon and more) appear from the second system on',
+    'New Weapons screen (Gear → Weapons): filter by melee, ranged, one- or two-handed and shields, search, sort by damage or reach, equip either hand, salvage',
+    'You carry up to 14 weapons. Extras go to the Shared Vault, which now has a Weapons tab so your other characters can use them. Repeat drops are salvaged for memories',
+    'Exotics can no longer be unlocked at Vesper\'s',
   ],
 };

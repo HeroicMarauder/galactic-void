@@ -80,7 +80,7 @@
     const totalLines = Object.keys(totals).map((k) => `<li>${esc(k === 'airJump' ? `+${totals[k]} air jump` : GV.STATS.fmt(k, totals[k]))}</li>`).join('');
     M.render(`
       <div class="screen panel gear">
-        <div class="topbar"><h2>Gear</h2><div class="stats">${d.items.length}/${GV.items.MAX_INV} items · ✦ ${d.memories}</div></div>
+        <div class="topbar"><h2>Gear</h2><div class="seg2"><button class="small on" disabled>Armour</button><button class="ghost small" data-a="weapons">Weapons</button></div><div class="stats">${d.items.length}/${GV.items.MAX_INV} items · ✦ ${d.memories}</div></div>
         <div class="gslots">${slots}</div>
         <div class="gcols">
           <div class="ginv">${fbar}<div class="ilist">${inv.map((x) => card(x)).join('') || (bag.length ? '<p class="note fnone">Nothing matches. Try another tab or search.</p>' : '<p class="note">Nothing here. Enemies, rifts and bosses drop gear.</p>')}</div>
@@ -95,6 +95,7 @@
   function onAction(a, b) {
     const d = GV.save.data;
     if (a === 'done') return close();
+    if (a === 'weapons' && GV.weaponView) { GV.save.write(); return GV.weaponView.open(from); }
     if (a === 'sel') { if (sel !== +b.dataset.u) craftMsg = ''; sel = +b.dataset.u; }
     if (a === 'craft') { crafting = !crafting; craftMsg = ''; }
     if (a === 'use' && sel != null) { craftMsg = GV.items.craft(GV.items.get(sel), b.dataset.k) || ''; if (!craftMsg) GV.audio.sfx('level'); else GV.audio.sfx('hurt'); }

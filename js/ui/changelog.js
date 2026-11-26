@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'Found, Not Bought', s: 'Vesper only sells standard-issue weapons now. Everything better drops from enemies and bosses, with a Weapons screen and Vault space to manage them.' },
     { d: 'Nov 26', t: 'Fair Fight', s: 'Any class can use guns and bows as its basic attack, the Engineer\'s minions were reined in, and the Paladin hits harder.' },
     { d: 'Nov 26', t: 'The Armoury', s: 'Thirteen new weapons: rifles, a sniper, a shotgun, a grenade launcher, a laser cannon, a bow, crossbows, SMGs, a hand cannon and new blades to dual-wield.' },
     { d: 'Nov 26', t: 'Phase Through', s: 'A new Augment lets strikes and projectiles hit the first enemy in full, then carry on through the rest of the line.' },

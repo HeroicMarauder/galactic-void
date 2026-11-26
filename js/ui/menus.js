@@ -357,8 +357,9 @@
       for (const k in GV.WEAPONS) {
         const w = GV.WEAPONS[k], own = d.weapons.includes(k), eq = d.weapon === k, eqOff = d.offhand === k, cat = w.hand === 'off' ? 'shields' : 'weapons';
         if (w.legacy) continue;
+        if (!own && GV.weaponTier && GV.weaponTier(k) !== 1) continue; // Vesper only sells standard issue: the rest is found
         if (w.set && !own) continue;
-        if (w.exotic && !own) { E.push({ cat, name: w.name, desc: w.desc, cost: Infinity, locked: true, html: `<div class="row locked"><div class="ri"><b style="color:${w.color}">${w.name} <small class="exo">EXOTIC</small></b><span>Only a Titan carries this. Fell ${esc(GV.TITANS[w.exotic].name)} for a chance at it.</span></div><button disabled>Titan drop</button></div>` }); continue; }
+        if (w.exotic && !own) continue;
         const stat = w.hand === 'off' ? `${w.block}% block · +${w.armour} armour` : `DMG ${w.dmg} · ${w.cd < 0.3 ? 'fast' : w.cd > 0.5 ? 'slow' : 'steady'} · ${w.gun ? 'ranged ' + (w.reach || w.range) : 'reach ' + w.range}`;
         const tag = w.exotic ? ' <small class="exo">EXOTIC</small>' : w.set ? ` <small class="exo setw" style="background:${GV.SETS[w.set].color}">SET</small>` : '';
         let btns;

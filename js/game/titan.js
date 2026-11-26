@@ -656,7 +656,7 @@
     const W = GV.WEAPONS[dr.wid], tag = this.coop ? `P${pl.slot + 1}: ` : '';
     GV.save.as(pl.slot || 0, (d) => {
       if (d.weapons.includes(dr.wid)) { const m = 150 + this.diff * 20; this.gainMem(m); this.toast(`${tag}${W.name} (duplicate) · salvaged for ${m} ✦`, 2.4, 'small'); }
-      else { d.weapons.push(dr.wid); this.toast(`${tag}EXOTIC WEAPON · ${W.name}`, 3); this.toasts[this.toasts.length - 1].sub = 'Equip it at Vesper\'s Trade → Weapons'; }
+      else { d.weapons.push(dr.wid); this.toast(`${tag}EXOTIC WEAPON · ${W.name}`, 3); this.toasts[this.toasts.length - 1].sub = 'Equip it in Gear → Weapons'; }
       GV.save.write();
     });
     this.sfx('level'); this.shake(8);
