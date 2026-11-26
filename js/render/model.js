@@ -81,7 +81,8 @@
     } else { fT = -0.06 + breathe * 0.01; fK = 0.06; rT = 0.1; rK = 0.08; }
     // arms: [upper, forearm] angles
     let fU, fF, rU, rF;
-    if (atk) { const e = 1 - Math.pow(1 - atk, 2.2); fU = 2.3 + e * 3.1; fF = -0.35 - Math.sin(atk * Math.PI) * 0.3; /* up behind the shoulder, over the top, down in front */ }
+    if (atk && A.GUNS && A.GUNS.has(o.gear)) { fU = 0.1; fF = -0.3 - Math.sin(atk * Math.PI) * 0.16; /* firearms: hold the aim and kick with the recoil */ }
+    else if (atk) { const e = 1 - Math.pow(1 - atk, 2.2); fU = 2.3 + e * 3.1; fF = -0.35 - Math.sin(atk * Math.PI) * 0.3; /* up behind the shoulder, over the top, down in front */ }
     else if (run) { fU = Math.sin(p) * 0.85; fF = -0.95; }
     else if (air) { fU = -0.55; fF = -0.35; }
     else { fU = 0.12 + breathe * 0.04; fF = -0.32; }
@@ -395,6 +396,7 @@
     }
   };
 
+  A.GUNS = new Set(['pistol', 'smg', 'handcannon', 'rifle', 'sniper', 'shotgun', 'launcher', 'cannon', 'bow', 'crossbow', 'handxbow']);
   // ---------- weapons, in arm space (hand at 0,13; the arm points along +y) ----------
   A.held = (ctx, gear, attacking, fl, col, atk = 0) => {
     const W = (c) => (fl ? '#fff' : c);
@@ -405,7 +407,7 @@
       if (attacking && !fl && !(GV.CFG && GV.CFG.LOWFX)) A.glow(ctx, (x0 + x1) / 2, 0, (x1 - x0) * 0.6, alpha(c, 0.35));
     };
     const grip = (len, c = '#3d3346') => { ctx.fillStyle = W(c); A.rrect(ctx, -3, -2, len, 4, 1.2); ctx.fillStyle = W(shade(c, 0.3)); for (let i = 0; i < len - 2; i += 2.5) ctx.fillRect(-2.5 + i, -2, 0.8, 4); };
-    ctx.save(); ctx.translate(0.5, 13); ctx.rotate(gear === 'whip' ? -0.2 : attacking ? Math.PI / 2 - 0.3 : gear === 'pistol' || gear === 'fist' ? 0 : gear === 'wrench' || gear === 'mace' || gear === 'maul' ? 1.05 : -0.55); // mid-swing the weapon follows the arm's line; at rest it's held up and forward
+    ctx.save(); ctx.translate(0.5, 13); ctx.rotate(gear === 'whip' ? -0.2 : A.GUNS.has(gear) ? (attacking ? -0.08 : 0.12) : attacking ? Math.PI / 2 - 0.3 : gear === 'pistol' || gear === 'fist' ? 0 : gear === 'wrench' || gear === 'mace' || gear === 'maul' ? 1.05 : -0.55); // mid-swing the weapon follows the arm's line; at rest it's held up and forward
     if (gear === 'dagger') { grip(5, '#3d4a52'); ctx.fillStyle = W('#c9a86a'); ctx.fillRect(2, -3.2, 1.6, 6.4); blade(3.6, 15, 4.4, col || '#9fffe8', 3); }
     else if (gear === 'wrench') { ctx.fillStyle = W('#6c7489'); A.rrect(ctx, -2, -1.6, 20, 3.2, 1.2); ctx.fillStyle = W(col || '#ffb347'); ctx.beginPath(); ctx.arc(20, 0, 5.2, 0.6, Math.PI * 2 - 0.6); ctx.lineTo(20, 0); ctx.fill(); ctx.fillStyle = W('#2a2f3f'); A.circle(ctx, 20, 0, 1.6); if (attacking && !fl) A.glow(ctx, 22, 0, 14, 'rgba(255,200,90,0.6)'); }
     else if (gear === 'staff') { const g = ctx.createLinearGradient(0, -2, 0, 2); g.addColorStop(0, W('#6a5a86')); g.addColorStop(1, W('#2a2238')); ctx.fillStyle = g; ctx.fillRect(-14, -1.6, 52, 3.2); ctx.fillStyle = W('#c9a86a'); ctx.fillRect(30, -2.2, 2, 4.4); ctx.fillStyle = W(col || '#c9a8ff'); A.star(ctx, 40, 0, 6.5, 4, 0); if (!fl) A.glow(ctx, 40, 0, 18, alpha(col || '#c8aaff', 0.5)); }
@@ -416,6 +418,59 @@
     else if (gear === 'mace') { grip(8, '#5a4f3a'); ctx.fillStyle = W('#8a7a5a'); ctx.fillRect(5, -1.6, 12, 3.2); const g = ctx.createRadialGradient(18, -2, 1, 19, 0, 8); g.addColorStop(0, W('#fff2c4')); g.addColorStop(1, W(col || '#ffd36b')); ctx.fillStyle = g; A.star(ctx, 19, 0, 7, 6, 0.3); if (attacking && !fl) A.glow(ctx, 19, 0, 14, alpha(col || '#ffd36b', 0.5)); }
     else if (gear === 'pike' || gear === 'lance') { const L = gear === 'lance' ? 42 : 28; const g = ctx.createLinearGradient(0, -2, 0, 2); g.addColorStop(0, W('#6a7088')); g.addColorStop(1, W('#2e3346')); ctx.fillStyle = g; ctx.fillRect(-8, -1.6, L + 2, 3.2); ctx.fillStyle = W('#c9a86a'); ctx.fillRect(L - 2, -2.6, 2, 5.2); blade(L, L + 8, 7, col || (gear === 'lance' ? '#7dffcf' : '#9fe8ff'), 6); }
     else if (gear === 'saber') { grip(5, '#3d3346'); ctx.fillStyle = W('#c9a86a'); ctx.beginPath(); ctx.arc(2.5, 0, 4.2, -1.6, 1.6); ctx.lineWidth = 1.3; ctx.strokeStyle = W('#c9a86a'); ctx.stroke(); blade(3.5, 29, 3.4, col || '#d9b8ff', 3); }
+    else if (gear === 'bow') {
+      // an energy bow: a dark riser with two glowing limbs and a string of light
+      const c = col || '#b8ffea';
+      ctx.fillStyle = W('#2e3446'); A.rrect(ctx, -2, -3, 6, 6, 1.5);
+      ctx.strokeStyle = W(c); ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(1, -2); ctx.quadraticCurveTo(10, -14, 3, -26); ctx.moveTo(1, 2); ctx.quadraticCurveTo(10, 14, 3, 26); ctx.stroke();
+      ctx.strokeStyle = W('#ffffff'); ctx.lineWidth = 0.9; ctx.globalAlpha *= 0.8; ctx.beginPath(); ctx.moveTo(3, -26); ctx.lineTo(attacking ? -6 : -1, 0); ctx.lineTo(3, 26); ctx.stroke(); ctx.globalAlpha /= 0.8;
+      if (!fl) { A.glow(ctx, 6, -18, 9, alpha(c, 0.4)); A.glow(ctx, 6, 18, 9, alpha(c, 0.4)); }
+      if (attacking && !fl) A.glow(ctx, 8, 0, 12, alpha(c, 0.7));
+    }
+    else if (gear === 'crossbow' || gear === 'handxbow') {
+      const c = col || '#ffd36b', big = gear === 'crossbow', L = big ? 30 : 18, span = big ? 15 : 10;
+      ctx.fillStyle = W('#2e3446'); A.rrect(ctx, big ? -8 : -2, -2.6, L + (big ? 8 : 2), 5.2, 1.4); A.rrect(ctx, 0, 1.5, 4, 6.5, 1.2);
+      ctx.strokeStyle = W(shade(c, -0.2)); ctx.lineWidth = big ? 3 : 2.2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(L - 4, 0); ctx.quadraticCurveTo(L, -span * 0.5, L - 6, -span); ctx.moveTo(L - 4, 0); ctx.quadraticCurveTo(L, span * 0.5, L - 6, span); ctx.stroke();
+      ctx.strokeStyle = W('#ffffff'); ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(L - 6, -span); ctx.lineTo(attacking ? L - 9 : L * 0.45, 0); ctx.lineTo(L - 6, span); ctx.stroke();
+      if (!attacking) { ctx.fillStyle = W(c); ctx.fillRect(L * 0.45, -1, L * 0.55, 2); }
+      if (!fl) A.glow(ctx, L - 4, 0, 9, alpha(c, 0.35));
+    }
+    else if (A.GUNS.has(gear) && gear !== 'pistol') {
+      // firearms: a body, a barrel and a glowing cell in the weapon's colour
+      const c = col || '#8fe9ff', dark = W('#262c38'), mid = W('#3d4556'), lite = W('#5a6478');
+      const flash = attacking && !fl ? 1 : 0;
+      if (gear === 'smg' || gear === 'handcannon') {
+        const L = gear === 'smg' ? 15 : 17;
+        ctx.fillStyle = dark; A.rrect(ctx, -2, -3.6, L, 6, 1.5); A.rrect(ctx, -1, 0.8, 4.5, 7, 1.2);
+        ctx.fillStyle = lite; ctx.fillRect(0, -3.6, L - 3, 1.2);
+        if (gear === 'smg') { ctx.fillStyle = mid; ctx.fillRect(5, 2, 3, 6); }
+        else { ctx.fillStyle = mid; A.circle(ctx, 5, -0.6, 3.2); }
+        ctx.fillStyle = W(c); ctx.fillRect(L - 2, -2.6, 3, 2.6);
+        if (flash) A.glow(ctx, L + 3, -1.2, 12, alpha(c, 0.7));
+      } else {
+        const L = { rifle: 34, sniper: 48, shotgun: 30, launcher: 32, cannon: 38 }[gear] || 32;
+        const bw = { rifle: 2.6, sniper: 2, shotgun: 4.2, launcher: 7.5, cannon: 6.5 }[gear] || 3;
+        // stock and grip
+        ctx.fillStyle = dark; A.rrect(ctx, -10, -3, 12, 6, 2); A.rrect(ctx, 0, 1.5, 4, 7, 1.2);
+        // body
+        const g = ctx.createLinearGradient(0, -5, 0, 5); g.addColorStop(0, lite); g.addColorStop(1, dark);
+        ctx.fillStyle = g; A.rrect(ctx, 0, -4.6, L * 0.55, 8, 2);
+        // barrel
+        ctx.fillStyle = mid; A.rrect(ctx, L * 0.5, -bw / 2 - 1, L * 0.5, bw, 1);
+        if (gear === 'shotgun') { ctx.fillStyle = dark; ctx.fillRect(L * 0.55, bw / 2 - 0.4, L * 0.35, 2.4); }
+        if (gear === 'sniper') { ctx.fillStyle = dark; A.rrect(ctx, 6, -9, 14, 4, 1.6); ctx.fillStyle = W(c); ctx.fillRect(18, -8.2, 2, 2.4); }
+        if (gear === 'launcher') { ctx.fillStyle = W(shade(c, -0.3)); A.circle(ctx, L * 0.35, 0, 4.2); }
+        if (gear === 'cannon') { ctx.fillStyle = W(c); for (let i = 0; i < 3; i++) ctx.fillRect(L * 0.55 + i * 4.5, -bw / 2 - 1.6, 2, bw + 3.2); }
+        // power cell
+        ctx.fillStyle = W(c); ctx.fillRect(L * 0.18, -1.2, L * 0.25, 2.4);
+        if (!fl) A.glow(ctx, L * 0.3, 0, 8, alpha(c, 0.35));
+        if (flash) A.glow(ctx, L + 4, 0, gear === 'cannon' || gear === 'launcher' ? 22 : 14, alpha(c, 0.8));
+      }
+    }
+    else if (gear === 'katana') { grip(7, '#2b2433'); ctx.fillStyle = W('#c9a86a'); A.ellipse(ctx, 4.6, 0, 1.6, 4.4); blade(5.6, 40, 3, col || '#ff9a6a', 5); }
+    else if (gear === 'axe') { grip(9, '#4a3a2a'); ctx.fillStyle = W('#6a7088'); ctx.fillRect(5, -1.5, 14, 3); const c = col || '#9fffd8'; ctx.fillStyle = W(c); ctx.beginPath(); ctx.moveTo(14, -1.5); ctx.quadraticCurveTo(26, -11, 24, -1); ctx.lineTo(24, 1); ctx.quadraticCurveTo(26, 11, 14, 1.5); ctx.closePath(); ctx.fill(); if (attacking && !fl) A.glow(ctx, 22, 0, 13, alpha(c, 0.45)); }
     else if (gear === 'maul') { const g = ctx.createLinearGradient(0, -2, 0, 2); g.addColorStop(0, W('#6a7088')); g.addColorStop(1, W('#2e3346')); ctx.fillStyle = g; ctx.fillRect(-2, -1.6, 24, 3.2); const hg = ctx.createLinearGradient(18, -8, 28, 8); hg.addColorStop(0, W(shade(col || '#ff6a5c', 0.3))); hg.addColorStop(1, W(shade(col || '#ff6a5c', -0.35))); ctx.fillStyle = hg; A.rrect(ctx, 17, -8.5, 11, 17, 2); ctx.fillStyle = W('#2a2f3f'); ctx.fillRect(17, -1, 11, 2); if (attacking && !fl) A.glow(ctx, 23, 0, 16, alpha(col || '#ff6a5c', 0.45)); }
     ctx.restore();
   };

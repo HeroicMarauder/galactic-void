@@ -246,6 +246,7 @@
     const base = { ambush, mult };
     switch (s.kind) {
       case 'melee': {
+        if (s.W && (s.W.gun || s.W.gun2) && !def.backstab && GV.fireGun && GV.fireGun(p, pl, s, base)) break; // firearms shoot instead of swinging
         const W = s.W, reach0 = W.range * s.areaMul, reach = reach0 * (s.phase ? 1.7 : 1), hh = W.h * s.areaMul;
         // 360° strikes: swing toward the aim. Aiming down in the air still bounces you off what you hit.
         let ax = f, ay = 0;

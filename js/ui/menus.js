@@ -359,7 +359,7 @@
         if (w.legacy) continue;
         if (w.set && !own) continue;
         if (w.exotic && !own) { E.push({ cat, name: w.name, desc: w.desc, cost: Infinity, locked: true, html: `<div class="row locked"><div class="ri"><b style="color:${w.color}">${w.name} <small class="exo">EXOTIC</small></b><span>Only a Titan carries this. Fell ${esc(GV.TITANS[w.exotic].name)} for a chance at it.</span></div><button disabled>Titan drop</button></div>` }); continue; }
-        const stat = w.hand === 'off' ? `${w.block}% block · +${w.armour} armour` : `DMG ${w.dmg} · ${w.cd < 0.3 ? 'fast' : w.cd > 0.5 ? 'slow' : 'steady'} · reach ${w.range}`;
+        const stat = w.hand === 'off' ? `${w.block}% block · +${w.armour} armour` : `DMG ${w.dmg} · ${w.cd < 0.3 ? 'fast' : w.cd > 0.5 ? 'slow' : 'steady'} · ${w.gun ? 'ranged ' + (w.reach || w.range) : 'reach ' + w.range}`;
         const tag = w.exotic ? ' <small class="exo">EXOTIC</small>' : w.set ? ` <small class="exo setw" style="background:${GV.SETS[w.set].color}">SET</small>` : '';
         let btns;
         if (!own) btns = `<button data-a="buyW" data-k="${k}" ${d.memories < w.cost ? 'disabled' : ''}>${cost(w.cost)}</button>`;

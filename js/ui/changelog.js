@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 26', t: 'The Armoury', s: 'Thirteen new weapons: rifles, a sniper, a shotgun, a grenade launcher, a laser cannon, a bow, crossbows, SMGs, a hand cannon and new blades to dual-wield.' },
     { d: 'Nov 26', t: 'Phase Through', s: 'A new Augment lets strikes and projectiles hit the first enemy in full, then carry on through the rest of the line.' },
     { d: 'Nov 26', t: 'Graviton Pulse', s: 'Monk punches now throw a short, fast-fading pulse past the fist, so his reach roughly triples without losing the brawler feel.' },
     { d: 'Nov 26', t: 'Every Angle', s: 'Strikes, slams, charges and Comet Drop follow your aim all the way around, the Monk is sturdier, and the first boss is a fairer teacher.' },

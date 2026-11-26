@@ -104,7 +104,7 @@
     w = Object.assign(w, {
       name: `${main.name} & ${off.name}`, dmg: Math.round((main.dmg + off.dmg) / 2), cd: ((main.cd + off.cd) / 2) * 0.82,
       range: Math.max(main.range, off.range), h: Math.max(main.h, off.h), crit: ((main.crit || 5) + (off.crit || 5)) / 2 + 3,
-      dual: true, offArt: off.art, offColor: off.color, fx2: off.fx, offId: d.offhand,
+      dual: true, offArt: off.art, offColor: off.color, fx2: off.fx, offId: d.offhand, gun: main.gun, gun2: off.gun,
     });
     return w;
   };
