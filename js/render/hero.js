@@ -212,6 +212,8 @@
       if (st.thrust && h.atk >= 0) o.x = Math.sin(h.atk * Math.PI) * 14;
       if (sc.fx.some((f) => f.k === 'whirl' && f.h === h)) { o.facing = Math.floor(t * 14) % 2 ? 1 : -1; o.attack = (t * 4) % 1; }
       if (h.busy && st.skill === 'nova') o.squash = 0.12;
+      const md = GV.save && (GV.save.main || GV.save.data);
+      if (md && md.cls === h.k && GV.raceOf) { o.race = GV.raceOf(md); if (md.look && GV.lookOf) o.custom = GV.lookOf(md); }
       A.spaceman(ctx, h.x + (o.x || 0) * h.facing, GY + 4 + (h.y || 0), o);
     }
     // effects in front

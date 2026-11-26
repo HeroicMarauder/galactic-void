@@ -114,7 +114,13 @@
           setTimeout(() => { b.dataset.go = '1'; b.click(); }, GV.clsAnim.PICK_T * 1000 + 150);
           return;
         }
-        if (a === 'pick' && forP2) { const lv = GV.save.main.level || 1; GV.save.as(1, (d2) => { GV.save.chooseClass(b.dataset.k); d2.level = lv; }); GV.save.main.coop.on = true; GV.save.write(); return M.coop(); }
+        if (a === 'pick' && forP2) {
+          const k = b.dataset.k, lv = GV.save.main.level || 1;
+          const finish = (race, look) => { GV.save.as(1, (d2) => { GV.save.chooseClass(k); d2.level = lv; if (race) d2.race = race; if (look) d2.look = look; }); GV.save.main.coop.on = true; GV.save.write(); M.coop(); };
+          if (!GV.raceSelect) return finish();
+          const pickRace = () => GV.raceSelect(k, (race) => (GV.creator ? GV.creator.open({ cls: k, race, done: (look) => finish(race, look), back: pickRace }) : finish(race)), () => M.classSelect(opts));
+          return pickRace();
+        }
         if (a === 'pick') {
           const fresh = !!GV.save.data.fresh, k = b.dataset.k;
           const go = (race, look) => {
@@ -573,7 +579,7 @@
         <div class="gsub">Player 2</div>
         ${has ? `<div class="p2card" style="--c:${GV.COOP_COLORS[1]}"><b>${esc(cls.name)}</b><span>Rank ${p2.level || 1} · ${(p2.gems || []).length} ${T.cores} · ${(p2.items || []).length} items</span></div>
           <div class="menu row">
-            <button data-a="p2gems">P2 ${T.cores}</button><button data-a="p2gear">P2 Gear</button><button data-a="p2tree">P2 Passive Tree</button>
+            <button data-a="p2gems">P2 ${T.cores}</button><button data-a="p2gear">P2 Gear</button><button data-a="p2tree">P2 Passive Tree</button>${GV.creator ? '<button data-a="p2look">P2 Appearance</button><button data-a="p2race">P2 Race</button>' : ''}
             <button class="ghost" data-a="p2reset">New Player 2</button>
           </div>` : `<p>Player 2 needs a character of their own.</p><div class="menu row"><button class="primary" data-a="p2new">Create Player 2</button></div>`}
         <p class="padnote ${pad ? 'ok' : 'warn'}">${pad ? '🎮 ' : ''}${padMsg}</p>
@@ -586,6 +592,8 @@
         if (a === 'back') return M.map();
         if (a === 'mode') { c.mode = b.dataset.m; S.write(); return M.coop(); }
         if (a === 'p2new') return M.classSelect({ p2: true });
+        if (a === 'p2look' && GV.creator) { const p2 = S.main.coop.p2; return GV.creator.open({ cls: p2.cls, race: GV.raceOf(p2), look: p2.look, edit: true, back: () => M.coop(), done: (look) => { p2.look = look; S.write(); M.coop(); } }); }
+        if (a === 'p2race' && GV.raceSelect) { const p2 = S.main.coop.p2; return GV.raceSelect(p2.cls, (race) => { p2.race = race; S.write(); M.coop(); }, () => M.coop()); }
         if (a === 'p2reset') { if (b.dataset.armed) { S.resetP2(); return M.coop(); } b.dataset.armed = '1'; b.textContent = 'Tap again: erase Player 2'; b.classList.add('danger'); return; }
         if (a === 'on') { c.on = true; S.write(); return M.coop(); }
         if (a === 'off') { c.on = false; S.write(); return M.coop(); }

@@ -2,13 +2,10 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-14',
-  title: 'Character Creator',
+  id: '2026.11.26-15',
+  title: 'Your Look, Everywhere',
   notes: [
-    'Character creator: new characters go class → race → creator. Name them, choose a slim, standard or heavy build, and colour the suit, trim, visor and cloak',
-    'Take the helmet off! Every race has its own face. Or keep it on and pick any helmet style, whatever you have equipped',
-    'Markings (stripes, chevrons, rank bars, sigil) and race options: hair and skin for Humans, tail length for Drakkari, antennae for Kethari, glow and seam colours for the rest',
-    'Existing characters: Wardrobe → Appearance. Named characters show their name on the Characters screen',
-    'Your race and look now show for your online squadmates, and couch Player 2 keeps their own race',
+    'Couch co-op Player 2 now picks a race and uses the character creator, and can change either later from the Co-op screen (P2 Appearance, P2 Race)',
+    'The title screen shows your character: the hero of your class wears your race, colours and face',
   ],
 };
