@@ -2,13 +2,13 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.26-11',
-  title: 'Found, Not Bought',
+  id: '2026.11.26-12',
+  title: 'The Fabricator',
   notes: [
-    'Vesper now sells only standard-issue weapons: Drift Pike, Ion Pistol, Void Dagger, Star Mace, Aegis Shield, Star Cutlass and Plasma Hatchet',
-    'Every other weapon is found: about 1 in 3 bosses drops one, elites sometimes do, and ordinary enemies very rarely. Prototype weapons (sniper, shotgun, launcher, laser cannon and more) appear from the second system on',
-    'New Weapons screen (Gear → Weapons): filter by melee, ranged, one- or two-handed and shields, search, sort by damage or reach, equip either hand, salvage',
-    'You carry up to 14 weapons. Extras go to the Shared Vault, which now has a Weapons tab so your other characters can use them. Repeat drops are salvaged for memories',
-    'Exotics can no longer be unlocked at Vesper\'s',
+    'New on the Lantern\'s deck: the Fabricator, between Vesper\'s Trade and the War Table',
+    'Break gear and weapons down into Alloy and Void Shards. Salvaging anywhere now gives materials too',
+    'Upgrade it Basic → Journeyman (refine Alloy into Shards) → Expert (turn Shards into crafting currency) → Master (assemble exotics). Each level also improves break-down yields',
+    'Titans now drop exotic pieces instead of whole weapons: a Frame, a Core, an Edge and a Schematic. Collect all four, then assemble the weapon at a Master Fabricator',
+    'Exotics you already own are kept. Duplicate pieces turn into Void Shards',
   ],
 };

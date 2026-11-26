@@ -146,7 +146,7 @@
         h.claimed = true; F().trophies = (F().trophies || 0) + 1;
         const d = GV.save.data;
         const pending = new Set(this.drops.map((x) => x.wid)), ex = Object.keys(GV.WEAPONS).filter((k) => GV.WEAPONS[k].exotic === this.hunt.id && !d.weapons.includes(k) && !pending.has(k));
-        if (ex.length && this.dropWeapon) this.dropWeapon(x, y, ex[Math.floor(Math.random() * ex.length)]);
+        if (ex.length && this.dropExoPiece) { this.dropExoPiece(x, y, this.hunt.id); this.dropExoPiece(x + 30, y, this.hunt.id); }
         else d.orbs = (d.orbs || 0) + 3;
         this.drops.push({ x: x + 40, y, vx: 120, vy: -520, w: 14, h: 14, kind: 'item', item: GV.items.randomSet(3), age: 0 });
         d.cur.exalt = (d.cur.exalt || 0) + 3;
@@ -216,7 +216,7 @@
     if (k === 'nova') { let it; for (let i = 0; i < 80; i++) { it = GV.items.roll(tier, {}); if (it.rarity === 'nova') break; } GV.items.add(it); return it.name; }
     if (k === 'core') { d.uncut.push({ kind: 'skill', tier: 3 }); return 'Tier 3 Star Core blank'; }
     if (k === 'aug') { d.uncut.push({ kind: 'support', tier: 3 }); return 'Tier 3 Augment blank'; }
-    if (k === 'exotic') { const ex = Object.keys(GV.WEAPONS).filter((w) => GV.WEAPONS[w].exotic && !d.weapons.includes(w)); if (!ex.length) return null; const w = ex[Math.floor(Math.random() * ex.length)]; d.weapons.push(w); return GV.WEAPONS[w].name; }
+    if (k === 'exotic') { const ts = [...new Set((GV.EXOTICS || []).map((w) => GV.WEAPONS[w].exotic))]; if (!ts.length || !GV.fab) return null; const pk = GV.fab.pick(ts[Math.floor(Math.random() * ts.length)], d); return pk ? 'Exotic piece · ' + GV.fab.grant(pk[0], pk[1], d) : null; }
   }
 
   // ================= SCREENS =================

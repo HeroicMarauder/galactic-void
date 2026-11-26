@@ -65,7 +65,8 @@
       const vaulted = GV.vault && GV.vault.weaponsInVault ? GV.vault.weaponsInVault().includes(dr.wid) : false;
       if (owned(d).includes(dr.wid) || vaulted) {
         const m = GV.weaponValue(dr.wid);
-        this.gainMem(m); this.toast(`${tag}${Wd.name} (already yours) · salvaged for ${m} ✦`, 2.4, 'small');
+        if (GV.fab) GV.fab.give(GV.fab.weaponYield(dr.wid));
+        this.gainMem(m); this.toast(`${tag}${Wd.name} (already yours) · salvaged for ${m} ✦ and Alloy`, 2.4, 'small');
       } else if (owned(d).length < GV.WEAPON_RACK) {
         owned(d).push(dr.wid);
         this.toast(`${tag}NEW WEAPON · ${Wd.name}`, 3); this.toasts[this.toasts.length - 1].sub = `${GV.weaponTierName(dr.wid)} · equip it in Gear → Weapons`;
@@ -214,7 +215,7 @@
     }
     if (a === 'salvage' && w) {
       if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = `Tap again to salvage ${w.name}`; b.classList.add('danger'); return; }
-      d.weapons = owned(d).filter((x) => x !== k); d.memories += GV.weaponValue(k); sel = null; GV.audio.sfx('mem');
+      d.weapons = owned(d).filter((x) => x !== k); d.memories += GV.weaponValue(k); if (GV.fab) GV.fab.give(GV.fab.weaponYield(k)); sel = null; GV.audio.sfx('mem');
     }
     GV.save.write();
     render();

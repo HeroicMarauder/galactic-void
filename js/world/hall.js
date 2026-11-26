@@ -40,6 +40,7 @@
       { id: 'forge', x: 840, w: 90, label: 'CORE FORGE', act: 'Star Cores' },
       { id: 'mirror', x: 990, w: 70, label: 'MIRROR', act: 'Wardrobe' },
       { id: 'vesper', x: 1170, w: 80, label: "VESPER'S TRADE", act: 'Trade' },
+      { id: 'fab', x: 1340, w: 100, label: 'FABRICATOR', act: 'Salvage & craft' },
       // command
       { id: 'table', x: 1560, w: 240, label: 'WAR TABLE', act: 'War table · missions & Titans' },
       { id: 'pad', x: 1900, w: 170, label: 'DROP POD', passive: true },
@@ -226,6 +227,7 @@
       if (id === 'forge') GV.gemView.open('play');
       if (id === 'mirror') { H.returnTo = back; M.wardrobe(); }
       if (id === 'vesper') GV.game.openShop('play');
+      if (id === 'fab' && GV.fabricator) GV.fabricator.open('play');
       if (id === 'board') { H.returnTo = back; M.frontier(); }
       if (id === 'airlock') { H.returnTo = back; M.coop(); }
       if (id === 'codex') { H.returnTo = back; codexMenu(back); }
@@ -638,6 +640,20 @@
     const glow = (r, col) => A.glow(ctx, x, y - 50, r, col);
     if (s.id === 'airlock') { ctx.fillStyle = '#1e2638'; ctx.fillRect(x - 34, y - 130, 68, 130); ctx.fillStyle = '#0a0d14'; ctx.fillRect(x - 26, y - 122, 24, 122); ctx.fillRect(x + 2, y - 122, 24, 122); ctx.fillStyle = '#ff6a7a'; ctx.fillRect(x - 4, y - 140, 8, 6); }
     if (s.id === 'vault' || s.id === 'gbank') { const col = s.id === 'gbank' ? acc : '#ffd36b'; ctx.fillStyle = '#222b40'; A.rrect(ctx, x - 38, y - 110, 76, 110, 8); ctx.fillStyle = '#0b0f19'; A.rrect(ctx, x - 28, y - 100, 56, 40, 4); ctx.fillStyle = col; ctx.globalAlpha = 0.6 + 0.3 * Math.sin(t * 2); ctx.fillRect(x - 22, y - 92, 44, 3); ctx.fillRect(x - 22, y - 84, 30, 3); ctx.fillRect(x - 22, y - 76, 38, 3); ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - 32, 14, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y - 32); ctx.lineTo(x + Math.cos(t) * 10, y - 32 + Math.sin(t) * 10); ctx.stroke(); }
+    if (s.id === 'fab') {
+      // a workbench with a fabrication arm; its lamp shows the bench's level
+      const lv = (GV.save.data && GV.save.data.fab) || 0, col = ['#aab2c2', '#7dffb0', '#6fb8ff', '#ff9a4a'][lv];
+      ctx.fillStyle = '#232a3a'; A.rrect(ctx, x - 50, y - 46, 100, 46, 6); ctx.fillStyle = '#323b50'; ctx.fillRect(x - 54, y - 50, 108, 8);
+      ctx.fillStyle = '#1a202c'; ctx.fillRect(x - 40, y - 36, 26, 30); ctx.fillRect(x + 14, y - 36, 26, 30);
+      const sw = Math.sin(t * 1.6) * 0.5;
+      ctx.strokeStyle = '#5a6478'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x + 30, y - 50); ctx.lineTo(x + 30, y - 120); ctx.lineTo(x + 30 - 40 * Math.cos(sw), y - 120 + 26 * Math.sin(sw) + 22); ctx.stroke();
+      const tx = x + 30 - 40 * Math.cos(sw), ty = y - 120 + 26 * Math.sin(sw) + 22;
+      A.glow(ctx, tx, ty + 6, 16 + Math.sin(t * 9) * 4, col);
+      if (Math.random() < 0.3) p.parts.push({ x: tx, y: ty + 6, vx: (Math.random() - 0.5) * 120, vy: -Math.random() * 120, life: 0.4, max: 0.4, size: 2, color: col, add: true });
+      ctx.fillStyle = '#9aa6bd'; ctx.fillRect(x - 20, y - 56, 34, 6);
+      A.glow(ctx, x - 44, y - 64, 10, col); ctx.fillStyle = col; A.circle(ctx, x - 44, y - 64, 3);
+    }
     if (s.id === 'armory') { ctx.fillStyle = '#20283a'; ctx.fillRect(x - 55, y - 150, 110, 8); ctx.fillRect(x - 55, y - 8, 110, 8); for (let i = 0; i < 4; i++) { const ix = x - 42 + i * 28; ctx.strokeStyle = ['#8fe9ff', '#ffd36b', '#ff9a4a', '#c38bff'][i]; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ix, y - 140); ctx.lineTo(ix, y - 30); ctx.stroke(); ctx.fillStyle = '#9aa6c0'; ctx.fillRect(ix - 6, y - 40, 12, 4); } }
     if (s.id === 'forge') { ctx.fillStyle = '#241e2e'; A.rrect(ctx, x - 40, y - 70, 80, 70, 10); A.glow(ctx, x, y - 95, 40, 'rgba(195,139,255,0.35)'); ctx.fillStyle = '#c38bff'; ctx.save(); ctx.translate(x, y - 100 + Math.sin(t * 2) * 5); ctx.rotate(t); ctx.fillRect(-9, -9, 18, 18); ctx.restore(); }
     if (s.id === 'mirror') { ctx.fillStyle = '#1e2638'; A.rrect(ctx, x - 30, y - 140, 60, 140, 30); const mg = ctx.createLinearGradient(x - 24, 0, x + 24, 0); mg.addColorStop(0, '#5f7aa8'); mg.addColorStop(0.5, '#c9e6ff'); mg.addColorStop(1, '#5f7aa8'); ctx.fillStyle = mg; ctx.globalAlpha = 0.5; A.rrect(ctx, x - 24, y - 132, 48, 124, 24); ctx.globalAlpha = 1; }

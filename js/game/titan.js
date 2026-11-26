@@ -676,7 +676,10 @@
     if (b.def && b.def.titan) {
       const id = b.def.titan, d = GV.save.main || GV.save.data;
       const mine = GV.EXOTICS.filter((k) => GV.WEAPONS[k].exotic === id), missing = mine.filter((k) => !d.weapons.includes(k));
-      const n = (d.titans || {})[id] === 1 ? 1 : Math.random() < 0.3 + 0.1 * GV.titanAwake(this.sysIdx) ? 1 : 0;
+      // Titans drop exotic pieces, not whole weapons (assemble them at a Master Fabricator)
+      const np = ((d.titans || {})[id] === 1 ? 2 : 1) + (Math.random() < 0.3 + 0.1 * GV.titanAwake(this.sysIdx) ? 1 : 0);
+      if (this.dropExoPiece) { for (let i = 0; i < np; i++) this.dropExoPiece(b.x + b.w / 2 + (i - 1) * 30, b.y + b.h / 2, id); }
+      const n = 0;
       for (let i = 0; i < n; i++) this.dropWeapon(b.x + b.w / 2, b.y + b.h / 2, (missing.length ? missing : mine)[Math.floor(Math.random() * (missing.length ? missing : mine).length)]);
     }
     return r;
