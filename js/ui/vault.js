@@ -17,7 +17,7 @@
     { id: 'all', name: 'All' },
     { id: 'helm', name: 'Helms', icon: '⛑' }, { id: 'suit', name: 'Suits', icon: '⛨' }, { id: 'boots', name: 'Boots', icon: '⇵' }, { id: 'relic', name: 'Relics', icon: '✧' },
     { id: 'prized', name: 'Sets & Singularity', icon: '★' },
-    { id: 'cores', name: 'Star Cores', icon: '◆' }, { id: 'sups', name: 'Supports', icon: '◇' }, { id: 'uncut', name: 'Uncut', icon: '⬡' },
+    { id: 'cores', name: 'Star Cores', icon: '◆' }, { id: 'sups', name: 'Augments', icon: '◇' }, { id: 'uncut', name: 'Blank', icon: '⬡' },
     { id: 'mats', name: 'Materials', icon: '⚗' },
   ];
   V.tabOf = (e) => {
@@ -29,7 +29,7 @@
     if (e.k === 'item') return e.o.name;
     if (e.k === 'core') return (GV.GEMS[e.o.id] || {}).name || e.o.id;
     if (e.k === 'sup') return (GV.SUPPORTS[e.o.id] || {}).name || e.o.id;
-    if (e.k === 'uncut') return `Uncut ${e.o.kind === 'skill' ? 'Star Core' : 'Support'} · T${e.o.tier}`;
+    if (e.k === 'uncut') return `Blank ${e.o.kind === 'skill' ? 'Star Core' : 'Augment'} · Tier ${e.o.tier}`;
     if (e.k === 'cur') return (CUR()[e.c] || {}).name || e.c;
     return '?';
   };
@@ -61,8 +61,8 @@
   V.sub = (e) => {
     if (e.k === 'item') return `${GV.items.rarityName(e.o)} · ${GV.SLOTS[e.o.slot].icon} ${e.o.base} · T${e.o.tier}`;
     if (e.k === 'core') { const g = GV.GEMS[e.o.id] || {}; return `${g.icon || '◆'} Lv ${e.o.lvl} · ${e.o.sockets} socket${e.o.sockets > 1 ? 's' : ''}${g.tags ? ' · ' + g.tags.slice(0, 2).join(', ') : ''}`; }
-    if (e.k === 'sup') return `Support · T${(GV.SUPPORTS[e.o.id] || {}).tier || 1}`;
-    if (e.k === 'uncut') return 'Cut it at the Gem Lab';
+    if (e.k === 'sup') return `Augment · Tier ${(GV.SUPPORTS[e.o.id] || {}).tier || 1}`;
+    if (e.k === 'uncut') return 'Format it on the Star Cores screen';
     if (e.k === 'cur') return `×${e.n}`;
     return '';
   };
@@ -176,13 +176,17 @@
   };
   V.refresh = () => { if (document.querySelector('#ui .vaultui')) draw(); };
   const match = (e) => { const q = st.q.trim(); return !q || V.name(e).toLowerCase().includes(q) || V.sub(e).toLowerCase().includes(q) || V.lines(e).join(' ').toLowerCase().includes(q); };
+  // Identical things stack into one card: blank cores by kind and tier, augments and weapons by name, cores by name and level.
+  const stackKey = (e) => (e.k === 'uncut' && e.o ? `u:${e.o.kind}:${e.o.tier}` : e.k === 'sup' && e.o ? `s:${e.o.id}` : e.k === 'core' && e.o ? `g:${e.o.id}:${e.o.lvl}` : (e.k === 'weapon' && e.o) ? `w:${e.o.id}` : null);
+  const stack = (list) => { const out = [], by = {}; for (const e of list) { const k = stackKey(e); if (!k) { out.push(e); continue; } if (by[k]) { by[k]._n++; continue; } by[k] = Object.assign(Object.create(Object.getPrototypeOf(e)), e, { _n: 1, _key: k }); out.push(by[k]); } return out; };
   function card(e, side) {
     const sel = st.sel === e.id && st.side === side;
     const who = e.by && st.store.nameOf ? `<i class="by" data-by="${esc(e.by)}"></i>` : '';
     return `<div class="vcard ${sel ? "sel" : ""} vk-${e.k}" style="--rc:${V.color(e)}">
-      <button class="vmain" data-v="sel" data-id="${esc(e.id)}" data-s="${side}"><b>${esc(V.name(e))}</b><small>${esc(V.sub(e))}</small>${who}
+      <button class="vmain" data-v="sel" data-id="${esc(e.id)}" data-s="${side}"><b>${esc(V.name(e))}${e._n > 1 ? ` <i class="stackn">×${e._n}</i>` : ''}</b><small>${esc(V.sub(e))}</small>${who}
         ${sel ? `<ul>${V.lines(e).map((l) => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</button>
       <button class="vmove" data-v="move" data-id="${esc(e.id)}" data-s="${side}" title="${side === 'me' ? 'Deposit' : 'Withdraw'}">${side === 'me' ? '→' : '←'}</button>
+      ${e._n > 1 && sel ? `<div class="vamt"><button data-v="moveAll" data-key="${esc(e._key)}" data-s="${side}">Move all ${e._n}</button></div>` : ''}
       ${e.k === 'cur' && e.n > 1 && sel ? `<div class="vamt">${[1, 10].filter((x) => x < e.n).map((x) => `<button data-v="moveN" data-n="${x}" data-id="${esc(e.id)}" data-s="${side}">Move ${x}</button>`).join('')}<button data-v="moveN" data-n="${e.n}" data-id="${esc(e.id)}" data-s="${side}">Move all ${e.n}</button></div>` : ''}
     </div>`;
   }
@@ -194,7 +198,7 @@
     // class rail: cores, augments and weapons are checked; everything else suits anyone
     const ck = (e) => (e.k === 'core' ? ['skill', e.o && e.o.id] : e.k === 'sup' ? ['sup', e.o && e.o.id] : (e.k === 'weapon' || e.k === 'wpn') ? ['weapon', e.w || (e.o && (e.o.id || e.o.k))] : null);
     const clsPass = (e) => { const c = ck(e); return !c || !c[1] || GV.filters.clsOk('vault', c[0], c[1]); };
-    const L = mine.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e)), R = theirs.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e));
+    const L = stack(mine.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e))), R = stack(theirs.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e)));
     const railItems = [...mine, ...theirs].map(ck).filter((c) => c && c[1]);
     const used = V.slots(theirs), cap = S.cap();
     const canExpand = S.kind === 'solo' && cap < V.CAP_MAX;
@@ -249,6 +253,17 @@
     if (a === 'sel') { const same = st.sel === b.dataset.id && st.side === b.dataset.s; st.sel = same ? null : b.dataset.id; st.side = b.dataset.s; return draw(); }
     st.busy = true;
     try {
+      if (a === 'moveAll') {
+        // one at a time, looking the stack up afresh each time (blank cores are indexed, so indexes shift)
+        const key = b.dataset.key, side = b.dataset.s;
+        for (let guard = 0; guard < 500; guard++) {
+          const e = (side === 'me' ? V.mine() : st.store.list()).find((x) => stackKey(x) === key);
+          if (!e) break;
+          const err = side === 'me' ? await deposit(e, 0) : await withdraw(e.id, 0);
+          if (err) { st.msg = err; break; }
+        }
+        if (!st.msg) { GV.audio.sfx('mem'); st.sel = null; }
+      }
       if (a === 'move' || a === 'moveN') {
         const n = a === 'moveN' ? +b.dataset.n : 0;
         if (b.dataset.s === 'me') { const e = V.mine().find((x) => x.id === b.dataset.id); st.msg = e ? (await deposit(e, n)) || '' : ''; }

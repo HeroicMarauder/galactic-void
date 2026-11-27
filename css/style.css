@@ -1012,3 +1012,15 @@ body.touch #picker { display: none; }
 .benchsw .seg { width: auto; min-width: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 13px; }
 .benchsw .seg small { color: #8b98b3; font-size: 11px; }
 .benchsw .seg.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, #0c1020); }
+.stackn { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 9px; background: rgba(143,233,255,.14); color: #bfefff; font-size: 11px; font-style: normal; font-weight: 700; line-height: 17px; vertical-align: 1px; }
+.soundlab .slab { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px; }
+.srow { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border: 1px solid #222b44; border-radius: 10px; background: rgba(12,16,28,.6); }
+.srow .play { width: 34px; height: 34px; border-radius: 50%; padding: 0; flex: 0 0 auto; }
+.srow .sn { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.srow .sn b { font-size: 13px; } .srow .sn small { font-size: 10px; color: #7f8aa6; font-family: monospace; }
+.srow .sn em { font-size: 11px; color: #8b98b3; font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srow .sn em.mine { color: #7dffcf; } .srow .sn em.game { color: #ffd36b; }
+.srow label.up { cursor: pointer; padding: 5px 10px; border: 1px solid #2a3350; border-radius: 8px; font-size: 12px; }
+.soundlab .howto { margin: 12px 0; padding: 10px 14px; border: 1px solid #222b44; border-radius: 10px; color: #b8c2da; font-size: 13px; }
+.soundlab .howto summary { cursor: pointer; color: #e8eeff; font-weight: 600; }
+.soundlab code { background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 4px; }

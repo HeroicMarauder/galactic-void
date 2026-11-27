@@ -2,16 +2,14 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.27-4',
-  title: 'The Workshop',
+  id: '2026.11.27-5',
+  title: 'Impact',
   notes: [
-    'The Fabricator is now four benches in a new workshop past the sparring ring: Armour Bench, Blade Bench, Gunsmith and Arcane Bench, each with its own upgrade level',
-    'The Arcane Bench breaks down spare Star Cores and Augments, forges Void Conduits, reformats spare cores back to Blank Cores, and at Master fuses three Blank Cores into the next tier',
-    'Class filter: a row of class buttons down the side of the Star Cores, Augment pickers, Weapons, Vesper\'s Trade and Vault lists',
-    'Menus no longer blink when you type, buy, plug in Augments, use Void Conduits or change filters. Lists stay where you scrolled and your cursor stays put',
-    'Fixed: you couldn\'t type spaces in search boxes',
-    'Fixed: plugging in an Augment no longer throws your cursor into the search box, and picking another skill shows its details from the top',
-    'Leftover "Flux Coupler" text now says Void Conduit',
-    'Fixed: a rare crash when an explosive pod went off next to a sparring hologram',
+    'Hits knock things loose: creatures spill alien ichor and chunks that land and splat, machines throw sparks and metal shards, crystal and energy beings burst into stardust. You shed suit sparks when you\'re hit',
+    'New setting, Hit effects: Blood & chunks, Stardust only (no blood), or Off',
+    'Sound pass: every effect rebuilt in layers with a reverb space, stereo placement and natural variation, plus new sounds for creature, machine, crystal and energy hits and kills, landing, purchases, Finishers and explosions',
+    'Sound Lab (Settings): hear every sound effect and replace any of them with your own audio file',
+    'Stacking: blank cores stack by tier, spare Star Cores by level, Augments by name, in Star Cores, the Vault (with Move all) and the Arcane Bench',
+    'The Vault now says Blank Star Core and Augment instead of Uncut and Support',
   ],
 };

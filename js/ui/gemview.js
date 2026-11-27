@@ -81,10 +81,19 @@
     const showT = (t) => fl.inv === 'all' || fl.inv === t;
     let invHtml = '';
     const uncutL = d.uncut.map((u, i) => [u, i]).filter(([u]) => GV.filters.match(fl.q, 'blank format tier ' + u.tier, u.kind === 'skill' ? 'star core' : 'augment'));
-    if (showT('blank') && uncutL.length) invHtml += `<div class="gsub">Blank cores <span>${uncutL.length}</span></div><div class="uncut">` + uncutL.map(([u, i]) =>
-      `<button class="ucg ${u.kind}" data-a="cut" data-i="${i}"><span class="hex"></span>Format Tier ${u.tier} ${u.kind === 'skill' ? 'Star Core' : 'Augment'}</button>`).join('') + `</div>`;
+    if (showT('blank') && uncutL.length) {
+      // stacked: one button per kind and tier, formatting the first of that stack
+      const stacks = []; const byK = {};
+      for (const [u, i] of uncutL) { const k = u.kind + u.tier; if (!byK[k]) { byK[k] = { u, i, n: 0 }; stacks.push(byK[k]); } byK[k].n++; }
+      stacks.sort((a, b) => (a.u.kind === b.u.kind ? a.u.tier - b.u.tier : a.u.kind === 'skill' ? -1 : 1));
+      invHtml += `<div class="gsub">Blank cores <span>${uncutL.length}</span></div><div class="uncut">` + stacks.map((x) => `<button class="ucg ${x.u.kind}" data-a="cut" data-i="${x.i}"><span class="hex"></span>Format Tier ${x.u.tier} ${x.u.kind === 'skill' ? 'Star Core' : 'Augment'}${x.n > 1 ? ` <b class="stackn">×${x.n}</b>` : ''}</button>`).join('') + `</div>`;
+    }
     const spareL = spare.filter((x) => GV.filters.clsOk('gemInv', 'skill', x.id) && GV.filters.match(fl.q, GV.GEMS[x.id].name, GV.GEMS[x.id].tags.join(' '), GV.GEMS[x.id].desc));
-    if (showT('cores') && spareL.length) invHtml += `<div class="gsub">Spare Star Cores <span>${spareL.length}</span></div><div class="spare">` + spareL.map((x) => `<span class="pill" style="color:${GV.GEMS[x.id].color}" title="${esc2(GV.GEMS[x.id].desc)}">${GV.GEMS[x.id].icon} ${esc2(GV.GEMS[x.id].name)} <small>Lv ${x.lvl}</small></span>`).join('') + `</div>`;
+    if (showT('cores') && spareL.length) {
+      const st2 = []; const byK = {};
+      for (const x of spareL) { const k = x.id + ':' + x.lvl; if (!byK[k]) { byK[k] = { x, n: 0 }; st2.push(byK[k]); } byK[k].n++; }
+      invHtml += `<div class="gsub">Spare Star Cores <span>${spareL.length}</span></div><div class="spare">` + st2.map(({ x, n }) => `<span class="pill" style="color:${GV.GEMS[x.id].color}" title="${esc2(GV.GEMS[x.id].desc)}">${GV.GEMS[x.id].icon} ${esc2(GV.GEMS[x.id].name)} <small>Lv ${x.lvl}</small>${n > 1 ? ` ×${n}` : ''}</span>`).join('') + `</div>`;
+    }
     const supL = Object.keys(supCounts).filter((k) => GV.filters.clsOk('gemInv', 'sup', k) && GV.filters.match(fl.q, GV.SUPPORTS[k].name, GV.SUPPORTS[k].desc, GV.SUPPORTS[k].req.join(' ')));
     if (showT('augs') && supL.length) invHtml += `<div class="gsub">Spare Augments <span>${fs.length}</span></div><div class="spare">` + supL.map((k) => `<span class="pill sup" title="${esc2(GV.SUPPORTS[k].desc)}">${esc2(GV.SUPPORTS[k].name)}${supCounts[k] > 1 ? ` ×${supCounts[k]}` : ''}</span>`).join('') + `</div>`;
     if (!invHtml) invHtml = ITABS[0].n ? '<p class="note fnone">Nothing matches. Try another tab or search.</p>' : '<p class="note">Blank cores drop from rifts, bosses and memory caches. Vesper sells them too.</p>';

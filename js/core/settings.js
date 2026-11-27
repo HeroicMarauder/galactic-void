@@ -6,7 +6,7 @@
   const ZOOMS = { close: 1.3, standard: 1.15, wide: 1 };
   GV.settings = {
     zoom() { return ZOOMS[this.data.cam] || 1.3; },
-    data: { gfx: 'auto', shake: true, numbers: true, volume: 0.8, music: 0.7, fps: false, ghost: true, cam: 'close', aimAssist: 'light', hitstop: true },
+    data: { gfx: 'auto', shake: true, numbers: true, volume: 0.8, music: 0.7, fps: false, ghost: true, cam: 'close', aimAssist: 'light', hitstop: true, gore: 'full' },
     load() {
       try { Object.assign(this.data, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
       return this.data;

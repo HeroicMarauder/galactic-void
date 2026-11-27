@@ -329,11 +329,14 @@
           <div class="gsub">Music <span>${Math.round(sd.music * 100)}%</span></div>
           <input type="range" min="0" max="100" step="5" value="${Math.round(sd.music * 100)}" id="mus" class="range">
           ${tog('mute', 'Mute all sound', d.mute)}
+          <div class="menu row left"><button data-a="soundlab">🔊 Sound Lab · hear and replace sound effects</button></div>
           ${GV.soundtrack.panelHtml(esc)}
           ${setMsg ? `<p class="ok">${esc(setMsg)}</p>` : ''}
           <div class="gsub">Keyboard &amp; mouse <span>${GV.input.bindPreset === 'classic' ? 'classic layout' : 'mouse & keyboard layout'}</span></div>
           <div class="menu row"><button data-a="binds">Keybinds</button></div>
           <div class="gsub">Feedback</div>
+          <div class="gsub">Hit effects <span>what flies off when things get hit</span></div>
+          <div class="segs">${opt('gore', 'full', 'Blood &amp; chunks')}${opt('gore', 'dust', 'Stardust only')}${opt('gore', 'off', 'Off')}</div>
           ${tog('shake', 'Screen shake', sd.shake)}
           ${tog('hitstop', 'Hit-stop on heavy hits', sd.hitstop !== false)}
           ${tog('adaptive', 'Adaptive resolution (drops resolution, not frame rate, when busy)', sd.adaptive !== false)}
@@ -352,6 +355,7 @@
           b.dataset.armed = '1'; b.textContent = 'Tap again to erase everything'; b.classList.add('danger'); return;
         }
         if (a === 'binds') return M.keybinds(() => M.settings());
+        if (a === 'soundlab') return GV.soundLab.open(() => M.settings());
         if (GV.soundtrack.onAction(a, b, () => M.settings())) return;
         if (a === 'set') { S.set(b.dataset.k, b.dataset.v); M.settings(); }
       }, goBack);
@@ -465,16 +469,16 @@
         if (a === 'equipW') { d.weapon = k; if (GV.WEAPONS[k].hand === 'two') d.offhand = null; }
         if (a === 'equipOff') d.offhand = k;
         if (a === 'unOff') d.offhand = null;
-        if (a === 'buyW' && d.memories >= GV.WEAPONS[k].cost) { d.memories -= GV.WEAPONS[k].cost; d.weapons.push(k); if (GV.WEAPONS[k].hand === 'off') { if (GV.WEAPONS[d.weapon].hand !== 'two') d.offhand = k; } else { d.weapon = k; if (GV.WEAPONS[k].hand === 'two') d.offhand = null; } GV.audio.sfx('level'); }
+        if (a === 'buyW' && d.memories >= GV.WEAPONS[k].cost) { d.memories -= GV.WEAPONS[k].cost; d.weapons.push(k); if (GV.WEAPONS[k].hand === 'off') { if (GV.WEAPONS[d.weapon].hand !== 'two') d.offhand = k; } else { d.weapon = k; if (GV.WEAPONS[k].hand === 'two') d.offhand = null; } GV.audio.sfx('buy'); }
         if (a === 'buyG') {
           const c = +b.dataset.c;
           if (d.memories >= c) {
             d.memories -= c;
             if (k === 'orb') d.orbs++; else if (k.startsWith('cur:')) d.cur[k.slice(4)] = (d.cur[k.slice(4)] || 0) + 1; else d.uncut.push({ kind: k, tier: +b.dataset.t });
-            GV.audio.sfx('level');
+            GV.audio.sfx('buy');
           }
         }
-        if (a === 'buyU') { const c = GV.progress.upgradeCost(k); if (d.memories >= c && d.upgrades[k] < GV.UPGRADES[k].max) { d.memories -= c; d.upgrades[k]++; GV.audio.sfx('level'); } }
+        if (a === 'buyU') { const c = GV.progress.upgradeCost(k); if (d.memories >= c && d.upgrades[k] < GV.UPGRADES[k].max) { d.memories -= c; d.upgrades[k]++; GV.audio.sfx('buy'); } }
         if (a === 'back') { GV.save.write(); return GV.game.closeShop(shopFrom); }
         GV.save.write();
         M.shop();

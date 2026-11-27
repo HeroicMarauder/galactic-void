@@ -84,6 +84,7 @@
     const col = GV.ART_SCHOOLS[sc].color, f = pl.facing;
     p.text(pl.cx, pl.y - 44, GV.ART_SCHOOLS[sc].fin[0].toUpperCase(), col, 17);
     p.hitStop && p.hitStop(0.06); p.shake && p.shake(6);
+    if (GV.audio.play && GV.game && p === GV.game.play) GV.audio.play('finisher', { x: pl.cx, force: true });
     if (sc === 'blade') {
       later(p, 0.08, () => { const x = pl.cx + f * 95; S.area(p, x, pl.cy, 150, s, { mult: 1.5 * mult, knock: 520, ky: -320 }); fx(p, x, pl.cy, 150, col, 0.45); });
     } else if (sc === 'gun') {

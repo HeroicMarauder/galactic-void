@@ -23,6 +23,7 @@
   };
   function blow(p, e) {
     const cx = e.x + e.w / 2, cy = e.y + e.h / 2, R = 130, cryo = e.cryo;
+    if (GV.audio.play && GV.game && p === GV.game.play) GV.audio.play(cryo ? 'killCrystal' : 'explode', { x: cx, gap: 0.08 });
     const dmg = 70 * GV.SCALE.hp(p.diff) * (1 + 0.25 * (p.sysIdx || 0));
     S.raw(p, cx, cy, R, cryo ? { cold: dmg } : { fire: dmg * 0.7, phys: dmg * 0.3 }, { exclude: e, color: cryo ? '#8fe9ff' : '#ff7a3a' });
     // chain reactions

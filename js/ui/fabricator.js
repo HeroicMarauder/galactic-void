@@ -136,8 +136,11 @@
         rows += items.map((it) => row(esc(it.name), GV.items.color(it), `${esc(GV.items.rarityName(it))} · T${it.tier}`, `<button data-a="bi" data-u="${it.uid}">${yTxt(itemYield(it))}</button>`)).join('');
       } else if (bench === 'arcane') {
         rows += spareWeapons(d, 'arcane').map((k) => row(`✷ ${esc(W[k].name)}`, W[k].color, 'Spell focus', `<button data-a="bw" data-k="${k}">${yTxt(weaponYield(k))}</button>`)).join('');
-        rows += spareCores(d).map((g) => { const G = GV.GEMS[g.id]; return row(`${G.icon} ${esc(G.name)} <small>Lv ${g.lvl}</small>`, G.color, `Spare Star Core · Tier ${G.tier}`, `<button data-a="bc" data-u="${g.uid}">${yTxt(coreYield(g))}</button>`); }).join('');
-        rows += GV.inv.freeSups().map((x) => { const S2 = GV.SUPPORTS[x.id]; return row(`◇ ${esc(S2.name)}`, '#c9d2e6', 'Spare Augment', `<button data-a="bs" data-u="${x.uid}">${yTxt(supYield(x))}</button>`); }).join('');
+        // stacked: identical cores (same level) and augments share one row
+        const grp = (list, key) => { const out = [], by = {}; for (const x of list) { const k = key(x); if (!by[k]) { by[k] = { x, n: 0 }; out.push(by[k]); } by[k].n++; } return out; };
+        const nTag = (n) => (n > 1 ? ` <b class="stackn">×${n}</b>` : '');
+        rows += grp(spareCores(d), (g) => g.id + ':' + g.lvl).map(({ x: g, n }) => { const G = GV.GEMS[g.id]; return row(`${G.icon} ${esc(G.name)} <small>Lv ${g.lvl}</small>${nTag(n)}`, G.color, `Spare Star Core · Tier ${G.tier}`, `<button data-a="bc" data-u="${g.uid}">${yTxt(coreYield(g))}</button>`); }).join('');
+        rows += grp(GV.inv.freeSups(), (x) => x.id).map(({ x, n }) => { const S2 = GV.SUPPORTS[x.id]; return row(`◇ ${esc(S2.name)}${nTag(n)}`, '#c9d2e6', `Spare Augment · Tier ${S2.tier || 1}`, `<button data-a="bs" data-u="${x.uid}">${yTxt(supYield(x))}</button>${n > 1 ? `<button class="ghost" data-a="bsAll" data-k="${x.id}">All ${n}</button>` : ''}`); }).join('');
       } else {
         rows += spareWeapons(d, bench).map((k) => row(`${B.icon} ${esc(W[k].name)}`, W[k].color, `${esc(GV.weaponTierName ? GV.weaponTierName(k) : '')} ${bench === 'guns' ? 'firearm' : 'weapon'}`, `<button data-a="bw" data-k="${k}">${yTxt(weaponYield(k))}</button>`)).join('');
       }
@@ -203,6 +206,7 @@
     if (a === 'bi') { const it = GV.items.get(+b.dataset.u); if (it && !Object.values(d.equip).includes(it.uid)) { d.items = d.items.filter((x) => x !== it); give(itemYield(it)); GV.audio.sfx('mem'); } }
     if (a === 'bw') { const k = b.dataset.k; if (spareWeapons(d).includes(k)) { if (!arm(b, `Tap again: break down ${W[k].name}`)) return; d.weapons = d.weapons.filter((x) => x !== k); give(weaponYield(k)); GV.audio.sfx('mem'); } }
     if (a === 'bc') { const g = spareCores(d).find((x) => x.uid === +b.dataset.u); if (g) { if (!arm(b, `Tap again: break down ${GV.GEMS[g.id].name}`)) return; d.gems = d.gems.filter((x) => x !== g); give(coreYield(g)); GV.audio.sfx('mem'); } }
+    if (a === 'bsAll') { if (!arm(b, `Tap again: break down all ${GV.SUPPORTS[b.dataset.k].name}`)) return; for (const s of GV.inv.freeSups().filter((x) => x.id === b.dataset.k)) { d.sups = d.sups.filter((x) => x !== s); give(supYield(s)); } GV.audio.sfx('mem'); }
     if (a === 'bs') { const s = GV.inv.freeSups().find((x) => x.uid === +b.dataset.u); if (s) { d.sups = d.sups.filter((x) => x !== s); give(supYield(s)); GV.audio.sfx('mem'); } }
     if (a === 'bulk') {
       if (!arm(b, 'Tap again: break down every spare Salvaged and Calibrated item')) return;
