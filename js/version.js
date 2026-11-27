@@ -2,22 +2,14 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.27-1',
-  title: 'Into the Deep',
+  id: '2026.11.27-2',
+  title: 'Skill Arts',
   notes: [
-    'Fixed: you can switch characters on the ship again (an empty drop-in room was counting as a party)',
-    'High roads are reachable: ceilings and walls no longer bury the upper platforms, and climb ledges are wider',
-    'Hidden passages: some rock walls and ceilings hide climbable tubes with a cache at the top. Some are open, some need breaking',
-    'Explosive fuel pods and cryo pods around the maps. Shoot them to blow up nearby enemies (and they set each other off)',
-    'Healing cores: Nanite Swarm, Combat Stims and Mending Field, plus seven new healing Augments',
-    'New damage cores: Plasma Bolt, Rime Nova, Static Field, Barrage, Tempest Slam and Cleave',
-    'The passive tree grew: eight Frontier wheels on the outer rim with new notables',
-    "Jeweller's Orbs are now Void Conduits",
-    'Your spaceman raises a hand to the wall when sliding, gripping and kicking off',
-    'The Lantern: a new hull, a better discovery scene, and glowing lights all through the ship',
-    'Missions now start from the Drop Tube: the ship spits your pod into space and it burns in to land at the stage start',
-    'Melee: Void Strike can be attuned to Physical, Fire, Cold, Lightning or Void (Star Cores screen)',
-    'Melee: hits can arc to a second nearby enemy for 40% damage',
-    'Melee: Knight, Paladin, Monk, Lancer, Symbiote and Engineer take 15% less damage with an enemy close by',
+    'Every Star Core now learns Arts as it levels (see them on the Star Cores screen):',
+    'Lv 4 Flow: using skills back to back builds Combo, +4% damage a stack. Switching skills builds 2 stacks',
+    'Lv 8 Style: every 3rd use changes the move. Blades whirl-step, guns double-tap, storms aftershock, heals ward you, movement and summons give Momentum',
+    'Lv 14 Finisher: at full Combo your next use hits twice as hard with a signature burst (Rending Crescent, Overcharge, Cataclysm, Lifebloom, Second Wind)',
+    'Lv 20 Mastery: Combo reaches 8 and Finishers grant haste and guard',
+    'Star Cores only gain experience if you used them recently (summons and auras count for a minute after you cast them), so idle cores no longer level up',
   ],
 };

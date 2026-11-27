@@ -240,11 +240,14 @@
       D.activeLoadout = to;
       GV.save.write();
     },
-    // Gems on the skill bar earn experience from kills. Returns the gems that levelled up.
-    addXp(n) {
-      const ups = [];
+    // Star Cores earn experience from kills only if you've used them in the last 10 seconds.
+    // Returns the gems that levelled up.
+    addXp(n, who = 'p1') {
+      const ups = [], used = (GV.gemUse && GV.gemUse[who]) || {}, now = performance.now();
       for (const g of this.barGems()) {
         if (!g || g.lvl >= GV.MAX_GEM_LVL) continue;
+        const lasting = GV.LASTING_KINDS && GV.LASTING_KINDS.has((GV.GEMS[g.id] || {}).kind); // summons and auras keep working after the cast
+        if (!(now - (used[g.uid] || -1e9) < (lasting ? 60000 : 10000))) continue;
         g.xp += n * (1 + 0.15 * ((d().ship || {}).gemlab || 0));
         while (g.lvl < GV.MAX_GEM_LVL && g.xp >= GV.gemXpNeed(g.lvl)) { g.xp -= GV.gemXpNeed(g.lvl); g.lvl++; ups.push(g); }
       }

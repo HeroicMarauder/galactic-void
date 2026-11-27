@@ -68,7 +68,8 @@
           <button data-a="swap">Swap Star Core</button>
         </div>${g.id === 'strike' && GV.ATTUNE ? `<div class="gsub">Attunement <span>${esc(GV.ATTUNE[GV.strikeAttune()].name)}</span></div>
         <p class="gdesc">Choose what Void Strike hits with. Any element but Physical converts 60% of its damage and gains that element's status chance.</p>
-        <div class="menu row left attune">${Object.keys(GV.ATTUNE).map((k2) => `<button class="${GV.strikeAttune() === k2 ? 'primary' : 'ghost'} small" data-a="attune" data-k="${k2}" style="--c:${GV.ATTUNE[k2].color}"><b style="color:${GV.ATTUNE[k2].color}">${GV.ATTUNE[k2].icon}</b> ${esc(GV.ATTUNE[k2].name)}</button>`).join('')}</div>` : ''}`;
+        <div class="menu row left attune">${Object.keys(GV.ATTUNE).map((k2) => `<button class="${GV.strikeAttune() === k2 ? 'primary' : 'ghost'} small" data-a="attune" data-k="${k2}" style="--c:${GV.ATTUNE[k2].color}"><b style="color:${GV.ATTUNE[k2].color}">${GV.ATTUNE[k2].icon}</b> ${esc(GV.ATTUNE[k2].name)}</button>`).join('')}</div>` : ''}${GV.artsOf ? (() => { const A2 = GV.artsOf(g); return `<div class="gsub">Arts <span style="color:${A2.def.color}">${esc(A2.def.name)}</span></div>
+        <div class="arts">${A2.list.map((x) => `<div class="art ${x.on ? 'on' : ''}" style="--c:${A2.def.color}"><b>${x.on ? '◆' : '◇'} ${esc(x.name)}</b><i>${x.on ? 'Learned' : 'Level ' + x.lvl}</i><p>${esc(x.desc)}</p></div>`).join('')}</div>`; })() : ''}`;
     } else {
       detail = `<p class="gdesc">This slot is empty.</p><div class="menu row left"><button class="primary" data-a="swap">Choose a Star Core</button></div>`;
     }

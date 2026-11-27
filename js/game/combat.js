@@ -30,7 +30,7 @@
         const up = GV.save.as(P2.slot, (d2) => {
           d2.xp += Math.round(n); let u = false;
           while (d2.xp >= GV.progress.xpNeed(d2.level)) { d2.xp -= GV.progress.xpNeed(d2.level); d2.level++; u = true; }
-          GV.inv.addXp(n);
+          GV.inv.addXp(n, P2.slot);
           return u ? d2.level : 0;
         });
         if (up) { P2.recalc(); if (!P2.dead) P2.hp = P2.maxHp; this.toast(`P${P2.slot + 1} · RANK ${up}`, 1.8, 'small'); this.burst(P2.cx, P2.cy, 30, this.pal.glow, 220, 0.8, 3); }
