@@ -23,6 +23,7 @@
   GV.artSchool = (s) => {
     const t = s.tags, k = s.kind;
     if (t.has('Heal') || k === 'heal') return 'mend';
+    if (t.has('Melee') && k === 'channel') return 'blade'; // Whirlwind and other channelled blades
     if (MOVE_KINDS.has(k) || t.has('Minion') || t.has('Movement') || NO_ECHO.has(k)) return 'path';
     if (t.has('Melee')) return 'blade';
     if (AREA_KINDS.has(k) || (t.has('Area') && !t.has('Projectile'))) return 'storm';
@@ -63,7 +64,7 @@
   function style(p, pl, s, slot, opts, sc, mult) {
     const col = GV.ART_SCHOOLS[sc].color;
     if (sc === 'blade') {
-      pl.vx = pl.facing * 520; if (!pl.onGround) pl.vy = Math.min(pl.vy, -120);
+      if (s.kind !== 'channel') { pl.vx = pl.facing * 520; if (!pl.onGround) pl.vy = Math.min(pl.vy, -120); } // a channelled spin keeps your footing
       later(p, 0.1, () => { S.area(p, pl.cx, pl.cy, 100, s, { mult: 0.6 * mult, knock: 300 }); fx(p, pl.cx, pl.cy, 100, col); });
       p.text(pl.cx, pl.y - 30, 'WHIRL STEP', col, 12);
     } else if (sc === 'gun') {

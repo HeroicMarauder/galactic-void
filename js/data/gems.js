@@ -107,7 +107,9 @@
     if (sup.excl && sup.excl.some((x) => tags.has(x))) return false;
     return sup.req.includes('*') || sup.req.some((r) => tags.has(r));
   };
-  GV.gemXpNeed = (lvl) => Math.round(40 * Math.pow(lvl, 1.65));
+  GV.gemXpNeed = (lvl) => Math.round(70 * Math.pow(lvl, 1.8)); // cores mature over a long run (about rank 35–40 for level 20)
+  GV.GEM_XP_SHARE = 0.6; // a core earns 60% of the experience you do
+  GV.gemLvlCap = (rank) => Math.min(GV.MAX_GEM_LVL, (rank || 1) + 2); // and never more than 2 levels past your rank
   GV.MAX_GEM_LVL = 20;
   GV.MAX_SOCKETS = 5;
 })();

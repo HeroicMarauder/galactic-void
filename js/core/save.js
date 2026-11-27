@@ -248,8 +248,11 @@
         if (!g || g.lvl >= GV.MAX_GEM_LVL) continue;
         const lasting = GV.LASTING_KINDS && GV.LASTING_KINDS.has((GV.GEMS[g.id] || {}).kind); // summons and auras keep working after the cast
         if (!(now - (used[g.uid] || -1e9) < (lasting ? 60000 : 10000))) continue;
-        g.xp += n * (1 + 0.15 * ((d().ship || {}).gemlab || 0));
-        while (g.lvl < GV.MAX_GEM_LVL && g.xp >= GV.gemXpNeed(g.lvl)) { g.xp -= GV.gemXpNeed(g.lvl); g.lvl++; ups.push(g); }
+        const cap = GV.gemLvlCap ? GV.gemLvlCap(d().level) : GV.MAX_GEM_LVL;
+        if (g.lvl >= cap) continue;
+        g.xp += n * (GV.GEM_XP_SHARE || 1) * (1 + 0.15 * ((d().ship || {}).gemlab || 0));
+        while (g.lvl < cap && g.xp >= GV.gemXpNeed(g.lvl)) { g.xp -= GV.gemXpNeed(g.lvl); g.lvl++; ups.push(g); }
+        if (g.lvl >= cap) g.xp = Math.min(g.xp, GV.gemXpNeed(g.lvl) - 1);
       }
       return ups;
     },

@@ -58,7 +58,7 @@
       });
       detail = `
         <div class="gdh"><span class="gi big" style="color:${def.color}">${def.icon}</span>
-          <div><div class="gtitle">${esc(def.name)} <small>Level ${g.lvl} · Tier ${def.tier}</small></div><div class="chips">${tagChips(GV.gemTags(def))}</div></div></div>
+          <div><div class="gtitle">${esc(def.name)} <small>Level ${g.lvl} · Tier ${def.tier}${GV.gemLvlCap && g.lvl < GV.MAX_GEM_LVL && g.lvl >= GV.gemLvlCap(GV.save.data.level) ? ` · <span style="color:#ffcf6a">Rank up to grow further</span>` : ''}</small></div><div class="chips">${tagChips(GV.gemTags(def))}</div></div></div>
         <p class="gdesc">${esc(def.desc)}</p>
         <div class="gstats">${rows}</div>
         <div class="gsub">Support sockets <span>${g.sockets}/${GV.MAX_SOCKETS}</span></div>

@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 27', t: 'Steady Growth', s: 'Star Cores level more slowly and stay within 2 levels of your rank, and Whirlwind now uses Blade Arts.' },
     { d: 'Nov 27', t: 'Skill Arts', s: 'Star Cores learn combo bonuses, new move styles and Finishers as they level, and only the cores you use earn experience.' },
     { d: 'Nov 27', t: 'Melee Rebalanced', s: 'Attune Void Strike to the element you like, melee hits can arc to a second enemy, and melee classes take less damage up close.' },
     { d: 'Nov 27', t: 'The Drop Tube', s: 'Missions launch from a glass tube that spits your pod into space, then it burns in to land at the stage start. The Lantern got a new hull and lights.' },
