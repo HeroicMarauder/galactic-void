@@ -43,7 +43,7 @@
       { id: 'fab', x: 1340, w: 100, label: 'FABRICATOR', act: 'Salvage & craft' },
       // command
       { id: 'table', x: 1560, w: 240, label: 'WAR TABLE', act: 'War table · missions & Titans' },
-      { id: 'pad', x: 1900, w: 170, label: 'DROP POD', passive: true },
+      { id: 'pad', x: 1900, w: 170, label: 'DROP TUBE', passive: true },
       { id: 'comms', x: 2120, w: 80, label: 'COMMS', act: 'Join a squad · friends' },
       { id: 'roster', x: 2280, w: 110, label: g ? 'ROSTER' : 'GUILD BOARD', act: g ? 'Guild' : 'Guilds' },
       { id: 'board', x: 2470, w: 120, label: 'DEPARTURES', act: 'Frontier' },
@@ -302,7 +302,7 @@
 
   // ---------------- drop pod ----------------
   function padTick(p, dt) {
-    if (p.netGuest || p.spar) return;
+    if (p.netGuest || p.spar || p.podGo) return; // a pod already on its way: don't count down again
     const s = station(p, 'pad'), on = (pl) => !pl.dead && Math.abs(pl.cx - s.x) < s.w / 2 && Math.abs(pl.y + pl.h - FY) < 30;
     const squad = p.players.filter((q) => !q.holo), ready = squad.filter(on), lead = squad[0];
     p.padReady = ready.length; p.padNeed = squad.length;
@@ -315,7 +315,12 @@
     if (go) {
       p.launchT = (p.launchT == null ? 3.2 : p.launchT) - dt;
       if (Math.ceil(p.launchT) !== p.lastCount && p.launchT > 0) { p.lastCount = Math.ceil(p.launchT); p.toast(`LAUNCHING · ${p.lastCount}`, 0.9, 'small'); GV.audio.sfx('beacon'); }
-      if (p.launchT <= 0) { p.launchT = null; p.padWait = 0; launch(H.mission); }
+      if (p.launchT <= 0) {
+        p.launchT = null; p.padWait = 0;
+        const m = H.mission;
+        if (GV.podLaunch && m && m.k !== 'trial') { p.podGo = true; GV.podLaunch(() => launch(m)); } // fire the pod, burn in, land
+        else launch(m);
+      }
     } else if (p.launchT != null) { p.launchT = null; p.lastCount = null; p.toast('Launch held', 1, 'small'); }
   }
 
@@ -600,7 +605,38 @@
     }
     // ceiling light strips
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    for (let x = 60; x < W; x += 240) { if (x < vx0 - 100 || x > vx1) continue; ctx.fillStyle = 'rgba(143,233,255,0.12)'; ctx.fillRect(x, TOP + 4, 120, 4); A.glow(ctx, x + 60, TOP + 10, 70, 'rgba(143,233,255,0.08)'); }
+    for (let x = 60; x < W; x += 240) {
+      if (x < vx0 - 100 || x > vx1) continue;
+      const fl = 0.85 + 0.15 * Math.sin(t * 2.3 + x) + (Math.sin(t * 17 + x * 3) > 0.985 ? -0.5 : 0); // the odd flicker
+      ctx.fillStyle = `rgba(143,233,255,${0.22 * fl})`; ctx.fillRect(x, TOP + 4, 120, 4);
+      A.glow(ctx, x + 60, TOP + 10, 90, `rgba(143,233,255,${0.1 * fl})`);
+      // a soft cone of light falling to the deck
+      const cone = ctx.createLinearGradient(0, TOP + 8, 0, FY);
+      cone.addColorStop(0, `rgba(143,233,255,${0.07 * fl})`); cone.addColorStop(1, 'rgba(143,233,255,0)');
+      ctx.fillStyle = cone; ctx.beginPath(); ctx.moveTo(x + 10, TOP + 8); ctx.lineTo(x + 110, TOP + 8); ctx.lineTo(x + 170, FY); ctx.lineTo(x - 50, FY); ctx.closePath(); ctx.fill();
+    }
+    // floor running lights, chasing toward the drop tube
+    for (let x = 0; x < W; x += 56) {
+      if (x < vx0 - 40 || x > vx1) continue;
+      const k = 0.35 + 0.65 * Math.max(0, Math.sin(t * 3 - x / 140));
+      ctx.fillStyle = `rgba(143,233,255,${0.35 * k})`; ctx.fillRect(x, FY - 3, 18, 2);
+      A.glow(ctx, x + 9, FY - 2, 14, `rgba(143,233,255,${0.12 * k})`);
+    }
+    // wall conduits with pulses of light flowing along them
+    for (const cy of [TOP + 196, TOP + 214]) {
+      ctx.fillStyle = 'rgba(40,60,90,0.6)'; ctx.fillRect(Math.max(0, vx0), cy, Math.min(W, vx1) - Math.max(0, vx0), 3);
+      for (let i = 0; i < 6; i++) {
+        const px = ((t * (cy % 2 ? 260 : 190) + i * 1300) % (W + 400)) - 200;
+        if (px < vx0 - 100 || px > vx1 + 100) continue;
+        const g2 = ctx.createLinearGradient(px - 120, 0, px, 0); g2.addColorStop(0, 'rgba(255,154,74,0)'); g2.addColorStop(1, cy % 2 ? 'rgba(255,154,74,0.6)' : 'rgba(125,255,176,0.55)');
+        ctx.fillStyle = g2; ctx.fillRect(px - 120, cy - 1, 120, 5);
+      }
+    }
+    // console lights blinking on the ribs
+    for (let x = 0; x < W; x += 180) {
+      if (x < vx0 - 40 || x > vx1) continue;
+      for (let j = 0; j < 4; j++) { const on = Math.sin(t * (1.3 + j * 0.7) + x * 0.13 + j) > 0.2, c = ['#ff6a7a', '#7dffb0', '#ffd36b', '#8fe9ff'][(x / 180 + j) % 4]; if (!on) continue; ctx.fillStyle = c; ctx.fillRect(x + 4, FY - 140 + j * 12, 6, 4); A.glow(ctx, x + 7, FY - 138 + j * 12, 9, c); }
+    }
     ctx.restore();
     // wing signs
     ctx.font = `700 13px ${C.FONT}`; ctx.textAlign = 'center';
@@ -665,14 +701,38 @@
 
     }
     if (s.id === 'pad') {
-      const n = p.padReady || 0, need = p.padNeed || p.players.length, all = n >= need && n > 0;
-      ctx.fillStyle = '#1b2233'; ctx.fillRect(x - s.w / 2, y - 10, s.w, 10);
-      ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = all ? 'rgba(125,255,176,0.25)' : 'rgba(143,233,255,0.12)'; ctx.fillRect(x - s.w / 2 + 6, y - 120, s.w - 12, 110);
-      for (let i = 0; i < 4; i++) { const yy = y - 12 - ((t * 40 + i * 30) % 110); ctx.fillStyle = all ? 'rgba(125,255,176,0.4)' : 'rgba(143,233,255,0.25)'; ctx.fillRect(x - s.w / 2 + 10, yy, s.w - 20, 2); }
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.font = `700 12px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = all ? '#7dffb0' : '#e8f0ff';
+      // the drop tube: a glass launch canister with a pod waiting inside
+      const n = p.padReady || 0, need = p.padNeed || p.players.length, all = n >= need && n > 0, live = p.launchT != null;
+      const hw = s.w / 2, top = y - 230, col = live ? '#ff5a4a' : all ? '#7dffb0' : '#8fe9ff', pulse = 0.5 + 0.5 * Math.sin(t * (live ? 12 : 3));
+      ctx.fillStyle = '#141a28'; ctx.fillRect(x - hw - 14, y - 14, s.w + 28, 14); // base
+      ctx.fillStyle = '#1b2233'; ctx.fillRect(x - hw - 14, top - 18, s.w + 28, 22); // ceiling collar
+      // glass
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const gg = ctx.createLinearGradient(x - hw, 0, x + hw, 0);
+      gg.addColorStop(0, A.col ? 'rgba(143,233,255,0.16)' : 'rgba(143,233,255,0.16)'); gg.addColorStop(0.5, 'rgba(143,233,255,0.03)'); gg.addColorStop(1, 'rgba(143,233,255,0.12)');
+      ctx.fillStyle = gg; ctx.fillRect(x - hw, top, s.w, y - 14 - top);
+      ctx.fillStyle = live ? `rgba(255,90,74,${0.12 + 0.18 * pulse})` : all ? 'rgba(125,255,176,0.16)' : 'rgba(143,233,255,0.07)';
+      ctx.fillRect(x - hw, top, s.w, y - 14 - top);
+      // rising light rings
+      for (let i = 0; i < 4; i++) { const yy = y - 14 - ((t * (live ? 180 : 50) + i * 55) % (y - 14 - top)); ctx.fillStyle = live ? 'rgba(255,140,90,0.45)' : all ? 'rgba(125,255,176,0.35)' : 'rgba(143,233,255,0.2)'; ctx.fillRect(x - hw + 6, yy, s.w - 12, 2); }
+      ctx.restore();
+      // frame rings
+      ctx.fillStyle = '#2a3348';
+      for (const yy of [top, top + 70, top + 140, y - 30]) ctx.fillRect(x - hw - 6, yy, s.w + 12, 6);
+      ctx.fillRect(x - hw - 6, top, 6, y - top); ctx.fillRect(x + hw, top, 6, y - top);
+      // the pod at the bottom of the tube
+      const px = x, py = y - 18, lid = live ? Math.min(1, (3.2 - p.launchT) / 0.8) : 0;
+      ctx.fillStyle = '#3a4258'; ctx.beginPath(); ctx.moveTo(px - 30, py); ctx.lineTo(px - 24, py - 46); ctx.quadraticCurveTo(px, py - 70, px + 24, py - 46); ctx.lineTo(px + 30, py); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffb347'; ctx.fillRect(px - 28, py - 8, 56, 3); // hazard band
+      ctx.fillStyle = '#0b0f19'; A.rrect(ctx, px - 13, py - 44 + lid * 0, 26, 22 - lid * 0, 8);
+      ctx.fillStyle = col; ctx.globalAlpha = 0.5 + 0.5 * pulse; A.rrect(ctx, px - 11, py - 42, 22, 6, 3); ctx.globalAlpha = 1;
+      if (live) { for (let i = 0; i < 2; i++) p.parts.push({ x: x + (Math.random() - 0.5) * s.w, y: y - 16, vx: (Math.random() - 0.5) * 80, vy: -40 - Math.random() * 80, life: 0.8, max: 0.8, size: 4, color: 'rgba(200,210,230,0.35)' }); }
+      // status lamps on the collar
+      for (let i = 0; i < 3; i++) { const on = live ? (Math.ceil(p.launchT) <= 3 - i) : all; ctx.fillStyle = on ? (live ? '#ff5a4a' : '#7dffb0') : '#2c3446'; A.circle(ctx, x - 24 + i * 24, top - 8, 4); if (on) A.glow(ctx, x - 24 + i * 24, top - 8, 12, live ? 'rgba(255,90,74,0.6)' : 'rgba(125,255,176,0.6)'); }
+      A.glow(ctx, x, y - 40, 120, live ? `rgba(255,90,74,${0.1 + pulse * 0.1})` : 'rgba(143,233,255,0.06)');
+      ctx.font = `700 12px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = live ? '#ff8a6a' : all ? '#7dffb0' : '#e8f0ff';
       const hasM = p.netGuest ? !!H.guestSel : !!H.mission;
-      ctx.fillText(!hasM ? 'PLAN A MISSION AT THE WAR TABLE' : p.launchT != null ? `LAUNCHING ${Math.ceil(p.launchT)}` : `READY ${n}/${need}`, x, y - 132);
+      ctx.fillText(!hasM ? 'PLAN A MISSION AT THE WAR TABLE' : live ? `LAUNCH IN ${Math.ceil(p.launchT)}` : `STEP IN · READY ${n}/${need}`, x, top - 30);
     }
     if (s.id === 'comms') { ctx.fillStyle = '#1e2638'; ctx.fillRect(x - 30, y - 90, 60, 90); ctx.fillStyle = '#0b0f19'; ctx.fillRect(x - 22, y - 82, 44, 30); ctx.fillStyle = '#7dffb0'; const on = GV.friends ? GV.friends.onlineCount() : 0; ctx.font = `700 11px ${C.FONT}`; ctx.textAlign = 'center'; ctx.fillText(on ? `${on} ONLINE` : 'NO SIGNAL', x, y - 63); ctx.strokeStyle = '#9aa6c0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y - 90); ctx.lineTo(x, y - 130); ctx.stroke(); ctx.beginPath(); ctx.arc(x, y - 130, 4 + (t * 20) % 16, -2.4, -0.7); ctx.stroke(); }
     if (s.id === 'roster') {

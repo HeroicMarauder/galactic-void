@@ -451,10 +451,23 @@
     ctx.restore();
   };
 
-  // Uncut gems and jeweller's orbs lying on the ground.
+  // Blank cores and Void Conduits lying on the ground.
   A.gemItem = (ctx, x, y, t, kind, tier) => {
-    const c = kind === 'orb' ? '#ffd36b' : kind === 'skill' ? '#6fd3ff' : '#c9d2e6';
-    A.glow(ctx, x, y, 26 + Math.sin(t * 5) * 3, kind === 'orb' ? 'rgba(255,210,110,0.6)' : kind === 'skill' ? 'rgba(110,210,255,0.6)' : 'rgba(210,220,240,0.5)');
+    if (kind === 'orb') {
+      // a Void Conduit: a sealed glass cylinder with a writhing violet thread inside, banded in hull metal
+      A.glow(ctx, x, y, 26 + Math.sin(t * 5) * 4, 'rgba(180,140,255,0.55)');
+      ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t * 2) * 0.25);
+      ctx.fillStyle = 'rgba(40,20,70,0.85)'; A.rrect(ctx, -5, -8, 10, 16, 4);
+      ctx.strokeStyle = '#d9c4ff'; ctx.lineWidth = 1.4; ctx.beginPath();
+      for (let i = 0; i <= 8; i++) { const yy = -6 + i * 1.5, xx = Math.sin(t * 7 + i * 0.9) * 2.4; i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+      ctx.stroke();
+      ctx.fillStyle = '#8c93a6'; ctx.fillRect(-6, -9, 12, 3); ctx.fillRect(-6, 6, 12, 3);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(-3.5, -5, 1.2, 9);
+      ctx.restore();
+      return;
+    }
+    const c = kind === 'skill' ? '#6fd3ff' : '#c9d2e6';
+    A.glow(ctx, x, y, 26 + Math.sin(t * 5) * 3, kind === 'skill' ? 'rgba(110,210,255,0.6)' : 'rgba(210,220,240,0.5)');
     ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t * 2) * 0.3);
     ctx.fillStyle = c;
     if (kind === 'orb') A.circle(ctx, 0, 0, 6);

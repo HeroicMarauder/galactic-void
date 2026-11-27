@@ -174,12 +174,37 @@
     }
   });
 
+  // ---------------- the frontier: eight clusters past the bridge roads (added after launch, so their
+  // ids come last and nobody's spent points move) ----------------
+  const FRONTIER = [
+    { name: 'Field Medicine', pool: [{ healInc: 10 }, { life: 8 }], notable: { name: 'Trauma Surgeon', stats: { healInc: 30, life: 15 }, tm: [{ t: 'Heal', cdr: 20 }], lines: ['Healing skills recharge 20% faster'] } },
+    { name: 'Plasma Works', pool: [{ fireDmg: 10 }, { projDmg: 6 }], notable: { name: 'Superheated', stats: { fireDmg: 25, igniteChance: 10, projSpd: 15 } } },
+    { name: 'Tempest Array', pool: [{ lightDmg: 10 }, { shockChance: 4 }], notable: { name: 'Living Storm', stats: { lightDmg: 25, shockChance: 10, area: 8 } } },
+    { name: 'Twin Fangs', pool: [{ atkSpd: 3 }, { critChance: 10 }], notable: { name: 'Blade Dancer', stats: { atkSpd: 8, critMulti: 20, meleeDmg: 12 } } },
+    { name: 'Second Wind', pool: [{ life: 8 }, { healInc: 8 }], notable: { name: 'Unkillable', stats: { life: 20, healInc: 20, armour: 40 }, tm: [{ t: 'Heal', more: 1.15 }], lines: ['Healing skills are 15% more effective'] } },
+    { name: "Marksman's Nest", pool: [{ projDmg: 8 }, { critChance: 8 }], notable: { name: 'Deadeye', stats: { projDmg: 20, critChance: 25, pierce: 1 } } },
+    { name: 'Rime and Ruin', pool: [{ coldDmg: 8 }, { voidDmg: 8 }], notable: { name: 'Frozen Abyss', stats: { coldDmg: 20, voidDmg: 20, chillEff: 15 } } },
+    { name: 'Brood Surgery', pool: [{ minionDmg: 8 }, { healInc: 8 }], notable: { name: 'Symbiotic Mending', stats: { minionDmg: 15, healInc: 20, minionLeech: 2 } } },
+  ];
+  const frontier = [];
+  REGIONS.forEach((R, i) => {
+    const F = FRONTIER[i], grp = 'f' + i, mid = R.ang + 22.5 + (BRIDGES[i].ks ? 8 : 0);
+    // start from the bridge road node nearest the new cluster
+    const road = nodes.filter((n) => n.name === BRIDGES[i].name + ' Road');
+    const fw = wheel(P(mid, 1470), 70, 6, F.pool, F.notable, grp, F.name);
+    let best = null, bd = 1e12;
+    for (const n of road) { const dd = (n.x - fw.c.x) ** 2 + (n.y - fw.c.y) ** 2; if (dd < bd) { bd = dd; best = n.id; } }
+    path(best, nearest(fw, nodes[best]), 2, F.pool, grp, F.name);
+    frontier.push(fw);
+  });
+
   const GROUPS = { core: { name: 'Core', hue: 45 } };
   REGIONS.forEach((R, i) => {
     GROUPS[R.id] = { name: R.name, hue: R.hue };
     const N = REGIONS[(i + 1) % REGIONS.length];
     let h = (R.hue + N.hue) / 2; if (Math.abs(R.hue - N.hue) > 180) h = (h + 180) % 360;
     GROUPS['b' + i] = { name: BRIDGES[i].name, hue: h };
+    GROUPS['f' + i] = { name: FRONTIER[i].name, hue: (h + 20) % 360 };
   });
 
   const save = () => GV.save.data;

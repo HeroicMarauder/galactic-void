@@ -7,7 +7,7 @@
 (function () {
   const GV = window.GV, M = GV.menus, esc = M.esc;
   const RANK = { normal: 0, magic: 1, rare: 2, nova: 3, unique: 4 };
-  const CUR = () => Object.assign({}, GV.CURRENCY, { orb: { name: 'Socket Orb', color: '#9fe8ff' } });
+  const CUR = () => Object.assign({}, GV.CURRENCY, { orb: { name: GV.TERMS.orb, color: '#b48cff' } });
 
   // ---------------- entries ----------------
   // An entry is { id, k, o } (k: item | core | sup | uncut) or { id, k:'cur', c, n } for stacks.

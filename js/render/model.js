@@ -88,10 +88,25 @@
     else { fU = 0.12 + breathe * 0.04; fF = -0.32; }
     if (run) { rU = -Math.sin(p) * 0.85; rF = -0.95; } else if (air) { rU = 0.6; rF = -0.5; } else { rU = -0.1 - breathe * 0.04; rF = -0.4; }
     if (o.off && !run) { rU = -0.25; rF = -1.05; } // carry the off-hand forward
+    if (o.wall && !atk) {
+      // latched to a wall (facing it): the near hand reaches up above the helmet and grips; legs brace
+      const w = Math.sin(t * 9) * (o.wall === 'slide' ? 0.06 : 0);
+      if (o.wall === 'kick') { rU = 2.7; rF = -0.25; fU = -0.9; fF = -0.6; } // pushing off: the trailing hand is still up on the wall
+      else { fU = -2.3 + w; fF = 0.5; rU = 0.05; rF = -0.15; fT = -0.55; fK = 1.05; rT = 0.15; rK = 0.55; }
+    }
 
     const suitBase = S === 'carapace' ? '#3e2430' : S === 'harness' ? suitC : S === 'rig' ? '#4c513e' : '#2a2f3f';
     const limbCol = S === 'carapace' ? '#4a2a35' : '#30364a';
     const armorCol = S === 'carapace' ? '#6a3c4c' : '#8c93a6';
+    // latched to a wall: the far hand reaches high above the helmet and grips the wall (drawn first, so the helmet sits in front)
+    if (o.wall === 'slide' && !atk) {
+      const sx = 2, sy = SH + 1, ex = 10, ey = HEAD - 2, hx = 12.5, hy = HEAD - 17, grip = Math.sin(t * 9) * 0.6;
+      ctx.strokeStyle = C(shade(limbCol, -0.1)); ctx.lineCap = 'round'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(hx, hy + grip); ctx.stroke();
+      ctx.strokeStyle = C(armorCol); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ex - 1, ey + 4); ctx.lineTo(ex + 2, ey - 4); ctx.stroke();
+      ctx.fillStyle = C(armorCol); A.circle(ctx, hx + 0.5, hy - 1 + grip, 3.4);
+      ctx.fillStyle = C(shade(armorCol, -0.25)); ctx.fillRect(hx + 2, hy - 4 + grip, 2.4, 5); // fingers on the wall
+    }
 
     // ---------- back layer ----------
     // backpack (cloth covers it, so it's drawn first)

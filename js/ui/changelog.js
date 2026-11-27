@@ -3,6 +3,9 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 27', t: 'Melee Rebalanced', s: 'Attune Void Strike to the element you like, melee hits can arc to a second enemy, and melee classes take less damage up close.' },
+    { d: 'Nov 27', t: 'The Drop Tube', s: 'Missions launch from a glass tube that spits your pod into space, then it burns in to land at the stage start. The Lantern got a new hull and lights.' },
+    { d: 'Nov 27', t: 'Healers and Hidden Ways', s: 'Healing cores and Augments, six new damage cores, Frontier tree wheels, hidden climbable passages, explosive pods, and Void Conduits.' },
     { d: 'Nov 26', t: 'Character Creator', s: 'Name your character, pick a build, colours, helmet style and markings, and take the helmet off to show your face. Couch Player 2 gets one too.' },
     { d: 'Nov 26', t: 'Six Races', s: 'Choose Human, Synth, Voidborn, Kethari, Lumari or Drakkari: each has its own look and one small perk.' },
     { d: 'Nov 26', t: 'The Fabricator', s: 'A new workbench on the Lantern turns salvage into materials, levels up to Master, and assembles exotics from the pieces Titans drop.' },

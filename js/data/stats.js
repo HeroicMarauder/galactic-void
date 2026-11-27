@@ -22,6 +22,7 @@
     knock: '#% increased Knockback', dashCd: '#% faster Phase Dash recharge', costRed: '#% reduced Skill Cost',
     minionDmg: '#% increased Minion Damage', minionSpd: '#% increased Minion Attack Speed', minionDur: '#% increased Minion Duration', minionCount: '+# maximum Minions',
     minionLeech: 'Minions Leech #% of their damage to you as Life', commandEff: '#% increased effect of Minion commands',
+    healInc: '#% increased Healing from your skills',
     memFind: '#% increased Memories found', stealthDmg: '#% increased Damage from Stealth', airJump: '+# additional air jump',
   };
   function fmt(k, v) {

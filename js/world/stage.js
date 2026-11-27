@@ -183,7 +183,7 @@
         if (gy < 330) return SEG.cave(x);
         ground(x, 260, gy);
         const up = U.irange(r, 200, 260);
-        for (let i = 0; i < 3; i++) { const lx = x + 60 + (i % 2) * 120, ly = gy - 80 - i * (up / 3); ledge(lx, ly, 110); if (i === 2) memRow(lx + 25, ly - 24, 2); }
+        for (let i = 0; i < 3; i++) { const lx = x + 50 + (i % 2) * 110, ly = gy - 80 - i * (up / 3); ledge(lx, ly, 100); if (i === 2) memRow(lx + 25, ly - 24, 2); }
         L.solids.push({ x: x + 260, y: gy - up, w: 40, h: up + 10 });
         gy -= up;
         const w = U.irange(r, 360, 520);
@@ -209,11 +209,12 @@
       // Two routes: a high road of ledges with more memories, and a low road through a cave.
       split(x) {
         const w = U.irange(r, 900, 1200);
-        ground(x, w, gy); ceil(x + 120, w - 240, gy - 200);
+        ground(x, w, gy);
         const hi = gy - 300;
+        // the low road's roof is a slab you can stand on, not solid rock to the sky: the high road runs on top of it
+        { const s = { x: x + 120, y: gy - 250, w: w - 240, h: 50, ceiling: true, slab: true }; L.solids.push(s); L.ceilings.push(s); }
         for (let lx = x + 60; lx < x + w - 140; lx += U.irange(r, 170, 220)) { const o = (r() < 0.35 && biome.crumble) ? crumble(lx, hi + U.irange(r, -30, 30), 120) : ledge(lx, hi + U.irange(r, -30, 30), 120); memRow(o.x + 25, o.y - 24, 3); }
-        L.solids.push({ x: x + 100, y: hi + 40, w: 30, h: 60 });
-        ledge(x + 20, gy - 110, 90); ledge(x + 50, gy - 210, 70);
+        ledge(x + 20, gy - 110, 90); ledge(x + 40, gy - 200, 70); // steps up to the high road
         maybeRift(x + w * 0.5, gy);
         if (r() < 0.5) maybeRift(x + w * 0.85, gy);
         return x + w;
@@ -284,7 +285,42 @@
         return x + w;
       },
     });
-    const SEG_POOL = ['flat', 'gap', 'gap2', 'steps', 'mover', 'spikes', 'tower', 'lift', 'cave', 'cave', 'climb', 'drop', 'split', 'bridge', 'secret', 'ambush']
+    // A rock mass hanging over the path hides a tube you can climb to a cache. The way in is a hole in
+    // its underside or its side, sometimes plain hidden behind false rock, sometimes a cracked panel to
+    // smash. Step into the false rock and it fades away, showing the passage.
+    SEG.hidden = function (x) {
+      if (gy < 300) return SEG.flat(x);
+      const w = U.irange(r, 560, 700);
+      ground(x, w, gy);
+      const mx = x + U.irange(r, 180, w - 300), MW = 220, B = gy - 150, T = gy - 560, C = T + 130;
+      const side = r() < 0.5, breakIt = r() < 0.5;
+      L.illusions = L.illusions || [];
+      // the mass, built around a hollow tube (x mx+80..mx+150) and a chamber at the top
+      L.solids.push({ x: mx + 20, y: T, w: 180, h: 30 }, { x: mx + 200, y: T, w: 20, h: B - T }); // roof, right wall
+      L.solids.push({ x: mx + 150, y: C, w: 50, h: B - C }); // right of the tube
+      if (side) {
+        // way in from the left face, near the bottom: a short corridor to the tube
+        L.solids.push({ x: mx, y: T, w: 20, h: (B - 100) - T }, { x: mx, y: B - 20, w: 150, h: 20 }, { x: mx + 20, y: C, w: 60, h: (B - 100) - C });
+        if (breakIt) { const wl = { x: mx, y: B - 100, w: 20, h: 80, breakable: true }; L.walls.push(wl); L.solids.push(wl); }
+        ledge(mx - 130, gy - 95, 110); // a step up to the opening
+        L.illusions.push({ x: mx, y: T + 30, w: 200, h: B - 20 - (T + 30), rev: 0, linked: null });
+      } else {
+        // way in from underneath: a hole in its belly
+        L.solids.push({ x: mx, y: T, w: 20, h: B - T }, { x: mx + 20, y: C, w: 60, h: B - C });
+        if (breakIt) { const wl = { x: mx + 80, y: B - 24, w: 70, h: 24, breakable: true }; L.walls.push(wl); L.solids.push(wl); }
+        L.illusions.push({ x: mx + 20, y: T + 30, w: 180, h: B - (T + 30) + (breakIt ? 0 : 2), rev: 0 });
+      }
+      // climb the tube on ledges
+      for (let ly = side ? B - 110 : B - 6; ly > C + 20; ly -= 92) ledge(mx + 80, ly, 70);
+      ledge(mx + 80, C, 70);
+      // the cache at the top
+      L.chests.push({ x: mx + 110, y: C, opened: false });
+      memRow(mx + 40, T + 80, 5, 32);
+      L.hiddenN = (L.hiddenN || 0) + 1;
+      maybeRift(x + 80, gy);
+      return x + w;
+    };
+    const SEG_POOL = ['flat', 'gap', 'gap2', 'steps', 'mover', 'spikes', 'tower', 'lift', 'cave', 'cave', 'climb', 'drop', 'split', 'bridge', 'secret', 'ambush', 'hidden', 'hidden']
       .concat(biome.acid ? ['acid', 'acid'] : [], biome.vents ? ['vents', 'vents'] : [], biome.crumble ? ['bridge', 'bridge'] : [], biome.caves ? ['cave'] : []);
 
     // ---------- ability vaults (the Metroidvania layer) ----------
@@ -361,11 +397,26 @@
       if (t === last && t !== 'flat') t = 'flat';
       if (t === 'ambush' && (ambushes >= 2 || x < 1200)) t = 'cave';
       if (t === 'secret' && secrets >= 2) t = 'split';
+      if (t === 'hidden' && (L.hiddenN || 0) >= 2) t = 'cave';
       if (t === 'ambush') ambushes++;
       if (t === 'secret') secrets++;
       if (r() < 0.3) shiftGround();
       x = SEG[t](x);
       last = t;
+    }
+
+    // Explosive scenery: volatile fuel pods sit on the ground here and there. Hit one and it blows,
+    // hurting every enemy near it (keep your own distance).
+    L.barrels = [];
+    {
+      const tops = L.solids.filter((s) => !s.ceiling && !s.breakable && s.h > 60 && s.w > 220 && s.x > 900);
+      const n = 3 + Math.floor(r() * 4);
+      for (let i = 0; i < n && tops.length; i++) {
+        const s = tops[Math.floor(r() * tops.length)], bx = s.x + 40 + r() * (s.w - 80);
+        if (L.barrels.some((b) => Math.abs(b.x - bx) < 160)) continue;
+        if (L.spikes.some((sp) => bx > sp.x - 30 && bx < sp.x + sp.w + 30)) continue;
+        L.barrels.push({ x: bx, y: s.y, kind: r() < 0.3 ? 'cryo' : 'fuel' });
+      }
     }
 
     // Mimics: in later systems some memory caches bite back.

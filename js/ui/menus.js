@@ -395,7 +395,7 @@
       }
       gitems.push({ cat: 'craft', k: 'orb', name: GV.TERMS.orb, desc: `Adds an augment port to a Star Core (up to ${GV.MAX_SOCKETS}). You have ${d.orbs}.`, cost: 90 });
       for (const ck in GV.CURRENCY) { if (ck === 'anomaly') continue; const c = GV.CURRENCY[ck]; gitems.push({ cat: 'craft', k: 'cur:' + ck, name: c.name, desc: `${c.desc} You have ${d.cur[ck] || 0}.`, cost: c.cost, color: c.color }); }
-      for (const it of gitems) E.push(Object.assign({}, it, { html: `<div class="row"><div class="ri"><b style="color:${it.color || (it.k === 'orb' ? '#ffd36b' : it.k === 'skill' ? '#6fd3ff' : '#c9d2e6')}">${it.name}</b><span>${it.desc}</span></div>
+      for (const it of gitems) E.push(Object.assign({}, it, { html: `<div class="row"><div class="ri"><b style="color:${it.color || (it.k === 'orb' ? '#b48cff' : it.k === 'skill' ? '#6fd3ff' : '#c9d2e6')}">${it.name}</b><span>${it.desc}</span></div>
             <button data-a="buyG" data-k="${it.k}" data-t="${it.t || 0}" data-c="${it.cost}" ${d.memories < it.cost ? 'disabled' : ''}>${cost(it.cost)}</button></div>` }));
       for (const k in GV.UPGRADES) {
         const u = GV.UPGRADES[k], lv = d.upgrades[k], c = GV.progress.upgradeCost(k), max = lv >= u.max;

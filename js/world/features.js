@@ -142,6 +142,10 @@
       if (x < s.x + 10 || x + w > s.x + s.w - 10) continue;
       ctx.beginPath(); ctx.moveTo(x, bot - 1); ctx.lineTo(x + w / 2, bot + h); ctx.lineTo(x + w, bot - 1); ctx.fill();
     }
+    if (s.slab) { // a roof you can walk on: give it a clear, lit top edge so it reads as a path
+      ctx.fillStyle = A.col(pal.hA, 26, 30, 1); ctx.fillRect(x0, s.y, x1 - x0, 5);
+      ctx.fillStyle = A.col(pal.hB, 80, 60, 0.55); ctx.fillRect(x0, s.y, x1 - x0, 1.5);
+    }
     ctx.strokeStyle = A.col(pal.hB, 90, 55, 0.35); ctx.lineWidth = 1.5;
     ctx.beginPath(); for (let x = Math.floor(x0 / 210) * 210 + 60; x < x1; x += 210) { ctx.moveTo(x, bot - 70); ctx.lineTo(x + 18, bot - 40); ctx.lineTo(x + 6, bot - 8); } ctx.stroke();
   };

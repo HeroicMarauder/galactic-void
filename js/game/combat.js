@@ -1,5 +1,5 @@
 // Galactic Void — combat plumbing mixed into the Play scene: damage in and out, defences,
-// projectiles, drops (memories, uncut gems, jeweller's orbs), particles and text.
+// projectiles, drops (memories, uncut gems, void conduits), particles and text.
 (function () {
   const GV = window.GV, U = GV.util, A = GV.art;
 

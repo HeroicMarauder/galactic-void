@@ -51,7 +51,7 @@
     }
     M.render(`<div class="screen panel wide chars">
       <div class="topbar"><h2>Characters</h2><div class="stats">${R().count()} of ${R().MAX}</div></div>
-      ${canSw ? '' : '<p class="note warn">Leave your squad (and Player 2\'s turn) before switching characters.</p>'}
+      ${canSw ? '' : `<p class="note warn">${GV.save.slot !== 0 ? 'Finish Player 2\'s turn before switching characters.' : 'Your squad is still with you. Leave the party (Online → Leave) before switching characters.'}</p>`}
       <div class="cgrid">${slots}${free ? `<button class="cslot empty" data-a="new" ${canSw ? '' : 'disabled'}><span class="plus">＋</span><b>New character</b><small>Starts with ${pk.startMem} memories${pr.L >= 5 ? ' and blank cores' : ''}${list.some((y) => y.d.seenIntro) ? ' · skips the intro' : ''}</small><small class="free">${free} slot${free === 1 ? '' : 's'} free</small></button>` : ''}</div>
       <div class="gsub">Your Legacy</div>${legacy}
       <div class="gsub">Class Echoes <span>${Object.keys(echoes).length} / ${Object.keys(GV.CLASSES).length}</span></div>

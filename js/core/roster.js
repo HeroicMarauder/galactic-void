@@ -32,11 +32,15 @@
       return out;
     },
     count() { return this.list().filter((x) => x.d.cls).length; },
-    canSwitch() { return GV.save.slot === 0 && !(GV.net && GV.net.role); },
+    // You can't swap mid-party. The ship's own open drop-in room (hosting with nobody in it) doesn't count:
+    // it closes on the swap and opens again for the new character.
+    inParty() { const N = GV.net; if (!N || !N.role) return false; return N.role === 'guest' || !!N.partner || !!(N.guests && N.guests.size) || !!(N.roster && N.roster.length > 1); },
+    canSwitch() { return GV.save.slot === 0 && !this.inParty(); },
     // Pack the active character away and bring character i (or a brand-new one) forward.
     switchTo(i, fresh) {
       const r = roster(), m = main();
       if (!this.canSwitch() || (i === r.active && !fresh)) return false;
+      if (GV.net && GV.net.role && GV.net.leave) GV.net.leave(); // close the empty drop-in room first
       const out = {};
       for (const k of Object.keys(m)) if (!ACCOUNT.includes(k)) { out[k] = m[k]; delete m[k]; }
       r.chars[r.active] = out.cls || out.level > 1 ? out : null; // an empty slot stays empty

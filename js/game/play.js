@@ -782,6 +782,7 @@
         else if (d.kind === 'cur') { const c = GV.CURRENCY[d.cur].color; A.glow(ctx, d.x + 6, d.y + 6, 22, c); ctx.fillStyle = c; A.star(ctx, d.x + 6, d.y + 6, 6, 3, t * 3); }
         else A.gemItem(ctx, d.x + 7, d.y + 7, t, d.kind === 'orb' ? 'orb' : d.gk, d.tier);
       }
+      if (this.drawIllusions) this.drawIllusions(ctx, v); // false rock hides what's behind it
       for (const g of this.grounds) A.ground(ctx, g, t);
       for (const st of this.strikes) A.strikeWarn(ctx, st, t);
       if (this.zones) this.drawZones(ctx);

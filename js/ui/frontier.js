@@ -81,7 +81,7 @@
       const it = GV.items.randomSet(tier); GV.items.add(it); got.push(it.name);
       d.orbs = (d.orbs || 0) + 1; d.cur.exalt = (d.cur.exalt || 0) + 1;
       d.uncut.push({ kind: Math.random() < 0.5 ? 'skill' : 'support', tier: 3 });
-      got.push('Rarity Orb', 'Star Ember', 'Tier 3 blank');
+      got.push(GV.TERMS.orb, 'Star Ember', 'Tier 3 blank');
     }
     const newBest = n > f.depthBest;
     f.depthBest = Math.max(f.depthBest, n);

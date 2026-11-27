@@ -44,6 +44,8 @@
     // spells and minions grow with their core's level; weapons don't, so spells grow a bit more gently
     s.base = def.eff ? W.dmg * def.eff(L) : def.dmg ? def.dmg(1) + (def.dmg(L) - def.dmg(1)) * 0.6 : 0;
     let types = Object.assign({}, def.types || {});
+    // Void Strike can be attuned to an element: 60% of its damage converts, and it gains that element's ailment
+    if (gem.id === 'strike' && GV.strikeAttune) { const el = GV.strikeAttune(); if (el && el !== 'phys') { types = { phys: 0.4, [el]: 0.6 }; const ail = { fire: 'ignite', cold: 'freeze', light: 'shock', void: 'corrupt' }[el]; if (ail) s.ail[ail] += el === 'cold' ? 8 : 15; s.attune = el; } }
     if (s.brutal) { types = types.phys ? { phys: types.phys } : {}; s.extra = {}; }
     const inc = st.inc.all + (tags.has('Melee') ? st.inc.melee : 0) + (tags.has('Projectile') ? st.inc.proj : 0) +
       (s.isSpell && !tags.has('Minion') ? st.inc.spell : 0) + (tags.has('Area') ? st.inc.area : 0) + (tags.has('Minion') ? (st.inc.minion || 0) : 0);
@@ -372,7 +374,7 @@
         break;
       }
       case 'ground':
-        p.grounds.push({ x: pl.cx, y: pl.y + pl.h, r: s.radius, t: s.dur, max: s.dur, s, tick: 0, o: base });
+        p.grounds.push({ x: pl.cx, y: pl.y + pl.h, r: s.radius, t: s.dur, max: s.dur, s, tick: 0, o: base, noHeal: !!def.noHeal });
         p.sfx('beacon');
         break;
       case 'orbit':
@@ -380,6 +382,7 @@
         p.sfx('skill');
         break;
       case 'heal':
+        if (GV.healCast) { GV.healCast(p, pl, s); break; } // every healing core and augment goes through one routine
         pl.heal(pl.maxHp * def.heal(s.L));
         pl.ward = Math.min(pl.maxWard, pl.ward + pl.maxWard * 0.25);
         p.burst(pl.cx, pl.cy, 24, '#9fffd8', 160, 0.7, 3);

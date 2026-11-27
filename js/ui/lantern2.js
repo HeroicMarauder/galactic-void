@@ -32,7 +32,7 @@
     const d = D(), F = GV.progress.frontier(), g = GV.CREW[k].gift;
     if (g === 'memories') { const n = 60 * (1 + F); d.memories += n; return `${n} memories`; }
     if (g === 'currency') { const ks = ['alch', 'chaos', 'annul', 'divine']; const a = ks[Math.floor(Math.random() * ks.length)]; d.cur[a] = (d.cur[a] || 0) + 2; return `2 × ${GV.CURRENCY[a].name}`; }
-    if (g === 'orb') { d.orbs = (d.orbs || 0) + 1; return 'a Rarity Orb'; }
+    if (g === 'orb') { d.orbs = (d.orbs || 0) + 1; return 'a ' + GV.TERMS.orb; }
     if (g === 'blank') { d.uncut.push({ kind: Math.random() < 0.5 ? 'skill' : 'support', tier: 2 }); return 'a Tier 2 blank'; }
     if (g === 'ember') { d.cur.exalt = (d.cur.exalt || 0) + 1; return 'a Star Ember'; }
   }
@@ -210,7 +210,7 @@
     M.render(`<div class="screen panel narrow ngscreen"><h2>Ascend the Void</h2><div class="sub">New Game+ · currently ${ng ? 'NG+' + ng : 'your first voyage'}</div>
       <p>Turn the Lantern back to the first star and do it all again, harder. Your rank, Star Cores, gear, weapons, crew, passive tree and the Lantern itself all come with you. The star map, its stage clears and its gates reset.</p>
       <div class="how"><div><b>Enemies</b><span>+${50 * (ng + 1)}% Life, +${25 * (ng + 1)}% damage</span></div><div><b>Memories</b><span>+${25 * (ng + 1)}%</span></div><div><b>Loot</b><span>Better rarity rolls</span></div></div>
-      <p class="muted">Each ascension also grants 3 Rarity Orbs, 2 Star Embers and unlocks a prestige dye. ${ready ? '' : '<b>Fell all three Titans first.</b>'}</p>
+      <p class="muted">Each ascension also grants 3 ${GV.TERMS.orbs}, 2 Star Embers and unlocks a prestige dye. ${ready ? '' : '<b>Fell all three Titans first.</b>'}</p>
       <div class="menu"><button class="${ready ? 'danger' : ''}" data-l="go" ${ready ? '' : 'disabled'}>Ascend to NG+${ng + 1}</button><button data-a="back">The Lantern</button></div></div>`, (a) => { if (a === 'back') M.lantern(); }, () => M.lantern());
     bindL((a, b) => {
       if (a !== 'go' || !GV.ngReady()) return;

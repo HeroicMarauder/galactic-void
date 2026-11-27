@@ -30,7 +30,7 @@
 // Names for the skill system, in one place so the whole game says the same thing.
 window.GV.TERMS = {
   cores: 'Star Cores', core: 'Star Core', skillCore: 'Skill Core', aug: 'Augment', augs: 'Augments',
-  port: 'port', ports: 'ports', orb: 'Flux Coupler', orbs: 'Flux Couplers',
+  port: 'port', ports: 'ports', orb: 'Void Conduit', orbs: 'Void Conduits',
   blank: (kind) => (kind === 'skill' ? 'Blank Star Core' : 'Blank Augment'),
   coresKey: () => (window.GV.input && window.GV.input.isTouch ? 'Cores' : 'G'),
 };

@@ -88,7 +88,7 @@
       if (st.regen > 0) this.heal(st.regen * dt);
       if (this.maxWard > 0 && this.wardDelay <= 0) this.ward = Math.min(this.maxWard, this.ward + this.maxWard * st.wardRecharge * dt);
 
-      for (const k of ['nullT', 'invertT', 'gravT', 'slowT']) if (this[k] > 0) this[k] -= dt;
+      for (const k of ['nullT', 'invertT', 'gravT', 'slowT', 'wallKickT']) if (this[k] > 0) this[k] -= dt;
       const mv = ((this.inp.held('right') ? 1 : 0) - (this.inp.held('left') ? 1 : 0)) * (this.invertT > 0 ? -1 : 1);
       if (this.inp.pressed('jump')) this.buffer = C.BUFFER; else this.buffer -= dt;
       const run = C.RUN * st.moveMul * (this.channel ? 0.65 : 1);
@@ -128,7 +128,9 @@
         else if (this.vx > target) this.vx = Math.max(target, this.vx - accel * dt);
         if (mv && this.wallLock <= 0) this.facing = mv;
         this.vy = Math.min(this.gravT > 0 ? C.MAXFALL * 0.35 : C.MAXFALL, this.vy + C.GRAV * (this.gravT > 0 ? 0.3 : 1) * dt);
+        this.wallPose = null;
         if (ab.grip && !this.onGround && this.wallSide && mv === this.wallSide && this.vy > 0) {
+          this.wallPose = 'slide'; // hand raised against the wall while scraping down it
           this.vy = Math.min(this.vy, C.WALL_SLIDE);
           if (Math.random() < 0.3) p.parts.push({ x: this.wallSide > 0 ? this.x + this.w : this.x, y: this.y + this.h - 6, vx: 0, vy: 30, life: 0.3, max: 0.3, size: 2, color: '#7dffb0', add: true });
         }
@@ -145,7 +147,7 @@
           p.sfx('jump'); p.burst(this.cx, this.y + this.h, 5, 'rgba(200,210,230,0.6)', 90, 0.3, 2, false);
         } else if (ab.grip && this.wallSide) {
           this.vy = -C.WALLJUMP_Y; this.vx = -this.wallSide * C.WALLJUMP_X; this.facing = -this.wallSide;
-          this.wallLock = 0.14; this.buffer = 0; this.jumps = st.airJumps; this.airDash = true;
+          this.wallLock = 0.14; this.buffer = 0; this.jumps = st.airJumps; this.airDash = true; this.wallKickT = 0.16;
           p.sfx('jump'); p.burst(this.wallSide > 0 ? this.x + this.w : this.x, this.cy, 8, '#7dffb0', 140, 0.3, 2);
         } else if (this.jumps > 0) {
           this.vy = -C.DJUMP; this.jumps--; this.buffer = 0;
@@ -284,7 +286,7 @@
         for (let i = 1; i <= 3; i++) GV.art.spaceman(ctx, this.cx - this.facing * i * 16, this.y + this.h + 4, { facing: this.facing, t: this.t, alpha: 0.25 / i, air: true, visor: '#ffffff', cloak: look.cloak });
       }
       const spinning = this.swing && this.swing.kind === 'spin';
-      GV.art.spaceman(ctx, this.cx, this.y + this.h + 4, {
+      GV.art.spaceman(ctx, this.cx, this.y + this.h + 4, { wall: this.wallPose || (this.wallKickT > 0 ? 'kick' : null),
         facing: spinning ? (Math.floor(this.t * 16) % 2 ? 1 : -1) : this.facing, t: this.t,
         run: this.onGround && Math.abs(this.vx) > 40, air: !this.onGround, vx: this.vx, alpha, flash: this.hurtT > 0.1,
         attack: this.swing ? 1 - this.swing.t / this.swing.max : 0,

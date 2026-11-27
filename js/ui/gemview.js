@@ -1,5 +1,5 @@
 // Galactic Void — the Skill Gems screen: the four-slot skill bar, support sockets, live skill
-// numbers, cutting uncut gems, and Jeweller's Orbs.
+// numbers, cutting uncut gems, and Void Conduits.
 (function () {
   const GV = window.GV;
   let from = 'map', sel = 0, picker = null;
@@ -64,9 +64,11 @@
         <div class="gsub">Support sockets <span>${g.sockets}/${GV.MAX_SOCKETS}</span></div>
         ${socks}
         <div class="menu row left">
-          <button data-a="orb" ${d.orbs > 0 && g.sockets < GV.MAX_SOCKETS ? '' : 'disabled'}>+ Socket <small>(Jeweller's Orb ×${d.orbs})</small></button>
+          <button data-a="orb" ${d.orbs > 0 && g.sockets < GV.MAX_SOCKETS ? '' : 'disabled'}>+ Socket <small>(${GV.TERMS.orb} ×${d.orbs})</small></button>
           <button data-a="swap">Swap Star Core</button>
-        </div>`;
+        </div>${g.id === 'strike' && GV.ATTUNE ? `<div class="gsub">Attunement <span>${esc(GV.ATTUNE[GV.strikeAttune()].name)}</span></div>
+        <p class="gdesc">Choose what Void Strike hits with. Any element but Physical converts 60% of its damage and gains that element's status chance.</p>
+        <div class="menu row left attune">${Object.keys(GV.ATTUNE).map((k2) => `<button class="${GV.strikeAttune() === k2 ? 'primary' : 'ghost'} small" data-a="attune" data-k="${k2}" style="--c:${GV.ATTUNE[k2].color}"><b style="color:${GV.ATTUNE[k2].color}">${GV.ATTUNE[k2].icon}</b> ${esc(GV.ATTUNE[k2].name)}</button>`).join('')}</div>` : ''}`;
     } else {
       detail = `<p class="gdesc">This slot is empty.</p><div class="menu row left"><button class="primary" data-a="swap">Choose a Star Core</button></div>`;
     }
@@ -203,6 +205,7 @@
       case 'unsock': inv.socket(g, +b.dataset.i, null); break;
       case 'putSup': inv.socket(g, picker.idx, +b.dataset.u); picker = null; GV.audio.sfx('level'); break;
       case 'orb': if (inv.addSocket(g)) GV.audio.sfx('level'); break;
+      case 'attune': if (GV.ATTUNE && GV.ATTUNE[b.dataset.k]) { GV.save.data.strikeEl = b.dataset.k; GV.save.write(); GV.audio.sfx('level'); } break;
       case 'swap': picker = { mode: 'swap' }; fl.pkTag = 'all'; fl.pkQ = ''; break;
       case 'putGem': if (b.dataset.u === '') d.bar[sel] = null; else inv.equip(sel, +b.dataset.u); picker = null; break;
       case 'cut': picker = { mode: 'cut', i: +b.dataset.i }; fl.pkTag = 'all'; fl.pkQ = ''; break;
