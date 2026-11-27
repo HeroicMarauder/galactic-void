@@ -13,7 +13,7 @@
     const pw = Math.max(0, Math.min(1, power));
     // engine plume
     if (pw > 0) {
-      const fl = 0.8 + Math.sin(t * 30) * 0.15 + Math.sin(t * 47) * 0.08;
+      const fl = (0.8 + Math.sin(t * 30) * 0.15 + Math.sin(t * 47) * 0.08) * (1 + 0.45 * (GV.pulseOf ? GV.pulseOf('bass') : 0) + 0.3 * (GV.pulseOf ? GV.pulseOf('kick') : 0)); // and the music
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
       const g = ctx.createLinearGradient(-122, 0, -122 - 120 * pw * fl, 0);
       g.addColorStop(0, 'rgba(200,245,255,0.95)'); g.addColorStop(0.3, 'rgba(143,233,255,0.6)'); g.addColorStop(1, 'rgba(255,70,90,0)');

@@ -603,15 +603,16 @@
       if ((x / 180) % 3 === 1) {
         const wx = x + 40, wy = TOP + 50, ww = 100, wh = 120;
         ctx.fillStyle = '#05070c'; A.rrect(ctx, wx, wy, ww, wh, 16);
-        for (let i = 0; i < 12; i++) { const sx = wx + 8 + ((i * 37 + x) % (ww - 16)), sy = wy + 8 + ((i * 53 + x * 3) % (wh - 16)); ctx.fillStyle = `rgba(255,255,255,${0.3 + 0.5 * Math.abs(Math.sin(t * 0.7 + i))})`; ctx.fillRect(sx, sy, 1.5, 1.5); }
+        for (let i = 0; i < 12; i++) { const sx = wx + 8 + ((i * 37 + x) % (ww - 16)), sy = wy + 8 + ((i * 53 + x * 3) % (wh - 16)); const tw = 0.3 + 0.5 * Math.abs(Math.sin(t * 0.7 + i)) + 0.6 * (GV.pulseOf ? GV.pulseOf('high') : 0) * Math.max(0, Math.sin(t * 4 + i * 2.3)); ctx.fillStyle = `rgba(255,255,255,${Math.min(1, tw)})`; ctx.fillRect(sx, sy, 1.5, 1.5); }
         ctx.strokeStyle = '#2c3650'; ctx.lineWidth = 4; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(wx, wy, ww, wh, 16) : ctx.rect(wx, wy, ww, wh); ctx.stroke();
       }
     }
-    // ceiling light strips
+    // ceiling light strips (they breathe with the music: GV.pulse)
+    const pb = GV.pulseOf ? GV.pulseOf('bass') : 0, pk = GV.pulseOf ? GV.pulseOf('kick') : 0, ph = GV.pulseOf ? GV.pulseOf('high') : 0;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (let x = 60; x < W; x += 240) {
       if (x < vx0 - 100 || x > vx1) continue;
-      const fl = 0.85 + 0.15 * Math.sin(t * 2.3 + x) + (Math.sin(t * 17 + x * 3) > 0.985 ? -0.5 : 0); // the odd flicker
+      const fl = (0.85 + 0.15 * Math.sin(t * 2.3 + x) + (Math.sin(t * 17 + x * 3) > 0.985 ? -0.5 : 0)) * (1 + 1.1 * pb + 0.6 * pk); // the odd flicker, and the beat
       ctx.fillStyle = `rgba(143,233,255,${0.22 * fl})`; ctx.fillRect(x, TOP + 4, 120, 4);
       A.glow(ctx, x + 60, TOP + 10, 90, `rgba(143,233,255,${0.1 * fl})`);
       // a soft cone of light falling to the deck
@@ -622,7 +623,7 @@
     // floor running lights, chasing toward the drop tube
     for (let x = 0; x < W; x += 56) {
       if (x < vx0 - 40 || x > vx1) continue;
-      const k = 0.35 + 0.65 * Math.max(0, Math.sin(t * 3 - x / 140));
+      const k = Math.min(1.6, 0.35 + 0.65 * Math.max(0, Math.sin(t * 3 - x / 140)) + 0.9 * pk + 0.4 * pb);
       ctx.fillStyle = `rgba(143,233,255,${0.35 * k})`; ctx.fillRect(x, FY - 3, 18, 2);
       A.glow(ctx, x + 9, FY - 2, 14, `rgba(143,233,255,${0.12 * k})`);
     }
@@ -639,7 +640,7 @@
     // console lights blinking on the ribs
     for (let x = 0; x < W; x += 180) {
       if (x < vx0 - 40 || x > vx1) continue;
-      for (let j = 0; j < 4; j++) { const on = Math.sin(t * (1.3 + j * 0.7) + x * 0.13 + j) > 0.2, c = ['#ff6a7a', '#7dffb0', '#ffd36b', '#8fe9ff'][(x / 180 + j) % 4]; if (!on) continue; ctx.fillStyle = c; ctx.fillRect(x + 4, FY - 140 + j * 12, 6, 4); A.glow(ctx, x + 7, FY - 138 + j * 12, 9, c); }
+      for (let j = 0; j < 4; j++) { const on = Math.sin(t * (1.3 + j * 0.7) + x * 0.13 + j) > 0.2, c = ['#ff6a7a', '#7dffb0', '#ffd36b', '#8fe9ff'][(x / 180 + j) % 4]; if (!on && !(ph > 0.35 && Math.sin(t * 9 + x + j * 4) > 0.6)) continue; ctx.fillStyle = c; ctx.fillRect(x + 4, FY - 140 + j * 12, 6, 4); A.glow(ctx, x + 7, FY - 138 + j * 12, 9 * (1 + ph), c); }
     }
     ctx.restore();
     // wing signs

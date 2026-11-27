@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 27', t: 'Pulse', s: 'Backgrounds and the Lantern\'s lights now breathe with the music, with a setting to tone it down.' },
     { d: 'Nov 27', t: 'Impact', s: 'Ichor, chunks, sparks and stardust fly off what you hit (with a setting to tone it down), every sound effect rebuilt, a Sound Lab for your own sounds, and stacked cores.' },
     { d: 'Nov 27', t: 'The Workshop', s: 'Four crafting benches for armour, blades, guns and Star Cores, a class filter on every kit list, and smoother menus.' },
     { d: 'Nov 27', t: 'Steady Growth', s: 'Star Cores level more slowly and stay within 2 levels of your rank, and Whirlwind now uses Blade Arts.' },

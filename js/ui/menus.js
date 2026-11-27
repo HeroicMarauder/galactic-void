@@ -335,6 +335,8 @@
           <div class="gsub">Keyboard &amp; mouse <span>${GV.input.bindPreset === 'classic' ? 'classic layout' : 'mouse & keyboard layout'}</span></div>
           <div class="menu row"><button data-a="binds">Keybinds</button></div>
           <div class="gsub">Feedback</div>
+          <div class="gsub">Music pulse <span>backgrounds and ship lights move with the music</span></div>
+          <div class="segs">${opt('musicPulse', 'full', 'Full')}${opt('musicPulse', 'subtle', 'Subtle')}${opt('musicPulse', 'off', 'Off')}</div>
           <div class="gsub">Hit effects <span>what flies off when things get hit</span></div>
           <div class="segs">${opt('gore', 'full', 'Blood &amp; chunks')}${opt('gore', 'dust', 'Stardust only')}${opt('gore', 'off', 'Off')}</div>
           ${tog('shake', 'Screen shake', sd.shake)}
