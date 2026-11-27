@@ -121,6 +121,8 @@
       const sys = GV.UNIVERSE.system(s);
       for (let st = 0; st < 3; st++) if (GV.progress.stageOpen(s, st)) out.push({ k: 'stage', s, st, name: sys.stages[st].name, sub: `${sys.name}${d.cleared[`${s}-${st}`] ? ' · cleared' : ' · new'}` });
     }
+    if (GV.startDungeon) { if (GV.grantFirstDKey) GV.grantFirstDKey(); } 
+    if (GV.startDungeon) for (const tr of [1, 2, 3]) { const n = GV.dkeys.count(tr); if (n > 0) { const T = GV.DUNGEONS[tr]; out.push({ k: 'dungeon', n: tr, name: `Dungeon · ${T.name}`, sub: `${n} key${n > 1 ? 's' : ''} · ${T.desc}` }); } }
     if (GV.startDepths) { const f = (main().frontier || {}); out.push({ k: 'depths', n: (f.depthBest || 0) + 1, name: `Void Depths ${(f.depthBest || 0) + 1}`, sub: 'Frontier · endless descent' }); }
     if (solo) {
       out.push({ k: 'trial', s: fr, name: 'Rift Trial', sub: `Solo · waves in a sealed arena · best wave ${d.trialBest || 0}` });
@@ -137,6 +139,7 @@
     GV.audio.sfx('rift');
     if (m.k === 'stage') G.startStage(m.s, m.st);
     else if (m.k === 'depths') GV.startDepths(m.n);
+    else if (m.k === 'dungeon') GV.startDungeon(m.n);
     else if (m.k === 'trial') { const p = G.play; G.paused = true; G.setPlaying(false); I.clear(); H.returnTo = () => { H.returnTo = null; G.resume(); }; M.trialSetup(); }
     else if (m.k === 'daily') G.startTrial(m.s, GV.daily.curses(), true);
     else if (m.k === 'titan') G.startTitan(m.s);

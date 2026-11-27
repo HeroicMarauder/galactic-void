@@ -22,10 +22,10 @@
         this.coop = true; this.lootMode = SV.main.coop.mode || 'shared';
       }
       GV.input.coop = !!this.coop;
-      if (this.coop && !GV.input.pads && !(GV.net && GV.net.role)) this.toast('Player 2 needs a controller · press a button on it', 3, 'small');
       this.respawn = { x: this.L.spawn.x, y: this.L.spawn.y };
       this.enemies = []; this.projs = []; this.parts = []; this.texts = []; this.warns = []; this.hazards = [];
       this.drops = []; this.novas = []; this.toasts = [];
+      if (this.coop && !GV.input.pads && !(GV.net && GV.net.role)) this.pendingPadToast = true; // shown after the stage title
       this.hitboxes = []; this.timers = []; this.bolts = []; this.strikes = []; this.grounds = []; this.minions = [];
       // The camera sits closer than the logical canvas: less of the level is visible at once, so
       // more shows up as a surprise. camBottom is the lowest the view's bottom edge may go.
@@ -37,6 +37,7 @@
       for (const mm of this.L.mimics || []) { const e = this.spawnEnemy('mimic', mm.x, mm.y, true); e.awake = false; }
       this.toast(`${this.sd.name}`, 2.6);
       this.toasts[0].sub = this.sys.name;
+      if (this.pendingPadToast) { this.pendingPadToast = false; this.toast('Player 2 needs a controller · press a button on it', 3, 'small'); }
       this.snapCam();
       if (!this.coop && sysIdx === 0 && stIdx === 0 && mode !== 'trial' && GV.settings.data.ghost && !d.tutDone) this.ghost = { i: 0, t: 0, x: this.L.spawn.x + 60, y: this.L.spawn.y, n: 0, sx: this.L.spawn.x };
       if (sysIdx === 0 && stIdx === 0 && !d.seenIntro) {

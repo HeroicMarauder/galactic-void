@@ -1024,3 +1024,16 @@ body.touch #picker { display: none; }
 .soundlab .howto { margin: 12px 0; padding: 10px 14px; border: 1px solid #222b44; border-radius: 10px; color: #b8c2da; font-size: 13px; }
 .soundlab .howto summary { cursor: pointer; color: #e8eeff; font-weight: 600; }
 .soundlab code { background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 4px; }
+/* Loot pop-up: high-level gear, exotics and dungeon keys */
+#lootPop { position: fixed; top: 14px; right: 16px; z-index: 51; display: flex; gap: 12px; align-items: center; min-width: 220px; max-width: 340px; padding: 10px 16px 10px 12px; border-radius: 12px; border: 1px solid var(--lc); background: linear-gradient(100deg, color-mix(in srgb, var(--lc) 22%, rgba(8,11,20,0.94)), rgba(8,11,20,0.94) 60%); box-shadow: 0 0 22px color-mix(in srgb, var(--lc) 35%, transparent), 0 8px 24px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transform: translateX(30px); pointer-events: none; }
+#lootPop.show { opacity: 1; visibility: visible; transform: translateX(0); transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.2,1.4,.4,1), visibility 0s; }
+#lootPop.big { padding: 13px 18px 13px 14px; }
+#lootPop.big.show { animation: lootGlow 1.4s ease-in-out infinite alternate; }
+@keyframes lootGlow { from { box-shadow: 0 0 16px color-mix(in srgb, var(--lc) 30%, transparent), 0 8px 24px rgba(0,0,0,0.5); } to { box-shadow: 0 0 36px color-mix(in srgb, var(--lc) 60%, transparent), 0 8px 24px rgba(0,0,0,0.5); } }
+#lootPop .li { font-size: 24px; width: 34px; text-align: center; color: var(--lc); filter: drop-shadow(0 0 6px var(--lc)); }
+#lootPop small { display: block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lc); font-weight: 700; }
+#lootPop b { display: block; font-size: 15px; color: #fff; line-height: 1.25; }
+#lootPop.big b { font-size: 17px; }
+#lootPop span { display: block; font-size: 12px; color: #aeb9d1; margin-top: 2px; }
+body.playing #lootPop { top: 104px; }
+@media (max-width: 760px) { #lootPop { right: 8px; max-width: 70vw; } body.playing #lootPop { top: 150px; } }

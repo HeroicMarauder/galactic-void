@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 27', t: 'Dungeons', s: 'Locked maze dungeons with keycards, shortcuts, treasure rooms and a boss vault in the middle. Keys drop as loot; the deepest tier is the Iron Wyrm\'s nest.' },
     { d: 'Nov 27', t: 'The Iron Wyrm', s: 'A fourth Titan: Draconis, a colossal mecha dragon, with its own heart and two exotic weapons.' },
     { d: 'Nov 27', t: 'Pulse', s: 'Backgrounds and the Lantern\'s lights now breathe with the music, with a setting to tone it down.' },
     { d: 'Nov 27', t: 'Impact', s: 'Ichor, chunks, sparks and stardust fly off what you hit (with a setting to tone it down), every sound effect rebuilt, a Sound Lab for your own sounds, and stacked cores.' },

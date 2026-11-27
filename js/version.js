@@ -2,13 +2,17 @@
 // version.json, which open copies of the game check now and then to offer a reload.
 window.GV = window.GV || {};
 window.GV.BUILD = {
-  id: '2026.11.27-7',
-  title: 'The Iron Wyrm',
+  id: '2026.11.27-8',
+  title: 'Dungeons',
   notes: [
-    'A fourth Titan: DRACONIS, the Iron Wyrm, the home system\'s last war-engine, rebuilt by the Titans. It guards the Titan Gate of every fourth system (system 4, 8, 12…)',
-    'Break its two wing thrusters and its tail blade and its head crashes down with the reactor open',
-    'It breathes a river of fire that leaves the floor burning, launches missile salvos from its wings, scythes the floor with its tail, drops its whole head on you, and in its last phase overheats and rains slag',
-    'Its heart, the Reactor of the Iron Wyrm, and two exotics: Wyrmfang (greatblade, Blade Bench) and Emberjaw (hand-cannon, Gunsmith). Every fifth hit breathes fire',
-    'New achievement: Dragonslayer. New Game+ still only needs the original three Titans',
+    'Dungeons: one big locked maze per run, freshly generated, with climbing shafts between floors, shortcut loops, treasure rooms behind breakable walls and a boss vault in the middle',
+    'Find the Red and Blue keycards to get through locked doors, then the Gold one for the vault. Each card is always hidden in the part of the maze you can already reach',
+    'Rooms wake up the first time you walk in. Beacons wait past every locked door. The dungeon map in the corner fills in as you explore',
+    'Three tiers: Derelict Hulk, Abyssal Vault, and Wyrm\'s Hoard, where Draconis guards the vault',
+    'Dungeons pay better than stages: 60% to 100% more experience and memories by tier, far more item drops, the odd Void Conduit, and an extra item in every chest',
+    'In a squad only one person needs a key: in couch co-op either player\'s key works, and in online parties the host\'s key brings everyone',
+    'Dungeon keys drop from stage bosses (sometimes), Titans (always) and the odd elite. Run one from the war table on the Lantern; clearing a dungeon can drop keys for the next tier. If you\'ve cleared the first system, a free Derelict key is waiting',
+      'Fixed: starting any stage in couch co-op with no controller connected crashed the game',
+      'Loot cards: a card slides in when you pick up Stellar, Nova, Unique or Set gear, exotic weapons and pieces, or a dungeon key',
   ],
 };
