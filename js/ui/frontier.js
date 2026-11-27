@@ -103,7 +103,7 @@
     week: () => weekNo(),
     open() { const d = main(); return Object.values(d.titans || {}).some((n) => n > 0); },
     info(w = weekNo()) {
-      const s = U.hash('hunt:' + w), id = GV.TITAN_ORDER[s % 3], ks = Object.keys(HMODS);
+      const s = U.hash('hunt:' + w), id = GV.TITAN_ORDER[s % GV.TITAN_ORDER.length], ks = Object.keys(HMODS);
       const a = (s >>> 4) % ks.length, b = (a + 1 + ((s >>> 9) % (ks.length - 1))) % ks.length;
       const fr = GV.progress.frontier();
       let sys = fr; while (GV.titanFor(sys) !== id) sys++;

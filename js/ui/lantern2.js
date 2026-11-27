@@ -204,7 +204,7 @@
   };
 
   // ======================= NEW GAME+ =======================
-  GV.ngReady = () => { const t = (GV.save.main || D()).titans || D().titans || {}; return GV.TITAN_ORDER.every((k) => (t[k] || 0) > 0); };
+  GV.ngReady = () => { const t = (GV.save.main || D()).titans || D().titans || {}; return ['kharybdis', 'seraph', 'kronos'].every((k) => (t[k] || 0) > 0); }; // the original three; Draconis is optional
   M.ascendVoid = function () {
     const d = D(), ng = d.ng || 0, ready = GV.ngReady();
     M.render(`<div class="screen panel narrow ngscreen"><h2>Ascend the Void</h2><div class="sub">New Game+ · currently ${ng ? 'NG+' + ng : 'your first voyage'}</div>

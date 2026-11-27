@@ -3,6 +3,7 @@
 (function () {
   const GV = window.GV;
   const LOG = [
+    { d: 'Nov 27', t: 'The Iron Wyrm', s: 'A fourth Titan: Draconis, a colossal mecha dragon, with its own heart and two exotic weapons.' },
     { d: 'Nov 27', t: 'Pulse', s: 'Backgrounds and the Lantern\'s lights now breathe with the music, with a setting to tone it down.' },
     { d: 'Nov 27', t: 'Impact', s: 'Ichor, chunks, sparks and stardust fly off what you hit (with a setting to tone it down), every sound effect rebuilt, a Sound Lab for your own sounds, and stacked cores.' },
     { d: 'Nov 27', t: 'The Workshop', s: 'Four crafting benches for armour, blades, guns and Star Cores, a class filter on every kit list, and smoother menus.' },

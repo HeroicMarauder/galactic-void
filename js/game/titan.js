@@ -613,7 +613,7 @@
   const st = () => (GV.save.main || GV.save.data).titans || {};
   GV.ACH.push(
     { id: 'titan1', name: 'Smaller Than Gods', desc: 'Fell a Titan', icon: '⛬', mem: 400, test: () => Object.keys(st()).length >= 1 },
-    { id: 'titan3', name: 'Deicide', desc: 'Fell all three Titans', icon: '⛬', mem: 1200, test: () => GV.TITAN_ORDER.every((k) => st()[k]), prog: () => [GV.TITAN_ORDER.filter((k) => st()[k]).length, 3] },
+    { id: 'titan3', name: 'Deicide', desc: 'Fell Kharybdis, Seraph-9 and Kronos', icon: '⛬', mem: 1200, test: () => ['kharybdis', 'seraph', 'kronos'].every((k) => st()[k]), prog: () => [['kharybdis', 'seraph', 'kronos'].filter((k) => st()[k]).length, 3] },
   );
 })();
 
