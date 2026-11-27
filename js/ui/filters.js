@@ -22,7 +22,7 @@
     const q = root.querySelector('[data-fq]');
     if (q) q.addEventListener('input', () => {
       const v = q.value, pos = q.selectionStart;
-      h.q && h.q(v.trim().toLowerCase());
+      h.q && h.q(v.toLowerCase()); // keep spaces as typed; matching trims
       const q2 = document.querySelector(`#ui [data-fbar="${id}"] [data-fq]`);
       if (q2) { q2.focus(); try { q2.setSelectionRange(pos, pos); } catch (e) {} }
     });
@@ -31,5 +31,5 @@
     root.querySelectorAll('[data-fchk]').forEach((c) => c.addEventListener('change', () => h.check && h.check(c.dataset.fchk, c.checked)));
   };
   // Does any of these strings contain the query?
-  F.match = (q, ...parts) => !q || parts.join(' ').toLowerCase().includes(q);
+  F.match = (q, ...parts) => { q = (q || '').trim(); return !q || parts.join(' ').toLowerCase().includes(q); };
 })();

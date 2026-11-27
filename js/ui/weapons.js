@@ -165,7 +165,7 @@
       reach: (a, b) => ((W[b].reach || W[b].range || 0) - (W[a].reach || W[a].range || 0)),
       name: (a, b) => W[a].name.localeCompare(W[b].name),
     };
-    const shown = list.filter((k) => inTab(k, tab) && GV.filters.match(q, W[k].name, W[k].desc, kindOf(W[k]), GV.weaponTierName(k))).sort(SORT[sortBy] || SORT.tier);
+    const shown = list.filter((k) => inTab(k, tab) && GV.filters.clsOk('wpn', 'weapon', k) && GV.filters.match(q, W[k].name, W[k].desc, kindOf(W[k]), GV.weaponTierName(k))).sort(SORT[sortBy] || SORT.tier);
     const fbar = GV.filters.bar({ id: 'wpn', tabs: TABS, tab, q, sort: sortBy, placeholder: 'Search weapons (e.g. "rifle", "pierce", "crit")', sorts: [['tier', 'Sort: best tier'], ['dps', 'Sort: damage per second'], ['dmg', 'Sort: hit damage'], ['reach', 'Sort: reach'], ['name', 'Sort: name']] });
     const card = (k) => {
       const w = W[k], eq = d.weapon === k ? 'main hand' : d.offhand === k ? 'off hand' : '';
@@ -192,7 +192,7 @@
         <div class="topbar"><h2>Weapons</h2><div class="seg2"><button class="ghost small" data-a="armour">Armour</button><button class="small on" disabled>Weapons</button></div><div class="stats">${list.length}/${GV.WEAPON_RACK} on your rack · ✦ ${d.memories}</div></div>
         <div class="gsub">In your hands: <b>${esc(cur.name)}</b> ${cur.dual ? '· dual wielding (18% faster, the two take turns)' : cur.shield ? '· with a shield' : cur.twoHanded ? '· two-handed (+10% damage)' : '· off hand free (+4% crit)'}</div>
         <div class="gcols">
-          <div class="ginv">${fbar}<div class="ilist">${shown.map(card).join('') || '<p class="note fnone">Nothing matches. Try another tab or search.</p>'}</div></div>
+          <div class="ginv">${fbar}${GV.filters.rail('wpn', `<div class="ilist">${shown.map(card).join('') || '<p class="note fnone">Nothing matches. Try another tab or search.</p>'}</div>`, list.map((k) => ['weapon', k]), render)}</div>
           <div class="gdetail">${detail}</div>
         </div>
         <div class="menu row"><button class="primary" data-a="done">Done</button></div>

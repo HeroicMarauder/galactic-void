@@ -19,16 +19,53 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const memIcon = '<span class="mi">✦</span>';
 
+  // Where a node sits under the menu root, as child indexes: lets a redraw find "the same" element again.
+  const pathOf = (root, n) => { const p = []; while (n && n !== root) { p.unshift([...n.parentNode.children].indexOf(n)); n = n.parentNode; } return n === root ? p : null; };
+  const atPath = (root, p) => { let n = root; for (const i of p) { n = n && n.children[i]; } return n || null; };
+  const sigOf = (n) => n.tagName + '|' + ((n.closest && n.closest('[data-fbar]')) ? 'in=' + n.closest('[data-fbar]').dataset.fbar + '|' : '') + [...n.attributes].filter((a) => a.name.startsWith('data-') || a.name === 'name' || a.name === 'id').map((a) => a.name + '=' + a.value).join('|');
+
   function render(html, bind, onBack) {
     const ac = document.getElementById('actCard'); if (ac) ac.remove(); // a menu always wins over the act card
     const el = $ui();
+    // Redrawing the screen that's already up (typing in a search, buying, plugging in a core) should feel like an
+    // update, not a new page: no fade-in, the lists stay where you scrolled them, and focus stays where it was.
+    const prev = el.firstElementChild, wasShown = el.classList.contains('show');
+    const same = wasShown && prev && prev.classList.contains('screen') && (() => { const m = /class="([^"]*)"/.exec(html); return m && m[1].trim().split(/\s+/).filter((c) => c !== 'still').join(' ') === [...prev.classList].filter((c) => c !== 'still').join(' '); })();
+    let scrolls = [], focus = null;
+    if (same) {
+      scrolls = [el, ...el.querySelectorAll('*')].filter((n) => n.scrollTop > 0 || n.scrollLeft > 0).map((n) => ({ p: pathOf(el, n), c: n.className, t: n.scrollTop, l: n.scrollLeft }));
+      const ae = document.activeElement;
+      if (ae && ae !== document.body && el.contains(ae)) {
+        focus = { p: pathOf(el, ae), sig: sigOf(ae), input: ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' };
+        if (focus.input) { try { focus.s = ae.selectionStart; focus.e = ae.selectionEnd; } catch (e) { /* not a text box */ } }
+      }
+    }
     el.innerHTML = html;
     el.classList.add('show');
+    if (same) {
+      const scr = el.firstElementChild; if (scr) scr.classList.add('still');
+      for (const s of scrolls) {
+        let n = s.p && atPath(el, s.p);
+        if (!n || n.className !== s.c) n = s.c ? el.querySelector('.' + String(s.c).trim().split(/\s+/).map((c) => CSS.escape(c)).join('.')) : null;
+        if (n) { n.scrollTop = s.t; n.scrollLeft = s.l; }
+      }
+    }
     back = onBack || null;
     el.querySelectorAll('[data-a]').forEach((b) => b.addEventListener('click', (e) => {
       GV.audio.unlock(); GV.audio.sfx('ui');
       bind && bind(b.dataset.a, b, e);
     }));
+    if (focus) {
+      // the same control again: matched by what it is (its data- attributes), or failing that by where it was
+      let n = [...el.querySelectorAll(focus.sig.split('|')[0])].find((x) => sigOf(x) === focus.sig && focus.sig.includes('='));
+      if (!n && !focus.input) { const at = atPath(el, focus.p); if (at && at.tagName === focus.sig.split('|')[0]) n = at; } // a text box only ever gets focus back if it's the very same box
+      if (n && !n.disabled) {
+        n.focus({ preventScroll: true });
+        if (focus.input && focus.s != null) { try { n.setSelectionRange(focus.s, focus.e); } catch (e) { /* not a text box */ } }
+        return;
+      }
+    }
+    if (same) return; // don't yank focus (and the view) to the first button on a mere update
     const first = el.querySelector('button.primary:not([disabled])') || el.querySelector('button:not([disabled])');
     if (first && !GV.input.isTouch) first.focus({ preventScroll: true });
   }
@@ -385,7 +422,7 @@
         else if (w.hand === 'off') btns = eqOff ? '<button disabled>Off hand</button>' : `<button class="primary" data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off hand</button>`;
         else if (w.hand === 'two') btns = eq ? '<button disabled>Equipped</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Equip</button>`;
         else btns = `${eq ? '<button disabled>Main</button>' : `<button class="primary" data-a="equipW" data-k="${k}">Main</button>`}${eqOff ? '<button disabled>Off</button>' : `<button data-a="equipOff" data-k="${k}" ${GV.WEAPONS[d.weapon] && GV.WEAPONS[d.weapon].hand === 'two' ? 'disabled' : ''}>Off</button>`}`;
-        E.push({ cat, name: w.name, desc: w.desc + ' ' + HN[w.hand] + (own ? ' owned' : ''), cost: own ? 0 : w.cost, owned: own, html: `<div class="row ${own ? 'owned' : ''}"><div class="ri"><b style="color:${w.color}">${w.name}${tag}</b><span>${w.desc}</span><em>${HN[w.hand]} · ${stat}${own ? ' · <span class="ok">owned</span>' : ''}</em></div><div class="wbtns">${btns}</div></div>` });
+        E.push({ wk: k, cat, name: w.name, desc: w.desc + ' ' + HN[w.hand] + (own ? ' owned' : ''), cost: own ? 0 : w.cost, owned: own, html: `<div class="row ${own ? 'owned' : ''}"><div class="ri"><b style="color:${w.color}">${w.name}${tag}</b><span>${w.desc}</span><em>${HN[w.hand]} · ${stat}${own ? ' · <span class="ok">owned</span>' : ''}</em></div><div class="wbtns">${btns}</div></div>` });
       }
       const T = GV.progress.shopTier();
       const gitems = [];
@@ -405,7 +442,7 @@
       const CATS = [['all', 'All'], ['weapons', 'Weapons', '⚔'], ['shields', 'Shields', '⛉'], ['cores', 'Star Cores', '◆'], ['augs', 'Augments', '◇'], ['craft', 'Crafting', '⚗'], ['suit', 'Suit', '⛨']];
       if (!CATS.some(([id]) => id === shopTab)) shopTab = 'all';
       const canBuy = (e) => e.owned || (e.cost !== Infinity && d.memories >= e.cost);
-      const pass = (e) => GV.filters.match(shopF.q, e.name, e.desc) && (!shopF.afford || canBuy(e));
+      const pass = (e) => (!e.wk || GV.filters.clsOk('shop', 'weapon', e.wk)) && GV.filters.match(shopF.q, e.name, e.desc) && (!shopF.afford || canBuy(e));
       const tabs = CATS.map(([id, name, icon]) => ({ id, name, icon, n: E.filter((e) => (id === 'all' || e.cat === id) && pass(e)).length }));
       let list = E.filter((e) => (shopTab === 'all' || e.cat === shopTab) && pass(e));
       const price = (e) => (e.owned ? -1 : e.cost);
@@ -420,7 +457,7 @@
         <div class="screen panel shop">
           <div class="topbar"><h2>Vesper's Trade</h2><div class="stats">${memIcon} ${d.memories} memories</div></div>
           ${fbar}
-          <div class="rows">${rows}</div>
+          ${GV.filters.rail('shop', `<div class="rows">${rows}</div>`, E.filter((e) => e.wk).map((e) => ['weapon', e.wk]), () => M.shop())}
           <div class="menu row"><button class="primary" data-a="back">${shopFrom === 'play' ? 'Back to the drift' : 'Back'}</button></div>
         </div>`, (a, b) => {
         const k = b.dataset.k;

@@ -29,7 +29,7 @@
     for (const o of p.enemies) if (!o.dead && o !== e && o.def === GV.ENEMIES.fuelpod && Math.hypot(o.x - e.x, o.y - e.y) < R) o.fuse = Math.max(o.fuse || 0, 0.18);
     // too close yourself? it stings
     for (const pl of p.players || [p.player]) {
-      if (pl.dead) continue;
+      if (pl.dead || !pl.st || pl.holo) continue; // sparring holograms aren't really there
       const d = Math.hypot(pl.cx - cx, pl.cy - cy);
       if (d < R * 0.6 && p.damagePlayer) { const keep = p.player; p.player = pl; p.damagePlayer(Math.round(pl.maxHp * 0.12), cx); p.player = keep; }
     }

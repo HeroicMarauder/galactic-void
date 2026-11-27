@@ -11,7 +11,7 @@
 // so a rank-5 Ranger and a rank-40 Knight both take about a dozen solid hits to drop.
 (function () {
   const GV = window.GV, C = GV.CFG, A = GV.art, I = GV.input, P = GV.Play.prototype, M = GV.menus;
-  const W = 5050, FY = 440, TOP = FY - 430;
+  const W = 5700, FY = 440, TOP = FY - 430;
   const RING = { x0: 4420, x1: 5000 };
   const H = (GV.hall = { mission: null, sel: 0 });
   const N = () => GV.net || {};
@@ -40,7 +40,6 @@
       { id: 'forge', x: 840, w: 90, label: 'CORE FORGE', act: 'Star Cores' },
       { id: 'mirror', x: 990, w: 70, label: 'MIRROR', act: 'Wardrobe' },
       { id: 'vesper', x: 1170, w: 80, label: "VESPER'S TRADE", act: 'Trade' },
-      { id: 'fab', x: 1340, w: 100, label: 'FABRICATOR', act: 'Salvage & craft' },
       // command
       { id: 'table', x: 1560, w: 240, label: 'WAR TABLE', act: 'War table · missions & Titans' },
       { id: 'pad', x: 1900, w: 170, label: 'DROP TUBE', passive: true },
@@ -59,6 +58,11 @@
       { id: 'altar', x: 4030, w: 80, label: 'ASCENDANCY', act: 'Ascendancy' },
       // training
       { id: 'ring', x: 4350, w: 70, label: 'SPARRING', act: 'Spar' },
+      // the workshop: one bench for each kind of kit
+      { id: 'bench_armour', x: 5130, w: 100, label: 'ARMOUR BENCH', act: 'Armour & shields' },
+      { id: 'bench_blade', x: 5270, w: 100, label: 'BLADE BENCH', act: 'Melee weapons' },
+      { id: 'bench_guns', x: 5410, w: 100, label: 'GUNSMITH', act: 'Firearms & bows' },
+      { id: 'bench_arcane', x: 5550, w: 100, label: 'ARCANE BENCH', act: 'Star Cores & Augments' },
     ];
     L.dummies = [{ x: 4140, y: FY }, { x: 4210, y: FY }, { x: 4250, y: FY }, { x: 4290, y: FY }];
     return L;
@@ -227,7 +231,7 @@
       if (id === 'forge') GV.gemView.open('play');
       if (id === 'mirror') { H.returnTo = back; M.wardrobe(); }
       if (id === 'vesper') GV.game.openShop('play');
-      if (id === 'fab' && GV.fabricator) GV.fabricator.open('play');
+      if (id.startsWith('bench_') && GV.fabricator) GV.fabricator.open('play', id.slice(6));
       if (id === 'board') { H.returnTo = back; M.frontier(); }
       if (id === 'airlock') { H.returnTo = back; M.coop(); }
       if (id === 'codex') { H.returnTo = back; codexMenu(back); }
@@ -676,9 +680,16 @@
     const glow = (r, col) => A.glow(ctx, x, y - 50, r, col);
     if (s.id === 'airlock') { ctx.fillStyle = '#1e2638'; ctx.fillRect(x - 34, y - 130, 68, 130); ctx.fillStyle = '#0a0d14'; ctx.fillRect(x - 26, y - 122, 24, 122); ctx.fillRect(x + 2, y - 122, 24, 122); ctx.fillStyle = '#ff6a7a'; ctx.fillRect(x - 4, y - 140, 8, 6); }
     if (s.id === 'vault' || s.id === 'gbank') { const col = s.id === 'gbank' ? acc : '#ffd36b'; ctx.fillStyle = '#222b40'; A.rrect(ctx, x - 38, y - 110, 76, 110, 8); ctx.fillStyle = '#0b0f19'; A.rrect(ctx, x - 28, y - 100, 56, 40, 4); ctx.fillStyle = col; ctx.globalAlpha = 0.6 + 0.3 * Math.sin(t * 2); ctx.fillRect(x - 22, y - 92, 44, 3); ctx.fillRect(x - 22, y - 84, 30, 3); ctx.fillRect(x - 22, y - 76, 38, 3); ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - 32, 14, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y - 32); ctx.lineTo(x + Math.cos(t) * 10, y - 32 + Math.sin(t) * 10); ctx.stroke(); }
-    if (s.id === 'fab') {
-      // a workbench with a fabrication arm; its lamp shows the bench's level
-      const lv = (GV.save.data && GV.save.data.fab) || 0, col = ['#aab2c2', '#7dffb0', '#6fb8ff', '#ff9a4a'][lv];
+    if (s.id.startsWith('bench_')) {
+      // a workbench with a fabrication arm; its lamp shows the bench's level, the hologram what it works on
+      const bk = s.id.slice(6), BB = GV.fab && GV.fab.BENCHES[bk];
+      const lv = GV.fab ? GV.fab.benchLv(bk) : 0, col = ['#aab2c2', '#7dffb0', '#6fb8ff', '#ff9a4a'][lv];
+      if (BB) {
+        const hy = y - 150 + Math.sin(t * 1.8 + x) * 4;
+        A.glow(ctx, x - 6, hy, 30, BB.color + '55');
+        ctx.save(); ctx.globalAlpha = 0.75 + Math.sin(t * 3 + x) * 0.15; ctx.fillStyle = BB.color; ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(BB.icon, x - 6, hy); ctx.restore();
+        ctx.strokeStyle = BB.color + '66'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x - 20, y - 56); ctx.lineTo(x - 6, hy + 14); ctx.lineTo(x + 8, y - 56); ctx.stroke();
+      }
       ctx.fillStyle = '#232a3a'; A.rrect(ctx, x - 50, y - 46, 100, 46, 6); ctx.fillStyle = '#323b50'; ctx.fillRect(x - 54, y - 50, 108, 8);
       ctx.fillStyle = '#1a202c'; ctx.fillRect(x - 40, y - 36, 26, 30); ctx.fillRect(x + 14, y - 36, 26, 30);
       const sw = Math.sin(t * 1.6) * 0.5;

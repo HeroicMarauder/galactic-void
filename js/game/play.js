@@ -236,7 +236,7 @@
       this.dropItem(bx, by - 20, { boss: true });
       this.dropCur(bx - 30, by - 20); if (Math.random() < 0.4 * (GV.legacy ? GV.legacy.qty() : 1)) this.dropCur(bx + 30, by - 20);
       if (firstKill) this.dropItem(bx + 20, by - 20, { boss: true });
-      if (firstKill) { d.orbs = (d.orbs || 0) + 1; lines.push('+1 FLUX COUPLER. Use it on a Star Core to add an augment port.'); }
+      if (firstKill) { d.orbs = (d.orbs || 0) + 1; lines.push(`+1 ${GV.TERMS.orb.toUpperCase()}. Use it on a Star Core to add an augment port.`); }
       if (rw === 'dash' && !d.abilities.dash) {
         d.abilities.dash = true;
         lines.push('PHASE DASH ACQUIRED.', I.fill(GV.ABILITIES.dash.how), 'Blue membranes sealed caches back in the Drift Shelf. Return and take what is yours.');
@@ -277,7 +277,7 @@
         'Star Cores power those skills. Plug Augments into their ports to change how they work. G opens your cores, T your passive tree.',
         'They will not stop coming. The red rifts birth them. Shatter the rifts to slow the swarm.',
         'Red stars are memories. Ours. Spend them with Vesper. And find the Lantern. Our ship.'];
-      if (n.kind === 'vesper') return ['Vesper: A living one. Rare out here.', 'I trade wreck-tools for memories. Weapons, blank cores, flux couplers, suit plating.', 'Let\'s see what you carry.'];
+      if (n.kind === 'vesper') return ['Vesper: A living one. Rare out here.', 'I trade wreck-tools for memories. Weapons, blank cores, Void Conduits, suit plating.', 'Let\'s see what you carry.'];
       const r = U.rng(U.hash(`echo:${this.sysIdx}:${this.stIdx}`));
       const lore = U.pick(r, GV.UNIVERSE.LORE);
       return ['An echo flickers in a suit like yours.', `"${lore}"`, n.gift ? 'It fades.' : 'It presses a memory into your hand, then fades.'];

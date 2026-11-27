@@ -351,7 +351,7 @@
     bindG(); nameFill();
   }
   function drawNoGuild() {
-    const list = G.list.filter((g) => !browseQ || g.name.toLowerCase().includes(browseQ) || g.tag.toLowerCase().includes(browseQ)).sort((a, b) => (b.size || 0) - (a.size || 0));
+    const bq = browseQ.trim(), list = G.list.filter((g) => !bq || g.name.toLowerCase().includes(bq) || g.tag.toLowerCase().includes(bq)).sort((a, b) => (b.size || 0) - (a.size || 0));
     M.render(`<div class="screen panel wide guildui">
       <div class="topbar"><h2>Guilds</h2><div class="stats">✦ ${main().memories}</div></div>
       ${msg ? `<p class="warn">${esc(msg)}</p>` : ''}
@@ -371,7 +371,7 @@
       <div class="menu row"><button data-a="back">Back</button></div></div>`, (a) => { if (a === 'back') { msg = ''; backFn(); } }, () => { msg = ''; backFn(); });
     const keep = (id, k) => { const el = document.getElementById(id); if (el) el.addEventListener('input', () => { form[k] = el.value; }); };
     keep('gName', 'name'); keep('gTag', 'tag');
-    const f = document.getElementById('gFind'); if (f) f.addEventListener('input', () => { browseQ = f.value.trim().toLowerCase(); const p = f.selectionStart; draw(); const f2 = document.getElementById('gFind'); f2.focus(); f2.setSelectionRange(p, p); });
+    const f = document.getElementById('gFind'); if (f) f.addEventListener('input', () => { browseQ = f.value.toLowerCase(); const p = f.selectionStart; draw(); const f2 = document.getElementById('gFind'); f2.focus(); f2.setSelectionRange(p, p); });
     bindG(); nameFill();
   }
   function bindG() {

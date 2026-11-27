@@ -145,8 +145,8 @@
 
     // Incoming damage: evade → block → armour → keystones → void ward → life.
     damagePlayer(dmg, fromX, force, unavoidable) {
-      const pl = this.player, st = pl.st;
-      if ((!force && pl.inv > 0) || pl.dead || this.state === 'clear') return;
+      const pl = this.player, st = pl && pl.st;
+      if (!st || (!force && pl.inv > 0) || pl.dead || this.state === 'clear') return;
       dmg = Math.max(1, dmg);
       if (!force && !unavoidable) {
         if (Math.random() * 100 < st.evasion) { this.text(pl.cx, pl.y - 8, 'EVADE', '#7dffcf', 14); pl.inv = 0.25; return; }

@@ -64,7 +64,7 @@
         <div class="gsub">Support sockets <span>${g.sockets}/${GV.MAX_SOCKETS}</span></div>
         ${socks}
         <div class="menu row left">
-          <button data-a="orb" ${d.orbs > 0 && g.sockets < GV.MAX_SOCKETS ? '' : 'disabled'}>+ Socket <small>(${GV.TERMS.orb} ×${d.orbs})</small></button>
+          <button data-a="orb" ${d.orbs > 0 && g.sockets < GV.MAX_SOCKETS ? '' : 'disabled'}>+ Add port <small>(${GV.TERMS.orb} ×${d.orbs})</small></button>
           <button data-a="swap">Swap Star Core</button>
         </div>${g.id === 'strike' && GV.ATTUNE ? `<div class="gsub">Attunement <span>${esc(GV.ATTUNE[GV.strikeAttune()].name)}</span></div>
         <p class="gdesc">Choose what Void Strike hits with. Any element but Physical converts 60% of its damage and gains that element's status chance.</p>
@@ -83,17 +83,17 @@
     const uncutL = d.uncut.map((u, i) => [u, i]).filter(([u]) => GV.filters.match(fl.q, 'blank format tier ' + u.tier, u.kind === 'skill' ? 'star core' : 'augment'));
     if (showT('blank') && uncutL.length) invHtml += `<div class="gsub">Blank cores <span>${uncutL.length}</span></div><div class="uncut">` + uncutL.map(([u, i]) =>
       `<button class="ucg ${u.kind}" data-a="cut" data-i="${i}"><span class="hex"></span>Format Tier ${u.tier} ${u.kind === 'skill' ? 'Star Core' : 'Augment'}</button>`).join('') + `</div>`;
-    const spareL = spare.filter((x) => GV.filters.match(fl.q, GV.GEMS[x.id].name, GV.GEMS[x.id].tags.join(' '), GV.GEMS[x.id].desc));
+    const spareL = spare.filter((x) => GV.filters.clsOk('gemInv', 'skill', x.id) && GV.filters.match(fl.q, GV.GEMS[x.id].name, GV.GEMS[x.id].tags.join(' '), GV.GEMS[x.id].desc));
     if (showT('cores') && spareL.length) invHtml += `<div class="gsub">Spare Star Cores <span>${spareL.length}</span></div><div class="spare">` + spareL.map((x) => `<span class="pill" style="color:${GV.GEMS[x.id].color}" title="${esc2(GV.GEMS[x.id].desc)}">${GV.GEMS[x.id].icon} ${esc2(GV.GEMS[x.id].name)} <small>Lv ${x.lvl}</small></span>`).join('') + `</div>`;
-    const supL = Object.keys(supCounts).filter((k) => GV.filters.match(fl.q, GV.SUPPORTS[k].name, GV.SUPPORTS[k].desc, GV.SUPPORTS[k].req.join(' ')));
+    const supL = Object.keys(supCounts).filter((k) => GV.filters.clsOk('gemInv', 'sup', k) && GV.filters.match(fl.q, GV.SUPPORTS[k].name, GV.SUPPORTS[k].desc, GV.SUPPORTS[k].req.join(' ')));
     if (showT('augs') && supL.length) invHtml += `<div class="gsub">Spare Augments <span>${fs.length}</span></div><div class="spare">` + supL.map((k) => `<span class="pill sup" title="${esc2(GV.SUPPORTS[k].desc)}">${esc2(GV.SUPPORTS[k].name)}${supCounts[k] > 1 ? ` ×${supCounts[k]}` : ''}</span>`).join('') + `</div>`;
     if (!invHtml) invHtml = ITABS[0].n ? '<p class="note fnone">Nothing matches. Try another tab or search.</p>' : '<p class="note">Blank cores drop from rifts, bosses and memory caches. Vesper sells them too.</p>';
-    invHtml = GV.filters.bar({ id: 'gemInv', cls: 'compact', tabs: ITABS, tab: fl.inv, q: fl.q, placeholder: 'Search your cores and augments' }) + `<div class="ginvl">${invHtml}</div>`;
+    invHtml = GV.filters.bar({ id: 'gemInv', cls: 'compact', tabs: ITABS, tab: fl.inv, q: fl.q, placeholder: 'Search your cores and augments' }) + GV.filters.rail('gemInv', `<div class="ginvl">${invHtml}</div>`, [...spare.map((x) => ['skill', x.id]), ...Object.keys(supCounts).map((k) => ['sup', k])], render);
 
     M.render(`
       <div class="screen panel gems">
         <div class="loadouts"><span>Loadout</span>${[0, 1].map((i) => `<button class="seg ${d.activeLoadout === i ? 'sel' : ''}" data-a="loadout" data-i="${i}">${'AB'[i]}</button>`).join('')}<small>Each loadout keeps its own skill bar, augments, gear, passive tree and weapon.</small><button class="ghost small" data-a="share">Share build</button><button class="ghost small" data-a="import">Import build</button></div>
-        <div class="topbar"><h2>Star Cores</h2><div class="stats">◆ ${d.uncut.length} blank · ✦ ${d.orbs} flux coupler${d.orbs === 1 ? '' : 's'} · ${esc(W.name)}</div></div>
+        <div class="topbar"><h2>Star Cores</h2><div class="stats">◆ ${d.uncut.length} blank · ✦ ${d.orbs} ${d.orbs === 1 ? GV.TERMS.orb : GV.TERMS.orbs} · ${esc(W.name)}</div></div>
         <div class="gbar">${slots}</div>
         <div class="gcols"><div class="gdetail">${detail}</div><div class="ginv">${invHtml}</div></div>
         <div class="menu row"><button class="primary" data-a="done">Done</button></div>
@@ -105,13 +105,14 @@
 
   function renderPicker() {
     const d = GV.save.data, inv = GV.inv, esc = GV.menus.esc;
-    let title = '', items = '', bar = '', empty = false;
+    let title = '', items = '', bar = '', empty = false, railItems = [];
     if (picker.mode === 'sup') {
       const g = inv.barGems()[sel], def = GV.GEMS[g.id];
       title = `Plug an Augment into ${def.name}`;
       const seen = new Set();
       const all = inv.freeSups().filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
-      const free = all.filter((x) => (!fl.fit || GV.gemFits(GV.SUPPORTS[x.id], def)) && GV.filters.match(fl.pkQ, GV.SUPPORTS[x.id].name, GV.SUPPORTS[x.id].desc));
+      railItems = all.map((x) => ['sup', x.id]);
+      const free = all.filter((x) => (!fl.fit || GV.gemFits(GV.SUPPORTS[x.id], def)) && GV.filters.clsOk('pick', 'sup', x.id) && GV.filters.match(fl.pkQ, GV.SUPPORTS[x.id].name, GV.SUPPORTS[x.id].desc));
       free.sort((a, b) => (GV.gemFits(GV.SUPPORTS[b.id], def) ? 1 : 0) - (GV.gemFits(GV.SUPPORTS[a.id], def) ? 1 : 0));
       bar = GV.filters.bar({ id: 'pick', q: fl.pkQ, placeholder: 'Search augments', checks: [{ id: 'fit', label: `Only ones that fit ${def.name}`, on: fl.fit }] });
       empty = all.length && !free.length;
@@ -123,7 +124,8 @@
       title = `Choose the skill for slot ${GV.input.isTouch ? TOUCH[sel] : KEYS[sel]}`;
       const own = inv.freeGems();
       bar = GV.filters.bar({ id: 'pick', tabs: tagTabs(own.map((x) => GV.GEMS[x.id])), tab: fl.pkTag, q: fl.pkQ, placeholder: 'Search your Star Cores' });
-      const list = own.filter((x) => { const g = GV.GEMS[x.id]; return (fl.pkTag === 'all' || g.tags.includes(fl.pkTag)) && GV.filters.match(fl.pkQ, g.name, g.desc, g.tags.join(' ')); });
+      railItems = own.map((x) => ['skill', x.id]);
+      const list = own.filter((x) => { const g = GV.GEMS[x.id]; return GV.filters.clsOk('pick', 'skill', x.id) && (fl.pkTag === 'all' || g.tags.includes(fl.pkTag)) && GV.filters.match(fl.pkQ, g.name, g.desc, g.tags.join(' ')); });
       empty = own.length && !list.length;
       items = list.map((x) => {
         const def = GV.GEMS[x.id];
@@ -137,7 +139,8 @@
       const keys = Object.keys(pool).filter((k) => pool[k].tier <= u.tier);
       if (u.kind === 'skill') bar = GV.filters.bar({ id: 'pick', tabs: tagTabs(keys.map((k) => pool[k])), tab: fl.pkTag, q: fl.pkQ, placeholder: 'Search Star Cores', checks: [{ id: 'hideOwned', label: 'Hide ones I own', on: fl.hideOwned }] });
       else bar = GV.filters.bar({ id: 'pick', q: fl.pkQ, placeholder: 'Search Augments', checks: [{ id: 'hideOwned', label: 'Hide ones I own', on: fl.hideOwned }] });
-      const shown = keys.filter((k) => (u.kind !== 'skill' || fl.pkTag === 'all' || pool[k].tags.includes(fl.pkTag)) && !(fl.hideOwned && owned.has(k)) && GV.filters.match(fl.pkQ, pool[k].name, pool[k].desc, (pool[k].tags || pool[k].req || []).join(' ')));
+      railItems = keys.map((k) => [u.kind === 'skill' ? 'skill' : 'sup', k]);
+      const shown = keys.filter((k) => GV.filters.clsOk('pick', u.kind === 'skill' ? 'skill' : 'sup', k) && (u.kind !== 'skill' || fl.pkTag === 'all' || pool[k].tags.includes(fl.pkTag)) && !(fl.hideOwned && owned.has(k)) && GV.filters.match(fl.pkQ, pool[k].name, pool[k].desc, (pool[k].tags || pool[k].req || []).join(' ')));
       empty = keys.length && !shown.length;
       items = shown.sort((a, b) => pool[a].tier - pool[b].tier).map((k) => {
         const g = pool[k];
@@ -146,7 +149,7 @@
       }).join('');
     }
     if (empty) items = '<p class="note fnone">Nothing matches. Try another tab or search.</p>' + (picker.mode === 'swap' ? items : '');
-    return `<div class="picker"><div class="pk"><div class="pkh"><b>${title}</b><button class="ghost" data-a="closePk">✕</button></div>${bar}<div class="pkl">${items}</div></div></div>`;
+    return `<div class="picker"><div class="pk"><div class="pkh"><b>${title}</b><button class="ghost" data-a="closePk">✕</button></div>${bar}${GV.filters.rail('pick', `<div class="pkl">${items}</div>`, railItems, render)}</div></div>`;
   }
 
   function renderShare() {
@@ -201,7 +204,7 @@
     const d = GV.save.data, inv = GV.inv, bar = inv.barGems();
     const g = bar[sel];
     switch (a) {
-      case 'slot': sel = +b.dataset.i; picker = null; break;
+      case 'slot': sel = +b.dataset.i; picker = null; render(); { const gd = document.querySelector('#ui .gdetail'); if (gd) gd.scrollTop = 0; } return; // a new skill starts at the top
       case 'pickSup': picker = { mode: 'sup', idx: +b.dataset.i }; fl.pkQ = ''; break;
       case 'unsock': inv.socket(g, +b.dataset.i, null); break;
       case 'putSup': inv.socket(g, picker.idx, +b.dataset.u); picker = null; GV.audio.sfx('level'); break;

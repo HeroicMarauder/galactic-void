@@ -175,7 +175,7 @@
     draw();
   };
   V.refresh = () => { if (document.querySelector('#ui .vaultui')) draw(); };
-  const match = (e) => !st.q || V.name(e).toLowerCase().includes(st.q) || V.sub(e).toLowerCase().includes(st.q) || V.lines(e).join(' ').toLowerCase().includes(st.q);
+  const match = (e) => { const q = st.q.trim(); return !q || V.name(e).toLowerCase().includes(q) || V.sub(e).toLowerCase().includes(q) || V.lines(e).join(' ').toLowerCase().includes(q); };
   function card(e, side) {
     const sel = st.sel === e.id && st.side === side;
     const who = e.by && st.store.nameOf ? `<i class="by" data-by="${esc(e.by)}"></i>` : '';
@@ -191,7 +191,11 @@
     const mine = V.sort(V.mine(), st.sort), theirs = V.sort(S.list().filter((e) => V.valid(e)), st.sort);
     const count = (list, t) => list.filter((e) => V.inTab(e, t)).length;
     const tabs = V.TABS.map((t) => { const n = count(theirs, t.id); return `<button class="tab ${st.tab === t.id ? 'sel' : ''}" data-v="tab" data-t="${t.id}">${t.icon ? t.icon + ' ' : ''}${t.name}${n ? ` <i>${n}</i>` : ''}</button>`; }).join('');
-    const L = mine.filter((e) => V.inTab(e, st.tab) && match(e)), R = theirs.filter((e) => V.inTab(e, st.tab) && match(e));
+    // class rail: cores, augments and weapons are checked; everything else suits anyone
+    const ck = (e) => (e.k === 'core' ? ['skill', e.o && e.o.id] : e.k === 'sup' ? ['sup', e.o && e.o.id] : (e.k === 'weapon' || e.k === 'wpn') ? ['weapon', e.w || (e.o && (e.o.id || e.o.k))] : null);
+    const clsPass = (e) => { const c = ck(e); return !c || !c[1] || GV.filters.clsOk('vault', c[0], c[1]); };
+    const L = mine.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e)), R = theirs.filter((e) => V.inTab(e, st.tab) && match(e) && clsPass(e));
+    const railItems = [...mine, ...theirs].map(ck).filter((c) => c && c[1]);
     const used = V.slots(theirs), cap = S.cap();
     const canExpand = S.kind === 'solo' && cap < V.CAP_MAX;
     M.render(`<div class="screen panel wide vaultui">
@@ -204,19 +208,19 @@
         <span class="vmem">Memories <button data-v="mem+" data-n="100">Store 100</button><button data-v="mem+" data-n="all">Store all</button><button data-v="mem-" data-n="100">Take 100</button><button data-v="mem-" data-n="all">Take all</button></span>
       </div>
       ${st.msg ? `<p class="warn vmsg">${esc(st.msg)}</p>` : ''}
-      <div class="vcols">
+      ${GV.filters.rail('vault', `<div class="vcols">
         <div class="vcol"><div class="gsub">On you <span>${L.length}</span></div>
           <div class="vquick"><button data-v="q" data-q="mats">Stash materials</button><button data-v="q" data-q="low">Stash Salvaged &amp; Calibrated</button><button data-v="q" data-q="gear">Stash all spare gear</button><button data-v="q" data-q="cores">Stash spare cores</button></div>
           <div class="vlist">${L.map((e) => card(e, 'me')).join('') || '<p class="note">Nothing to stash in this tab. Equipped gear and cores on your bar stay with you.</p>'}</div></div>
         <div class="vcol"><div class="gsub">${esc(S.title)} <span>${R.length}</span></div>
           <div class="vlist">${R.map((e) => card(e, 'vault')).join('') || '<p class="note">Empty. Everything sorts itself into these tabs as you stash it.</p>'}</div></div>
-      </div>
+      </div>`, railItems, draw)}
       <div class="menu row">${canExpand ? `<button data-v="expand" ${d.memories >= V.capCost(cap) ? '' : 'disabled'}>Expand +20 slots · ✦ ${V.capCost(cap)}</button>` : ''}${st.extra ? st.extra.buttons || '' : ''}<button class="primary" data-a="back">Done</button></div>
     </div>`, (a, b) => { if (a === 'back') { S.save && S.save(); st.back(); } else if (st.extra && st.extra.onAction) st.extra.onAction(a, b); }, () => { S.save && S.save(); st.back(); });
     if (S.nameOf) document.querySelectorAll('#ui .vaultui [data-by]').forEach((el) => S.nameOf(el.dataset.by).then((n) => { el.textContent = n ? `from ${n}` : ''; }));
     document.querySelectorAll('#ui .vaultui [data-v]').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); act(b.dataset.v, b); }));
     const si = document.getElementById('vSearch');
-    si.addEventListener('input', () => { st.q = si.value.trim().toLowerCase(); const p = si.selectionStart; draw(); const s2 = document.getElementById('vSearch'); s2.focus(); s2.setSelectionRange(p, p); });
+    si.addEventListener('input', () => { st.q = si.value.toLowerCase(); const p = si.selectionStart; draw(); const s2 = document.getElementById('vSearch'); s2.focus(); s2.setSelectionRange(p, p); });
     document.getElementById('vSort').addEventListener('change', (ev) => { st.sort = ev.target.value; draw(); });
   }
   async function deposit(e, n) {
