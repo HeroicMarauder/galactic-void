@@ -1051,3 +1051,51 @@ body.playing #lootPop { top: 104px; }
 .wrows li { display: grid; grid-template-columns: 26px 1fr auto 52px; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); font-size: 13px; }
 .wrows li.me { background: rgba(255,211,107,0.12); border: 1px solid rgba(255,211,107,0.4); }
 .wrows b { color: #ffd36b; } .wrows i { color: #8b98b3; font-style: normal; font-size: 11px; } .wrows em { font-style: normal; text-align: right; color: #cfe8ff; font-variant-numeric: tabular-nums; }
+/* guild ranks editor and log */
+.grank { border: 1px solid rgba(143,233,255,0.18); border-radius: 10px; padding: 10px 12px; margin: 8px 0; background: rgba(255,255,255,0.025); }
+.grank-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.grank-h .gri { color: #ffd36b; width: 18px; } .grank-h .grname { flex: 1; min-width: 0; } .grank-h .muted { font-size: 12px; white-space: nowrap; }
+.grank-h button { padding: 4px 9px; min-width: 0; }
+.gperms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; margin: 4px 0 8px; font-size: 13px; }
+.gslide { display: grid; grid-template-columns: 130px 1fr 130px; align-items: center; gap: 10px; font-size: 13px; margin: 3px 0; }
+.gslide input[type=range] { width: 100%; } .gslide output { color: #cfe8ff; text-align: right; font-variant-numeric: tabular-nums; }
+.grsel { background: #0d1626; color: #dfefff; border: 1px solid rgba(143,233,255,0.3); border-radius: 6px; padding: 4px 6px; }
+.gsub span { font-size: 11px; text-transform: none; letter-spacing: 0; color: #8b98b3; margin-left: 6px; }
+.glog .gl-in { color: #7dffb0; font-style: normal; } .glog .gl-out { color: #ffb36b; font-style: normal; }
+.grank-h .grname { background: #0d1626; color: #eaf6ff; border: 1px solid rgba(143,233,255,0.3); border-radius: 6px; padding: 5px 8px; font: inherit; font-weight: 600; }
+.grank-h .grname:focus { outline: none; border-color: #8fe9ff; }
+/* admin hub */
+.adminhub .ahbody { max-height: 56vh; overflow: auto; padding-right: 4px; }
+.astats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.astats > div { background: rgba(255,255,255,0.04); border: 1px solid rgba(143,233,255,0.15); border-radius: 10px; padding: 10px 12px; }
+.astats b { display: block; font-size: 22px; color: #eaf6ff; font-variant-numeric: tabular-nums; } .astats span { font-size: 12px; color: #8b98b3; }
+.astats .hot { border-color: rgba(255,106,122,0.6); } .astats .hot b, .hot { color: #ff8a96; }
+.acols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.abars { display: grid; gap: 4px; } .abar { display: grid; grid-template-columns: 150px 1fr 70px; gap: 8px; align-items: center; font-size: 13px; }
+.abar i { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #8fe9ff, #c38bff); width: var(--w); } .abar b { text-align: right; font-variant-numeric: tabular-nums; }
+.abar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #cfe8ff; }
+.atable { display: grid; gap: 2px; font-size: 13px; } .atable .ath, .atable .atr { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr 1fr .6fr 1fr; gap: 8px; padding: 6px 8px; text-align: left; }
+.atable .ath { color: #8b98b3; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.atable .atr { background: rgba(255,255,255,0.03); border: 1px solid transparent; border-radius: 6px; color: inherit; font: inherit; width: 100%; }
+.atable button.atr:hover, .atable button.atr:focus { border-color: rgba(143,233,255,0.4); }
+.aflag { border-left: 3px solid #ffd36b; background: rgba(255,255,255,0.03); border-radius: 6px; padding: 8px 10px; margin: 6px 0; display: grid; gap: 4px; font-size: 13px; }
+.aflag.sev3 { border-left-color: #ff5a6a; } .aflag.sev1 { border-left-color: #8b98b3; } .aflag.seen { opacity: .55; }
+.aflag code, .glog code { font-size: 11px; color: #9fb4d0; word-break: break-all; } .aflag button { justify-self: start; padding: 3px 10px; display: inline-block; }
+#adminPops { position: fixed; right: 16px; bottom: 90px; z-index: 9999; display: grid; gap: 8px; }
+.apop { background: rgba(18,10,16,0.95); border: 1px solid #ffd36b; border-radius: 10px; padding: 10px 14px; min-width: 220px; display: grid; gap: 2px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .5s, transform .5s; }
+.apop.sev3 { border-color: #ff5a6a; } .apop b { color: #fff; } .apop span { color: #ffd36b; } .apop small { color: #8b98b3; font-size: 11px; }
+.apop.out { opacity: 0; transform: translateX(30px); }
+/* HUD edit mode */
+#hudEdit { position: fixed; inset: 0; z-index: 9000; pointer-events: none; }
+#hudEdit .he-bar { pointer-events: auto; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; background: rgba(8,12,22,0.95); border: 1px solid rgba(143,233,255,0.45); border-radius: 12px; padding: 8px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.6); }
+#hudEdit .he-bar span { color: #8b98b3; font-size: 13px; }
+#hudEdit .he-box { pointer-events: auto; position: fixed; border: 2px dashed rgba(143,233,255,0.85); border-radius: 8px; background: rgba(143,233,255,0.08); cursor: grab; touch-action: none; box-sizing: border-box; }
+#hudEdit .he-box:active { cursor: grabbing; background: rgba(143,233,255,0.16); }
+#hudEdit .he-box span { position: absolute; left: 6px; top: -22px; font-size: 12px; font-weight: 700; color: #eaf6ff; background: rgba(8,12,22,0.9); padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+#hudEdit .he-box .he-eye { position: absolute; right: -10px; top: -12px; width: 26px; height: 26px; padding: 0; min-width: 0; border-radius: 50%; font-size: 13px; }
+#hudEdit .he-box.hidden { border-color: rgba(255,120,120,0.6); background: rgba(255,80,80,0.06); }
+#hudEdit .he-box.hidden span { text-decoration: line-through; color: #ff9aa4; }
+.hudopts { margin: 10px 0; display: grid; gap: 6px; justify-items: start; }
+.hudopts .seg { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.hudopts .seg button { padding: 4px 10px; } .hudopts .seg button.sel { border-color: #8fe9ff; color: #8fe9ff; }
+.pilotname .small { font-size: 12px; }
