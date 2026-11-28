@@ -1099,3 +1099,13 @@ body.playing #lootPop { top: 104px; }
 .hudopts .seg { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .hudopts .seg button { padding: 4px 10px; } .hudopts .seg button.sel { border-color: #8fe9ff; color: #8fe9ff; }
 .pilotname .small { font-size: 12px; }
+/* shipyard */
+#buildBar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 8000; display: flex; gap: 10px; align-items: center; background: rgba(8,12,22,0.94); border: 1px solid rgba(125,255,176,0.5); border-radius: 12px; padding: 8px 14px; box-shadow: 0 8px 30px rgba(0,0,0,.6); }
+#buildBar span { color: #8b98b3; font-size: 13px; } #buildBar b { color: #7dffb0; }
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin: 8px 0; }
+.dcard { background: rgba(255,255,255,0.04); border: 1px solid rgba(143,233,255,0.15); border-radius: 10px; padding: 10px; display: grid; gap: 6px; justify-items: start; }
+.dsw { display: inline-block; width: 46px; height: 30px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+.sw.paint { width: 44px; height: 30px; border-radius: 6px; }
+.swrow { display: flex; gap: 8px; align-items: center; } .swrow input { max-width: 280px; }
+.shipwright .swbody, .depot .dgrid { max-height: 52vh; overflow: auto; }
+#swName, .pilotname #pnName { background: #0d1626; color: #eaf6ff; border: 1px solid rgba(143,233,255,0.35); border-radius: 8px; padding: 8px 10px; font: inherit; }
